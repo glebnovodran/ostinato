@@ -4,3 +4,4 @@ bin/**
 lib/**
 etc/**
 crosscore/**
+src/draw_ogl.cpp

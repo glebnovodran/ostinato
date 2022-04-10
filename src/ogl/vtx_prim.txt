@@ -1,5 +1,0 @@
-vec4 vtxPos
-vec4 vtxClr
-vec4 vtxTex
-vec4 vtxPrm
-
