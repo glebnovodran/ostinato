@@ -5,6 +5,4 @@ do
 	wget -P crosscore https://raw.githubusercontent.com/schaban/crosscore_dev/main/src/$xcore
 done
 
-if [ ! -f "src/draw_ogl.cpp" ]; then
-	wget -P src https://raw.githubusercontent.com/schaban/crosscore_dev/main/src/draw_ogl.cpp
-fi
+wget -P src https://raw.githubusercontent.com/schaban/crosscore_dev/main/src/draw_ogl.cpp
