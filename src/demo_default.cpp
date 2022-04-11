@@ -380,6 +380,7 @@ static void loop(void* pLoopCtx) {
 
 static void reset() {
 	HumanSys::reset();
+	TimeCtrl::reset();
 }
 
 DEMO_REGISTER(default);
