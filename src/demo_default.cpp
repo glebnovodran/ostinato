@@ -301,7 +301,6 @@ static void init_resources() {
 		sxGeometryData* pGeo = pPkg->find_geometry("npc_pos");
 		s_stage.pNPCPosGeo = pGeo;
 		if (pGeo) {
-			const char* pBuf = "NPCxxxxx";
 			int npts = s_stage.pNPCPosGeo->get_pnt_num();
 			for (int i = 0; i < npts; ++i) {
 				Human::Descr descr;
