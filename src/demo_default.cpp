@@ -103,7 +103,6 @@ struct STAGE {
 	sxGeometryData* pNPCPosGeo;
 } s_stage = {};
 
-//struct DEMO_WK {};
 static void init_view() {
 	::memset(&s_view, 0, sizeof(VIEW_WK));
 }
@@ -228,10 +227,8 @@ static void citizen_roam_ctrl(Human* pHuman) {
 
 static void Manana_exec_ctrl(Human* pHuman) {
 	if (!pHuman) return;
-	//nxCore::dbg_msg("%d", pHuman->mAction);
 	switch (pHuman->mAction) {
 	case Human::ACT_STAND:
-		//if (pHuman->mActionTimer.check_time_out()) {	
 		if (s_kbdCtrl.ck_trg(KBD_CTRL::UP)) {
 			pHuman->change_act(Human::ACT_WALK, 2.0f, 20);
 		} else if (s_kbdCtrl.ck_trg(KBD_CTRL::DOWN)) {
@@ -314,7 +311,7 @@ static void init_resources() {
 			}
 		}
 	}
-
+	nxCore::dbg_msg("\nResource loading completed\n");
 }
 
 void init_player() {
@@ -329,7 +326,7 @@ void init_player() {
 }
 
 static void init() {
-	TimeCtrl::init(TimeCtrl::VARIABLE); // TODO:get from params
+	TimeCtrl::init(TimeCtrl::VARIABLE);
 	HumanSys::init();
 	init_resources();
 	init_player();

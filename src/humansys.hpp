@@ -5,7 +5,7 @@ struct Human {
 
 	typedef void (*CtrlFunc)(Human*);
 	enum State {
-		INIT = 0,// FALLTHROUGH
+		INIT = 0,
 		ACTIVE
 	};
 	enum Type {

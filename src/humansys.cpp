@@ -65,7 +65,6 @@ void Human::ctrl() {
 	if (get_state() == Human::INIT) {
 		mActionTimer.fix_up_time();
 		change_state(Human::ACTIVE);
-		//set_motion(); // <== Remove?
 	}
 	if (mCtrlFunc) { mCtrlFunc(this); }
 }
@@ -174,6 +173,11 @@ void Human::exec_collision() {
 
 namespace HumanSys {
 
+static char get_resource_code(Human::Type type) {
+	static const char htc[Human::Type::MAX + 1] = {'f', 'm', ' '};
+	return htc[type];
+}
+
 static struct HUMAN_WK {
 
 	static const int BODY_VAR_NUM = 10;
@@ -199,21 +203,20 @@ static struct HUMAN_WK {
 	}
 
 	void init_base() {
-		static const char* basePkgNames[Human::Type::MAX] = {
-			"npc_f",
-			"npc_m"
-		};
+		char buff[6];
 		for (int i = 0; i < Human::Type::MAX; ++i) {
-			mResident.mBasePkg[i] = Scene::load_pkg(basePkgNames[i]);
+			char htc = get_resource_code(Human::Type(i));
+			XD_SPRINTF(XD_SPRINTF_BUF(buff, 5), "npc_%c", htc);
+			mResident.mBasePkg[i] = Scene::load_pkg(buff);
 		}
 	}
 
 	void init_transient() {
 		char buff[10];
-
 		for (int i = 0; i < Human::Type::MAX; ++i) {
+			char htc = get_resource_code(Human::Type(i));
 			for (int j = 0; j < BODY_VAR_NUM; ++j) {
-				XD_SPRINTF(XD_SPRINTF_BUF(buff, 10), "npc_f%02u", j);
+				XD_SPRINTF(XD_SPRINTF_BUF(buff, 10), "npc_%c%02u", htc, j);
 				mTransient.mVariPkg[i][j] = Scene::load_pkg(buff);
 			}
 		}
@@ -226,16 +229,7 @@ static struct HUMAN_WK {
 		init_base();
 		init_transient();
 	}
-	void reset() {
-		#if 0
-		for (int i = 0; i < Human::Type::MAX; ++i) {
-			for (int j = 1; j <= VARINUM; ++j) {
-				Pkg* pPkg = mPkg[i][j];
-				Scene::unload_pkg(pPkg);
-			}
-		}
-		#endif
-	}
+	void reset() {}
 } s_wk = {};
 
 static bool s_initFlg = false;
