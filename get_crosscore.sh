@@ -5,6 +5,7 @@ do
 	wget -P crosscore https://raw.githubusercontent.com/schaban/crosscore_dev/main/src/$xcore
 done
 
+if [ ! -d "crosscore/ogl" ]; then mkdir -p crosscore/ogl; fi
 for xcore in gpu_defs.h progs.inc shaders.inc
 do
 	wget -P crosscore/ogl https://raw.githubusercontent.com/schaban/crosscore_dev/main/src/ogl/$xcore
