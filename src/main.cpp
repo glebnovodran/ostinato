@@ -5,8 +5,9 @@
 #include <oglsys.hpp>
 #include <scene.hpp>
 #include <draw.hpp>
-
 #include <demo.hpp>
+
+#include "ostinato.hpp"
 
 static const bool c_defBump = true;
 static const bool c_defSpec = true;
@@ -23,18 +24,6 @@ void wi_set_key_state(const char* pName, const int state) {
 }
 
 } // extern "C"
-
-static void tst_dbgmsg(const char* pMsg) {
-	::printf("%s", pMsg);
-	::fflush(stdout);
-}
-
-static void init_sys() {
-	sxSysIfc sysIfc;
-	::memset(&sysIfc, 0, sizeof(sysIfc));
-	sysIfc.fn_dbgmsg = tst_dbgmsg;
-	nxSys::init(&sysIfc);
-}
 
 static void* oglsys_mem_alloc(size_t size, const char* pTag) {
 	return nxCore::mem_alloc(size, pTag);
@@ -63,7 +52,6 @@ static void init_ogl(const int x, const int y, const int w, const int h, const i
 	OGLSys::init(cfg);
 	OGLSys::CL::init();
 	OGLSys::set_swap_interval(nxApp::get_int_opt("swap", 1));
-	//nxCore::dbg_msg("SPIR-V support: %d\n", OGLSys::ext_ck_spv());
 }
 
 static void reset_ogl() {
@@ -79,7 +67,7 @@ static void init_scn(const char* pAppPath) {
 		scnCfg.pDataDir = pAltDataDir;
 	}
 	scnCfg.pAppPath = pAppPath;
-	scnCfg.shadowMapSize = nxApp::get_int_opt("smap", 1024);
+	scnCfg.shadowMapSize = nxApp::get_int_opt("smap", 2048);
 	scnCfg.numWorkers = nxApp::get_int_opt("nwrk", 0);
 	scnCfg.useBump = nxApp::get_bool_opt("bump", c_defBump);
 	scnCfg.useSpec = nxApp::get_bool_opt("spec", c_defSpec);
@@ -105,7 +93,8 @@ static void exec_demo() {
 
 int main(int argc, char* argv[]) {
 	nxApp::init_params(argc, argv);
-	init_sys();
+
+	Ostinato::init();
 
 	float scrScl = 1.0f;
 	int x = 10;
@@ -131,6 +120,8 @@ int main(int argc, char* argv[]) {
 
 	nxApp::reset();
 	nxCore::mem_dbg();
+
+	Ostinato::reset();
 
 	return 0;
 
