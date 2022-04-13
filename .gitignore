@@ -3,5 +3,6 @@ inc/**
 bin/**
 lib/**
 etc/**
+hou/**
 crosscore/**
 .vscode/**
