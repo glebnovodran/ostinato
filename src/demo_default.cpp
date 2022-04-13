@@ -305,7 +305,13 @@ static void init_resources() {
 				cxVec pos = pGeo->get_pnt(i);
 				descr.type = Human::Type(nxCore::rng_next()%2);
 				descr.bodyVariation = i;
-				descr.scale = 1.25f;
+				float heightMod = 0.0f;
+				if (descr.type == Human::FEMALE) {
+					heightMod = nxCalc::fit(nxCore::rng_f01(), 0.0f, 1.0f, -0.05f, 0.06f);
+				} else {
+					heightMod = nxCalc::fit(nxCore::rng_f01(), 0.0f, 1.0f, 0.0f, 0.06f);
+				}
+				descr.scale = 1.0f + heightMod;
 				ScnObj* pObj = HumanSys::add_human(descr, citizen_roam_ctrl);
 				pObj->set_world_quat_pos(nxQuat::from_degrees(0.0f, 0.0f, 0.0f), pos);
 			}
