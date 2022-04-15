@@ -76,6 +76,11 @@ namespace Ostinato {
 	void init(int argc, char* argv[]) {
 		nxApp::init_params(argc, argv);
 
+		sxSysIfc sysIfc;
+		::memset(&sysIfc, 0, sizeof(sysIfc));
+		sysIfc.fn_dbgmsg = dbgmsg;
+		nxSys::init(&sysIfc);
+
 		float scrScl = 1.0f;
 		int x = 10;
 		int y = 10;
@@ -93,11 +98,6 @@ namespace Ostinato {
 		init_ogl(x, y, w, h, msaa);
 
 		init_scn_sys(argv[0]);
-
-		sxSysIfc sysIfc;
-		::memset(&sysIfc, 0, sizeof(sysIfc));
-		sysIfc.fn_dbgmsg = dbgmsg;
-		nxSys::init(&sysIfc);
 	}
 
 	void reset() {
