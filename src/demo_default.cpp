@@ -7,89 +7,11 @@
 #include <smprig.hpp>
 #include "oglsys.hpp"
 
+#include "keyctrl.hpp"
 #include "timectrl.hpp"
 #include "humansys.hpp"
 
 DEMO_PROG_BEGIN
-
-#if 0
-#define KEY_GET(_name) if (OGLSys::get_key_state(#_name)) mask |= 1ULL << _name
-#else
-#define KEY_GET(_name) process_key(&mask, _name, #_name)
-#endif
-
-static struct KBD_CTRL {
-	enum {
-		UP = 0,
-		DOWN,
-		LEFT,
-		RIGHT,
-		LCTRL,
-		LSHIFT,
-		TAB,
-		BACK,
-		ENTER,
-		SPACE,
-		NUM_KEYS
-	};
-	uint64_t mNow;
-	uint64_t mOld;
-	bool mSkip;
-
-	void init() {
-		mNow = 0;
-		mOld = 0;
-		mSkip = false;
-	}
-
-	const char* get_alt_key_name(const int code) {
-		static struct {
-			int code;
-			const char* pName;
-		} tbl[] = {
-			{ UP, "W" }, { DOWN, "S" }, { LEFT, "A" }, { RIGHT, "D" }, {SPACE, " "}
-		};
-		const char* pAltName = nullptr;
-		for (int i = 0; i < XD_ARY_LEN(tbl); ++i) {
-			if (code == tbl[i].code) {
-				pAltName = tbl[i].pName;
-				break;
-			}
-		}
-		return pAltName;
-	}
-
-	void process_key(uint64_t* pMask, const int code, const char* pName) {
-		if (!pMask || !pName) return;
-		if (OGLSys::get_key_state(pName)) *pMask |= 1ULL << code;
-		const char* pAltName = get_alt_key_name(code);
-		if (pAltName) {
-			if (OGLSys::get_key_state(pAltName)) *pMask |= 1ULL << code;
-		}
-	}
-
-	void update() {
-		if (mSkip) return;
-		mOld = mNow;
-		uint64_t mask = 0;
-		KEY_GET(UP);
-		KEY_GET(DOWN);
-		KEY_GET(LEFT);
-		KEY_GET(RIGHT);
-		KEY_GET(LCTRL);
-		KEY_GET(LSHIFT);
-		KEY_GET(TAB);
-		KEY_GET(BACK);
-		KEY_GET(ENTER);
-		KEY_GET(SPACE);
-		mNow = mask;
-	}
-
-	bool ck_now(int id) const { return !!(mNow & (1ULL << id)); }
-	bool ck_old(int id) const { return !!(mOld & (1ULL << id)); }
-	bool ck_trg(int id) const { return !!((mNow & (mNow ^ mOld)) & (1ULL << id)); }
-	bool ck_chg(int id) const { return !!((mNow ^ mOld) & (1ULL << id)); }
-} s_kbdCtrl;
 
 struct VIEW_WK {
 	cxVec pos;
@@ -110,7 +32,7 @@ static void init_view() {
 static void view_exec() {
 	ScnObj* pObj = Scene::find_obj("Manana");
 	if (pObj) {
-		if (s_kbdCtrl.ck_trg(KBD_CTRL::BACK)) {
+		if (KeyCtrl::ck_trg(KeyCtrl::BACK)) {
 			s_view.viewMode ^= 1;
 		}
 		cxVec wpos = pObj->get_world_pos();
@@ -229,34 +151,34 @@ static void Manana_exec_ctrl(Human* pHuman) {
 	if (!pHuman) return;
 	switch (pHuman->mAction) {
 	case Human::ACT_STAND:
-		if (s_kbdCtrl.ck_trg(KBD_CTRL::UP)) {
+		if (KeyCtrl::ck_trg(KeyCtrl::UP)) {
 			pHuman->change_act(Human::ACT_WALK, 2.0f, 20);
-		} else if (s_kbdCtrl.ck_trg(KBD_CTRL::DOWN)) {
+		} else if (KeyCtrl::ck_trg(KeyCtrl::DOWN)) {
 			pHuman->change_act(Human::ACT_RETREAT, 0.5f, 20);
-		} else if (s_kbdCtrl.ck_now(KBD_CTRL::LEFT)) {
+		} else if (KeyCtrl::ck_now(KeyCtrl::LEFT)) {
 			pHuman->change_act(Human::ACT_TURN_L, 0.5f, 30);
-		} else if (s_kbdCtrl.ck_now(KBD_CTRL::RIGHT)) {
+		} else if (KeyCtrl::ck_now(KeyCtrl::RIGHT)) {
 			pHuman->change_act(Human::ACT_TURN_R, 0.5f, 30);
 		}
 		break;
 	case Human::ACT_WALK:
-		if (s_kbdCtrl.ck_now(KBD_CTRL::UP)) {
-			if (s_kbdCtrl.ck_now(KBD_CTRL::LEFT)) {
+		if (KeyCtrl::ck_now(KeyCtrl::UP)) {
+			if (KeyCtrl::ck_now(KeyCtrl::LEFT)) {
 				pHuman->add_deg_y(0.5f);
-			} else if (s_kbdCtrl.ck_now(KBD_CTRL::RIGHT)) {
+			} else if (KeyCtrl::ck_now(KeyCtrl::RIGHT)) {
 				pHuman->add_deg_y(-0.5f);
 			}
-		} else if (s_kbdCtrl.ck_trg(KBD_CTRL::DOWN)) {
+		} else if (KeyCtrl::ck_trg(KeyCtrl::DOWN)) {
 			pHuman->change_act(Human::ACT_RETREAT, 0.5f, 20);
 		} else {
 			pHuman->change_act(Human::ACT_STAND, 0.5f, 20);
 		}
 		break;
 	case Human::ACT_RETREAT:
-		if (s_kbdCtrl.ck_now(KBD_CTRL::DOWN)) {
-			if (s_kbdCtrl.ck_now(KBD_CTRL::LEFT)) {
+		if (KeyCtrl::ck_now(KeyCtrl::DOWN)) {
+			if (KeyCtrl::ck_now(KeyCtrl::LEFT)) {
 				pHuman->add_deg_y(0.5f);
-			} else if (s_kbdCtrl.ck_now(KBD_CTRL::RIGHT)) {
+			} else if (KeyCtrl::ck_now(KeyCtrl::RIGHT)) {
 				pHuman->add_deg_y(-0.5f);
 			}
 		} else {
@@ -264,8 +186,8 @@ static void Manana_exec_ctrl(Human* pHuman) {
 		}
 		break;
 	case Human::ACT_TURN_L:
-		if (s_kbdCtrl.ck_now(KBD_CTRL::LEFT)) {
-			if (s_kbdCtrl.ck_trg(KBD_CTRL::UP)) {
+		if (KeyCtrl::ck_now(KeyCtrl::LEFT)) {
+			if (KeyCtrl::ck_trg(KeyCtrl::UP)) {
 				pHuman->change_act(Human::ACT_WALK, 0.5f, 20);
 			}
 		} else {
@@ -273,8 +195,8 @@ static void Manana_exec_ctrl(Human* pHuman) {
 		}
 		break;
 	case Human::ACT_TURN_R:
-		if (s_kbdCtrl.ck_now(KBD_CTRL::RIGHT)) {
-			if (s_kbdCtrl.ck_trg(KBD_CTRL::UP)) {
+		if (KeyCtrl::ck_now(KeyCtrl::RIGHT)) {
+			if (KeyCtrl::ck_trg(KeyCtrl::UP)) {
 				pHuman->change_act(Human::ACT_WALK, 0.5f, 20);
 			}
 		} else {
@@ -338,7 +260,7 @@ static void init() {
 	init_player();
 	init_view();
 	Scene::glb_rng_reset();
-	s_kbdCtrl.init();
+	KeyCtrl::init();
 }
 
 static void set_scene_ctx() {
@@ -371,7 +293,7 @@ static void set_scene_ctx() {
 
 static void loop(void* pLoopCtx) {
 	TimeCtrl::exec();
-	s_kbdCtrl.update();
+	KeyCtrl::update();
 	set_scene_ctx();
 	Scene::exec();
 	view_exec();
