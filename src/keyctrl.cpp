@@ -2,11 +2,7 @@
 #include <oglsys.hpp>
 #include "keyctrl.hpp"
 
-#if 0
-#define KEY_GET(_name) if (OGLSys::get_key_state(#_name)) mask |= 1ULL << _name
-#else
 #define KEY_GET(_name) process_key(&mask, _name, #_name)
-#endif
 
 static struct KBD_CTRL {
 
