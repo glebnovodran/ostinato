@@ -11,3 +11,7 @@ do
 	wget -O crosscore/ogl/$xcore https://raw.githubusercontent.com/schaban/crosscore_dev/main/src/ogl/$xcore
 done
 
+for xcore in get_egl_headers.sh get_gles_headers.sh get_ogl_headers.sh get_headers.sh
+do
+	wget -O $xcore https://raw.githubusercontent.com/schaban/crosscore_dev/main/$xcore
+done
