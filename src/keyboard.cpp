@@ -1,6 +1,9 @@
+/* SPDX-License-Identifier: MIT */
+/* SPDX-FileCopyrightText: 2022 Glib Novodran <novodran@gmail.com> */
+
 #include <crosscore.hpp>
 #include <oglsys.hpp>
-#include "keyctrl.hpp"
+#include "keyboard.hpp"
 
 #define KEY_GET(_name) process_key(&mask, _name, #_name)
 
@@ -17,7 +20,7 @@ static struct KBD_CTRL {
 	}
 
 	const char* get_alt_key_name(const int code) {
-		using namespace KeyCtrl;
+		using namespace Keyboard;
 		static struct {
 			int code;
 			const char* pName;
@@ -44,7 +47,7 @@ static struct KBD_CTRL {
 	}
 
 	void update() {
-		using namespace KeyCtrl;
+		using namespace Keyboard;
 		if (mSkip) return;
 		mOld = mNow;
 		uint64_t mask = 0;
@@ -68,14 +71,14 @@ static struct KBD_CTRL {
 
 } s_kbdCtrl;
 
-namespace KeyCtrl {
+namespace Keyboard {
 
 void init() { s_kbdCtrl.init(); }
 void update() { s_kbdCtrl.update(); }
 
-bool ck_now(int id) { return s_kbdCtrl.ck_now(id); }
-bool ck_old(int id) { return s_kbdCtrl.ck_old(id); }
-bool ck_trg(int id) { return s_kbdCtrl.ck_trg(id); }
-bool ck_chg(int id) { return s_kbdCtrl.ck_chg(id); }
+bool now_active(int id) { return s_kbdCtrl.ck_now(id); }
+bool was_active(int id) { return s_kbdCtrl.ck_old(id); }
+bool triggered(int id) { return s_kbdCtrl.ck_trg(id); }
+bool changed(int id) { return s_kbdCtrl.ck_chg(id); }
 
-} // namespace
+}

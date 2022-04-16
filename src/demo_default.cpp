@@ -5,11 +5,12 @@
 #include <scene.hpp>
 #include <demo.hpp>
 #include <smprig.hpp>
-#include "oglsys.hpp"
+#include <oglsys.hpp>
 
-#include "keyctrl.hpp"
-#include "timectrl.hpp"
-#include "humansys.hpp"
+#include "input_ctrl.hpp"
+#include "time_ctrl.hpp"
+#include "human.hpp"
+#include "ostinato.hpp"
 
 DEMO_PROG_BEGIN
 
@@ -32,7 +33,7 @@ static void init_view() {
 static void view_exec() {
 	ScnObj* pObj = Scene::find_obj("Manana");
 	if (pObj) {
-		if (KeyCtrl::ck_trg(KeyCtrl::BACK)) {
+		if (InputCtrl::triggered(InputCtrl::SWITCH2)) {
 			s_view.viewMode ^= 1;
 		}
 		cxVec wpos = pObj->get_world_pos();
@@ -151,34 +152,34 @@ static void Manana_exec_ctrl(Human* pHuman) {
 	if (!pHuman) return;
 	switch (pHuman->mAction) {
 	case Human::ACT_STAND:
-		if (KeyCtrl::ck_trg(KeyCtrl::UP)) {
+		if (InputCtrl::triggered(InputCtrl::UP)) {
 			pHuman->change_act(Human::ACT_WALK, 2.0f, 20);
-		} else if (KeyCtrl::ck_trg(KeyCtrl::DOWN)) {
+		} else if (InputCtrl::triggered(InputCtrl::DOWN)) {
 			pHuman->change_act(Human::ACT_RETREAT, 0.5f, 20);
-		} else if (KeyCtrl::ck_now(KeyCtrl::LEFT)) {
+		} else if (InputCtrl::now_active(InputCtrl::LEFT)) {
 			pHuman->change_act(Human::ACT_TURN_L, 0.5f, 30);
-		} else if (KeyCtrl::ck_now(KeyCtrl::RIGHT)) {
+		} else if (InputCtrl::now_active(InputCtrl::RIGHT)) {
 			pHuman->change_act(Human::ACT_TURN_R, 0.5f, 30);
 		}
 		break;
 	case Human::ACT_WALK:
-		if (KeyCtrl::ck_now(KeyCtrl::UP)) {
-			if (KeyCtrl::ck_now(KeyCtrl::LEFT)) {
+		if (InputCtrl::now_active(InputCtrl::UP)) {
+			if (InputCtrl::now_active(InputCtrl::LEFT)) {
 				pHuman->add_deg_y(0.5f);
-			} else if (KeyCtrl::ck_now(KeyCtrl::RIGHT)) {
+			} else if (InputCtrl::now_active(InputCtrl::RIGHT)) {
 				pHuman->add_deg_y(-0.5f);
 			}
-		} else if (KeyCtrl::ck_trg(KeyCtrl::DOWN)) {
+		} else if (InputCtrl::triggered(InputCtrl::DOWN)) {
 			pHuman->change_act(Human::ACT_RETREAT, 0.5f, 20);
 		} else {
 			pHuman->change_act(Human::ACT_STAND, 0.5f, 20);
 		}
 		break;
 	case Human::ACT_RETREAT:
-		if (KeyCtrl::ck_now(KeyCtrl::DOWN)) {
-			if (KeyCtrl::ck_now(KeyCtrl::LEFT)) {
+		if (InputCtrl::now_active(InputCtrl::DOWN)) {
+			if (InputCtrl::now_active(InputCtrl::LEFT)) {
 				pHuman->add_deg_y(0.5f);
-			} else if (KeyCtrl::ck_now(KeyCtrl::RIGHT)) {
+			} else if (InputCtrl::now_active(InputCtrl::RIGHT)) {
 				pHuman->add_deg_y(-0.5f);
 			}
 		} else {
@@ -186,8 +187,8 @@ static void Manana_exec_ctrl(Human* pHuman) {
 		}
 		break;
 	case Human::ACT_TURN_L:
-		if (KeyCtrl::ck_now(KeyCtrl::LEFT)) {
-			if (KeyCtrl::ck_trg(KeyCtrl::UP)) {
+		if (InputCtrl::now_active(InputCtrl::LEFT)) {
+			if (InputCtrl::triggered(InputCtrl::UP)) {
 				pHuman->change_act(Human::ACT_WALK, 0.5f, 20);
 			}
 		} else {
@@ -195,8 +196,8 @@ static void Manana_exec_ctrl(Human* pHuman) {
 		}
 		break;
 	case Human::ACT_TURN_R:
-		if (KeyCtrl::ck_now(KeyCtrl::RIGHT)) {
-			if (KeyCtrl::ck_trg(KeyCtrl::UP)) {
+		if (InputCtrl::now_active(InputCtrl::RIGHT)) {
+			if (InputCtrl::triggered(InputCtrl::UP)) {
 				pHuman->change_act(Human::ACT_WALK, 0.5f, 20);
 			}
 		} else {
@@ -259,43 +260,16 @@ static void init() {
 	init_resources();
 	init_player();
 	init_view();
-	Scene::glb_rng_reset();
-	KeyCtrl::init();
+	Scene::glb_rng_reset();\
+	InputCtrl::init();
 }
-
-static void set_scene_ctx() {
-	Scene::set_shadow_density(1.1f);
-	Scene::set_shadow_fade(35.0f, 40.0f);
-	Scene::set_shadow_proj_params(40.0f, 40.0f, 100.0f);
-	Scene::set_shadow_uniform(true);
-
-	Scene::set_spec_dir_to_shadow();
-	Scene::set_spec_shadowing(0.9f);
-
-	Scene::set_hemi_upper(2.5f, 2.46f, 2.62f);
-	Scene::set_hemi_lower(0.32f, 0.28f, 0.26f);
-	Scene::set_hemi_up(Scene::get_shadow_dir().neg_val());
-	Scene::set_hemi_exp(2.5f);
-	Scene::set_hemi_gain(0.7f);
-
-	Scene::set_fog_rgb(0.748f, 0.74f, 0.65f);
-	Scene::set_fog_density(1.0f);
-	Scene::set_fog_range(20.0f, 2000.0f);
-	Scene::set_fog_curve(0.21f, 0.3f);
-
-	Scene::set_exposure_rgb(0.75f, 0.85f, 0.5f);
-
-	Scene::set_linear_white_rgb(0.65f, 0.65f, 0.55f);
-	Scene::set_linear_gain(1.32f);
-	Scene::set_linear_bias(-0.025f);
-}
-
 
 static void loop(void* pLoopCtx) {
 	TimeCtrl::exec();
-	KeyCtrl::update();
-	set_scene_ctx();
+	InputCtrl::update();
+	Ostinato::set_default_lightning();
 	Scene::exec();
+	// check view related keys
 	view_exec();
 	Scene::visibility();
 	Scene::frame_begin(cxColor(0.5f));

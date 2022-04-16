@@ -40,5 +40,4 @@ int main(int argc, char* argv[]) {
 	Ostinato::reset();
 
 	return 0;
-
 }

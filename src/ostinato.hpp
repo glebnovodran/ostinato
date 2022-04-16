@@ -7,4 +7,5 @@ namespace Ostinato {
 
 	void reset();
 
-}; // Ostinato
+	void set_default_lightning();
+}; // namespace

@@ -5,8 +5,8 @@
 #include <scene.hpp>
 #include <smprig.hpp>
 
-#include "timectrl.hpp"
-#include "humansys.hpp"
+#include "time_ctrl.hpp"
+#include "human.hpp"
 
 void Human::Rig::init(Human* pHuman) {
 	mpHuman = nullptr;
@@ -178,7 +178,7 @@ static char get_resource_code(Human::Type type) {
 	return htc[type];
 }
 
-static struct HUMAN_WK {
+static struct HumanWk {
 
 	static const int BODY_VAR_NUM = 10;
 
@@ -298,7 +298,7 @@ static void human_before_blend_func(ScnObj* pObj) {
 ScnObj* add_human(const Human::Descr& descr, Human::CtrlFunc ctrl) {
 	ScnObj* pObj = nullptr;
 	if (s_initFlg) {
-		int bodyId = descr.bodyVariation % HUMAN_WK::BODY_VAR_NUM;
+		int bodyId = descr.bodyVariation % HumanWk::BODY_VAR_NUM;
 		bodyId  = nxCalc::clamp(bodyId, 0, bodyId);
 		Pkg* pPkg = s_wk.get_pkg(descr.type, bodyId);
 		if (pPkg) {

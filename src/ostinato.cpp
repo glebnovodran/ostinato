@@ -73,37 +73,66 @@ static void init_scn_sys(const char* pAppPath) {
 
 
 namespace Ostinato {
-	void init(int argc, char* argv[]) {
-		nxApp::init_params(argc, argv);
 
-		sxSysIfc sysIfc;
-		::memset(&sysIfc, 0, sizeof(sysIfc));
-		sysIfc.fn_dbgmsg = dbgmsg;
-		nxSys::init(&sysIfc);
+void init(int argc, char* argv[]) {
+	nxApp::init_params(argc, argv);
 
-		float scrScl = 1.0f;
-		int x = 10;
-		int y = 10;
-		int w = 1200;
-		int h = 700;
+	sxSysIfc sysIfc;
+	::memset(&sysIfc, 0, sizeof(sysIfc));
+	sysIfc.fn_dbgmsg = dbgmsg;
+	nxSys::init(&sysIfc);
 
-		w = int(float(w) * scrScl);
-		h = int(float(h) * scrScl);
+	float scrScl = 1.0f;
+	int x = 10;
+	int y = 10;
+	int w = 1200;
+	int h = 700;
 
-		w = nxCalc::max(32, nxApp::get_int_opt("w", w));
-		h = nxCalc::max(32, nxApp::get_int_opt("h", h));
+	w = int(float(w) * scrScl);
+	h = int(float(h) * scrScl);
 
-		int msaa = nxApp::get_int_opt("msaa", 0);
+	w = nxCalc::max(32, nxApp::get_int_opt("w", w));
+	h = nxCalc::max(32, nxApp::get_int_opt("h", h));
 
-		init_ogl(x, y, w, h, msaa);
+	int msaa = nxApp::get_int_opt("msaa", 0);
 
-		init_scn_sys(argv[0]);
-	}
+	init_ogl(x, y, w, h, msaa);
 
-	void reset() {
-		Scene::reset();
-		reset_ogl();
-		nxApp::reset();
-		nxCore::mem_dbg();
-	}
-}; // Ostinato
+	init_scn_sys(argv[0]);
+}
+
+void reset() {
+	Scene::reset();
+	reset_ogl();
+	nxApp::reset();
+	nxCore::mem_dbg();
+}
+
+void set_default_lightning() {
+	Scene::set_shadow_density(1.1f);
+	Scene::set_shadow_fade(35.0f, 40.0f);
+	Scene::set_shadow_proj_params(40.0f, 40.0f, 100.0f);
+	Scene::set_shadow_uniform(true);
+
+	Scene::set_spec_dir_to_shadow();
+	Scene::set_spec_shadowing(0.9f);
+
+	Scene::set_hemi_upper(2.5f, 2.46f, 2.62f);
+	Scene::set_hemi_lower(0.32f, 0.28f, 0.26f);
+	Scene::set_hemi_up(Scene::get_shadow_dir().neg_val());
+	Scene::set_hemi_exp(2.5f);
+	Scene::set_hemi_gain(0.7f);
+
+	Scene::set_fog_rgb(0.748f, 0.74f, 0.65f);
+	Scene::set_fog_density(1.0f);
+	Scene::set_fog_range(20.0f, 2000.0f);
+	Scene::set_fog_curve(0.21f, 0.3f);
+
+	Scene::set_exposure_rgb(0.75f, 0.85f, 0.5f);
+
+	Scene::set_linear_white_rgb(0.65f, 0.65f, 0.55f);
+	Scene::set_linear_gain(1.32f);
+	Scene::set_linear_bias(-0.025f);
+}
+
+}; // namespace
