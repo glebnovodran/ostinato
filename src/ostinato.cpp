@@ -26,7 +26,7 @@ static void oglsys_mem_free(void* pMem) {
 
 static void init_ogl(const int x, const int y, const int w, const int h, const int msaa) {
 	OGLSysCfg cfg;
-	::memset(reinterpret_cast<void*>(&cfg), 0, sizeof(cfg));
+	cfg.clear();
 	cfg.x = x;
 	cfg.y = y;
 	cfg.width = w;
