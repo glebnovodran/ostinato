@@ -20,9 +20,9 @@ enum {
 void init();
 void update();
 
-bool now_active(int id);
-bool was_active(int id);
-bool triggered(int id);
-bool changed(int id);
+bool now_active(const int id);
+bool was_active(const int id);
+bool triggered(const int id);
+bool changed(const int id);
 
 }

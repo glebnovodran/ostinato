@@ -64,10 +64,10 @@ static struct KBD_CTRL {
 		mNow = mask;
 	}
 
-	bool ck_now(int id) const { return !!(mNow & (1ULL << id)); }
-	bool ck_old(int id) const { return !!(mOld & (1ULL << id)); }
-	bool ck_trg(int id) const { return !!((mNow & (mNow ^ mOld)) & (1ULL << id)); }
-	bool ck_chg(int id) const { return !!((mNow ^ mOld) & (1ULL << id)); }
+	bool ck_now(const int id) const { return !!(mNow & (1ULL << id)); }
+	bool ck_old(const int id) const { return !!(mOld & (1ULL << id)); }
+	bool ck_trg(const int id) const { return !!((mNow & (mNow ^ mOld)) & (1ULL << id)); }
+	bool ck_chg(const int id) const { return !!((mNow ^ mOld) & (1ULL << id)); }
 
 } s_kbdCtrl;
 
@@ -76,9 +76,9 @@ namespace Keyboard {
 void init() { s_kbdCtrl.init(); }
 void update() { s_kbdCtrl.update(); }
 
-bool now_active(int id) { return s_kbdCtrl.ck_now(id); }
-bool was_active(int id) { return s_kbdCtrl.ck_old(id); }
-bool triggered(int id) { return s_kbdCtrl.ck_trg(id); }
-bool changed(int id) { return s_kbdCtrl.ck_chg(id); }
+bool now_active(const int id) { return s_kbdCtrl.ck_now(id); }
+bool was_active(const int id) { return s_kbdCtrl.ck_old(id); }
+bool triggered(const int id) { return s_kbdCtrl.ck_trg(id); }
+bool changed(const int id) { return s_kbdCtrl.ck_chg(id); }
 
 }

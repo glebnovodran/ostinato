@@ -9,51 +9,31 @@
 
 #include "input_ctrl.hpp"
 #include "time_ctrl.hpp"
+#include "cam_ctrl.hpp"
 #include "human.hpp"
 #include "ostinato.hpp"
 
 DEMO_PROG_BEGIN
 
-struct ViewWk {
-	cxVec pos;
-	cxVec tgt;
-	int viewMode;
-
-	void reset() {
-		pos = cxVec(0.75f, 1.3f, 3.5f);
-		tgt = cxVec(0.0f, 0.95f, 0.0f);
-		viewMode = 0;
-	}
-} s_view;
-
 struct Stage {
 	Pkg* pPkg;
 	sxCollisionData* pCol;
 	sxGeometryData* pNPCPosGeo;
+	ScnObj* pPlayer;
+	CamCtrl::CamCtx camCtx;
 } s_stage = {};
 
 static void init_view() {
-	s_view.reset();
+	CamCtrl::init();
+	s_stage.camCtx.mCamMode = 0;
+	s_stage.camCtx.mpTgtObj = s_stage.pPlayer;
 }
 
 static void view_exec() {
-	ScnObj* pObj = Scene::find_obj("Manana");
-	if (pObj) {
-		if (InputCtrl::triggered(InputCtrl::SWITCH2)) {
-			s_view.viewMode ^= 1;
-		}
-		cxVec wpos = pObj->get_world_pos();
-		cxAABB bbox = pObj->get_world_bbox();
-		float cy = bbox.get_center().y;
-		float yoffs = cy - bbox.get_min_pos().y;
-		s_view.tgt = wpos + cxVec(0.0f, yoffs + 0.6f, 0.0f);
-		cxVec offs = cxVec(1.0f, 1.0f, 6.0f);
-		if (s_view.viewMode) {
-			offs = cxVec(-4.0f, 4.0f, 12.0f);
-		}
-		s_view.pos = s_view.tgt + offs;
+	if (InputCtrl::triggered(InputCtrl::SWITCH2)) {
+		s_stage.camCtx.mCamMode ^= 1;
 	}
-	Scene::set_view(s_view.pos, s_view.tgt);
+	CamCtrl::exec(&s_stage.camCtx);
 }
 
 static void add_stg_obj(sxModelData* pMdl, void* pWkData) {
@@ -258,6 +238,7 @@ void init_player() {
 	descr.pName = "Manana";
 	ScnObj* pPlr = HumanSys::add_human(descr, Manana_exec_ctrl);
 	pPlr->set_world_quat_pos(nxQuat::from_degrees(0.0f, 0.0f, 0.0f), cxVec(34.5f, 0.0f, -19.0f));
+	s_stage.pPlayer = pPlr;
 }
 
 static void init() {
@@ -266,7 +247,7 @@ static void init() {
 	init_resources();
 	init_player();
 	init_view();
-	Scene::glb_rng_reset();\
+	Scene::glb_rng_reset();
 	InputCtrl::init();
 }
 
@@ -275,7 +256,6 @@ static void loop(void* pLoopCtx) {
 	InputCtrl::update();
 	Ostinato::set_default_lightning();
 	Scene::exec();
-	// check view related keys
 	view_exec();
 	Scene::visibility();
 	Scene::frame_begin(cxColor(0.5f));

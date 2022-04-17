@@ -23,15 +23,11 @@ enum {
 	// input_update
 
 void init();
-
 void update();
 
 bool now_active(const int id);
-
 bool was_active(const int id);
-
 bool triggered(const int id);
-
 bool changed(const int id);
 
 };
