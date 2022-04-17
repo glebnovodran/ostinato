@@ -38,7 +38,7 @@ void Human::MotLib::init(const Pkg* pPkg, const Pkg* pBasePkg) {
 		{ &pRetreat, "retreat" },
 		{ &pRun, "run" }
 	};
-	for (int i = 0; i < XD_ARY_LEN(tbl); ++i) {
+	for (size_t i = 0; i < XD_ARY_LEN(tbl); ++i) {
 		*tbl[i].ppMot = pPkg ? pPkg->find_motion(tbl[i].pName) : nullptr;
 		if (*tbl[i].ppMot == nullptr) {
 			*tbl[i].ppMot = pBasePkg ? pBasePkg->find_motion(tbl[i].pName) : nullptr;
@@ -48,8 +48,6 @@ void Human::MotLib::init(const Pkg* pPkg, const Pkg* pBasePkg) {
 
 void Human::change_act(const Action newAct, const double durationSecs, const int blendCnt) {
 	if (!mpObj) return;
-	//int blendCnt = 15;
-	float mspeed = TimeCtrl::get_motion_speed();
 	float t = nxCalc::div0(float(blendCnt), TimeCtrl::get_motion_speed());
 	mpObj->init_motion_blend(int(t));
 	mAction = newAct;

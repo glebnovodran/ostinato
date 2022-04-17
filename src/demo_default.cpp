@@ -14,20 +14,26 @@
 
 DEMO_PROG_BEGIN
 
-struct VIEW_WK {
+struct ViewWk {
 	cxVec pos;
 	cxVec tgt;
 	int viewMode;
+
+	void reset() {
+		pos = cxVec(0.75f, 1.3f, 3.5f);
+		tgt = cxVec(0.0f, 0.95f, 0.0f);
+		viewMode = 0;
+	}
 } s_view;
 
-struct STAGE {
+struct Stage {
 	Pkg* pPkg;
 	sxCollisionData* pCol;
 	sxGeometryData* pNPCPosGeo;
 } s_stage = {};
 
 static void init_view() {
-	::memset(&s_view, 0, sizeof(VIEW_WK));
+	s_view.reset();
 }
 
 static void view_exec() {

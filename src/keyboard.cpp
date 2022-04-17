@@ -28,7 +28,7 @@ static struct KBD_CTRL {
 			{ UP, "W" }, { DOWN, "S" }, { LEFT, "A" }, { RIGHT, "D" }, {SPACE, " "}
 		};
 		const char* pAltName = nullptr;
-		for (int i = 0; i < XD_ARY_LEN(tbl); ++i) {
+		for (size_t i = 0; i < XD_ARY_LEN(tbl); ++i) {
 			if (code == tbl[i].code) {
 				pAltName = tbl[i].pName;
 				break;
