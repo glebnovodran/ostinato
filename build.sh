@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 if [ ! -d "./bin/linux" ]; then
 	mkdir -p ./bin/linux
 fi
