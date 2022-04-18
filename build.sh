@@ -1,5 +1,10 @@
 #!/bin/sh
 
+if [ ! -f "crosscore/crosscore.cpp" ]; then
+	echo "Downloading dependencies."
+	./get_crosscore.sh
+fi
+
 EXE_DIR=bin/prog
 if [ ! -d "$EXE_DIR" ]; then
 	mkdir -p $EXE_DIR
