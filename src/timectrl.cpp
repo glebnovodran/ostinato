@@ -3,7 +3,7 @@
 
 #include <crosscore.hpp>
 #include <scene.hpp>
-#include "time_ctrl.hpp"
+#include "timectrl.hpp"
 
 struct Wk {
 	cxStopWatch mFramerateStopWatch;

@@ -5,7 +5,7 @@
 #include <scene.hpp>
 #include <smprig.hpp>
 
-#include "time_ctrl.hpp"
+#include "timectrl.hpp"
 #include "human.hpp"
 
 void Human::Rig::init(Human* pHuman) {

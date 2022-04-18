@@ -5,7 +5,7 @@
 #include <scene.hpp>
 
 #include "keyboard.hpp"
-#include "cam_ctrl.hpp"
+#include "camera.hpp"
 
 struct ViewWk {
 	cxVec pos;

@@ -7,9 +7,9 @@
 #include <smprig.hpp>
 #include <oglsys.hpp>
 
-#include "input_ctrl.hpp"
-#include "time_ctrl.hpp"
-#include "cam_ctrl.hpp"
+#include "input.hpp"
+#include "timectrl.hpp"
+#include "camera.hpp"
 #include "human.hpp"
 #include "ostinato.hpp"
 

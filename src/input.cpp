@@ -4,7 +4,7 @@
 #include <crosscore.hpp>
 
 #include "keyboard.hpp"
-#include "input_ctrl.hpp"
+#include "input.hpp"
 
 namespace InputCtrl {
 
