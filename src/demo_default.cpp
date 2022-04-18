@@ -226,7 +226,7 @@ static void init_resources() {
 			}
 		}
 	}
-	nxCore::dbg_msg("\nResource loading completed\n");
+	nxCore::dbg_msg("\n~ Welcome to Ostinato ~\n");
 }
 
 void init_player() {
