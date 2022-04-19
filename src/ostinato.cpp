@@ -117,7 +117,7 @@ void set_default_lightning() {
 */
 	Scene::set_shadow_density(1.0f);
 	Scene::set_shadow_fade(35.0f, 40.0f);
-	Scene::set_shadow_proj_params(35.0f, 30.0f, 100.0f);
+	Scene::set_shadow_proj_params(40.0f, 40.0f, 100.0f);
 	Scene::set_shadow_uniform(true);
 
 	Scene::set_spec_dir_to_shadow();
