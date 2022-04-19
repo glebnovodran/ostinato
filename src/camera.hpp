@@ -1,13 +1,13 @@
 /* SPDX-License-Identifier: MIT */
 /* SPDX-FileCopyrightText: 2022 Glib Novodran <novodran@gmail.com> */
 
-namespace CamCtrl {
+namespace Camera {
 
-struct CamCtx {
+struct Context {
 	ScnObj* mpTgtObj;
 	uint32_t mCamMode;
 };
 void init();
-void exec(const CamCtx* pCtx);
+void exec(const Context& ctx);
 
 };

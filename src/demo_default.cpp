@@ -20,11 +20,11 @@ struct Stage {
 	sxCollisionData* pCol;
 	sxGeometryData* pNPCPosGeo;
 	ScnObj* pPlayer;
-	CamCtrl::CamCtx camCtx;
+	Camera::Context camCtx;
 } s_stage = {};
 
 static void init_view() {
-	CamCtrl::init();
+	Camera::init();
 	s_stage.camCtx.mCamMode = 0;
 	s_stage.camCtx.mpTgtObj = s_stage.pPlayer;
 }
@@ -33,7 +33,7 @@ static void view_exec() {
 	if (InputCtrl::triggered(InputCtrl::SWITCH2)) {
 		s_stage.camCtx.mCamMode ^= 1;
 	}
-	CamCtrl::exec(&s_stage.camCtx);
+	Camera::exec(s_stage.camCtx);
 }
 
 static void add_stg_obj(sxModelData* pMdl, void* pWkData) {

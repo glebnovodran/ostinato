@@ -17,14 +17,14 @@ struct ViewWk {
 	}
 } s_view;
 
-namespace CamCtrl {
+namespace Camera {
 
 void init() {
 	s_view.reset();
 }
 
-void exec(const CamCtx* pCtx) {
-	ScnObj* pTgtObj = pCtx->mpTgtObj;
+void exec(const Context& ctx) {
+	ScnObj* pTgtObj = ctx.mpTgtObj;
 	if (pTgtObj) {
 		cxVec wpos = pTgtObj->get_world_pos();
 		cxAABB bbox = pTgtObj->get_world_bbox();
@@ -32,7 +32,7 @@ void exec(const CamCtx* pCtx) {
 		float yoffs = cy - bbox.get_min_pos().y;
 		s_view.tgt = wpos + cxVec(0.0f, yoffs + 0.6f, 0.0f);
 		cxVec offs = cxVec(1.0f, 1.0f, 6.0f);
-		if (pCtx->mCamMode == 1) {
+		if (ctx.mCamMode == 1) {
 			offs = cxVec(-4.0f, 4.0f, 12.0f);
 		}
 		s_view.pos = s_view.tgt + offs;
