@@ -1,7 +1,13 @@
 #!/bin/sh
 
+BOLD_ON="\e[1m"
+UNDER_ON="\e[4m"
+RED_ON="\e[31m"
+GREEN_ON="\e[32m"
+YELLOW_ON="\e[33m"
+FMT_OFF="\e[0m"
 if [ ! -f "crosscore/crosscore.cpp" ]; then
-	echo "Downloading dependencies."
+	printf "$BOLD_ON$RED_ON""Downloading dependencies.""$FMT_OFF\n"
 	./get_crosscore.sh
 fi
 
@@ -16,15 +22,11 @@ SRCS="`ls src/*.cpp` `ls crosscore/*.cpp`"
 INCS="-I crosscore -I inc"
 DEFS="-DX11"
 LIBS="-lpthread -lX11"
-BOLD_ON=""
-BOLD_OFF=""
 SYS_NAME="`uname -s`"
 case $SYS_NAME in
 	Linux)
 		CXX=${CXX:-g++}
 		LIBS="$LIBS -ldl"
-		BOLD_ON="\e[1m"
-		BOLD_OFF="\e[m"
 	;;
 	OpenBSD)
 		CXX=${CXX:-clang++}
@@ -42,13 +44,14 @@ case $SYS_NAME in
 	;;
 esac
 
-echo "Compiling \"$BOLD_ON$EXE_PATH$BOLD_OFF\" for $BOLD_ON$SYS_NAME$BOLD_OFF with $BOLD_ON$CXX$BOLD_OFF."
+printf "Compiling \"$BOLD_ON$YELLOW_ON$UNDER_ON$EXE_PATH$FMT_OFF\" for $BOLD_ON$SYS_NAME$FMT_OFF with $BOLD_ON$CXX$FMT_OFF.\n"
 rm -f $EXE_PATH
 $CXX -ggdb -ffast-math -ftree-vectorize -std=c++11 $DEFS $INCS $SRCS -o $EXE_PATH $LIBS $*
 
 echo -n "Build result: "
 if [ -f "$EXE_PATH" ]; then
-	echo "$BOLD_ON""Success""$BOLD_OFF!"
+	printf "$BOLD_ON$GREEN_ON""Success""$FMT_OFF!"
 else
-	echo "$BOLD_ON""Failure""$BOLD_OFF :("
-fi 
+	printf "$BOLD_ON$RED_ON""Failure""$FMT_OFF :("
+fi
+echo ""
