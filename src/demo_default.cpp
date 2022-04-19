@@ -11,6 +11,7 @@
 #include "timectrl.hpp"
 #include "camera.hpp"
 #include "human.hpp"
+#include "citizen.hpp"
 #include "ostinato.hpp"
 
 DEMO_PROG_BEGIN
@@ -40,97 +41,6 @@ static void add_stg_obj(sxModelData* pMdl, void* pWkData) {
 	ScnObj* pObj = Scene::add_obj(pMdl);
 	if (pObj) {
 		pObj->set_base_color_scl(1.0f);
-	}
-}
-
-static void citizen_roam_ctrl(Human* pHuman) {
-	if (!pHuman) return;
-	double objTouchDT = pHuman->get_obj_touch_duration_secs();
-	double wallTouchDT = pHuman->get_wall_touch_duration_secs();
-
-	switch (pHuman->mAction) {
-		case Human::ACT_STAND:
-			if (pHuman->mActionTimer.check_time_out()) {
-				uint64_t rng = Scene::glb_rng_next() & 0x3f;
-				if (rng < 0xF) {
-					pHuman->change_act(Human::ACT_RUN, 2.0f);
-				} else if (rng < 0x30) {
-					pHuman->change_act(Human::ACT_WALK, 5.0f);
-					pHuman->reset_wall_touch();
-				} else {
-					float t = nxCalc::fit(Scene::glb_rng_f01(), 0.0f, 1.0f, 0.5f, 2.0f);
-					if (rng < 0x36) {
-						pHuman->change_act(Human::ACT_TURN_L, t);
-					} else {
-						pHuman->change_act(Human::ACT_TURN_R, t);
-					}
-				}
-			}
-			break;
-		case Human::ACT_WALK: 
-			if ( objTouchDT > 0.2 || wallTouchDT > 0.25) {
-				if (objTouchDT > 0 && ((Scene::glb_rng_next() & 0x3F) < 0x1F)) {
-					pHuman->change_act(Human::ACT_RETREAT, 0.5f);
-				} else {
-					float t = nxCalc::fit(Scene::glb_rng_f01(), 0.0f, 1.0f, 0.5f, 2.0f);
-					if (Scene::glb_rng_next() & 0x1) {
-						pHuman->change_act(Human::ACT_TURN_L, t);
-					} else {
-						pHuman->change_act(Human::ACT_TURN_R, t);
-					}
-				}
-			} else {
-				ScnObj* pObj = pHuman->mpObj;
-
-				if (pObj->mRoutine[0] == 0) {
-					if (!pHuman->mActionTimer.check_time_out()) {
-						bool rotFlg = int(Scene::glb_rng_next() & 0xFF) < 0x10;
-						if (rotFlg) {
-							pObj->mRoutine[0] = 1;
-							float ryAdd = 0.5f;
-							if (Scene::glb_rng_next() & 1) {
-								ryAdd = -ryAdd;
-							}
-							pObj->mFltWk[0] = ryAdd;
-							float t = nxCalc::fit(Scene::glb_rng_f01(), 0.0f, 1.0f, 0.5f, 1.0f);
-							pHuman->mAuxTimer.start(t);
-						}
-					}
-				} else {
-					if (pHuman->mAuxTimer.check_time_out()) {
-						pObj->mRoutine[0] = 0;
-						pObj->mFltWk[0] = 0.0f;
-					} else {
-						pHuman->add_deg_y(pObj->mFltWk[0]);
-					}
-				}
-			}
-			break;
-		case Human::ACT_RUN:
-			if (pHuman->mActionTimer.check_time_out() || wallTouchDT > 0.1 || objTouchDT > 0.1) {
-				bool standFlg = int(Scene::glb_rng_next() & 0xF) < 0x4;
-				if (standFlg) {
-					float t = nxCalc::fit(Scene::glb_rng_f01(), 0.0f, 1.0f, 1.0f, 2.0f);
-					pHuman->change_act(Human::ACT_STAND, t);
-				} else {
-					float t = nxCalc::fit(Scene::glb_rng_f01(), 0.0f, 1.0f, 1.5f, 2.5f);
-					pHuman->change_act(Human::ACT_WALK, t);
-				}
-			}
-			break;
-		case Human::ACT_RETREAT:
-			if (pHuman->mActionTimer.check_time_out() || wallTouchDT > 0.1) {
-				float t = nxCalc::fit(Scene::glb_rng_f01(), 0.0f, 1.0f, 1.5f, 2.5f);
-				pHuman->change_act(Human::ACT_STAND, t);
-			}
-			break;
-		case Human::ACT_TURN_L:
-		case Human::ACT_TURN_R:
-			if (pHuman->mActionTimer.check_time_out()) {
-				float t = nxCalc::fit(Scene::glb_rng_f01(), 0.0f, 1.0f, 0.5f, 1.5f);
-				pHuman->change_act(Human::ACT_STAND, t);
-			}
-			break;
 	}
 }
 
@@ -221,8 +131,7 @@ static void init_resources() {
 					heightMod = nxCalc::fit(nxCore::rng_f01(), 0.0f, 1.0f, 0.0f, 0.06f);
 				}
 				descr.scale = 1.0f + heightMod;
-				ScnObj* pObj = HumanSys::add_human(descr, citizen_roam_ctrl);
-				pObj->set_world_quat_pos(nxQuat::from_degrees(0.0f, 0.0f, 0.0f), pos);
+				ScnObj* pObj = Citizen::add(descr, nxQuat::from_degrees(0.0f, 0.0f, 0.0f), pos);
 			}
 		}
 	}
