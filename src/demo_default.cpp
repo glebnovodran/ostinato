@@ -12,6 +12,7 @@
 #include "camera.hpp"
 #include "human.hpp"
 #include "citizen.hpp"
+#include "player.hpp"
 #include "ostinato.hpp"
 
 DEMO_PROG_BEGIN
@@ -41,67 +42,6 @@ static void add_stg_obj(sxModelData* pMdl, void* pWkData) {
 	ScnObj* pObj = Scene::add_obj(pMdl);
 	if (pObj) {
 		pObj->set_base_color_scl(1.0f);
-	}
-}
-
-static void Manana_exec_ctrl(Human* pHuman) {
-	if (!pHuman) return;
-	switch (pHuman->mAction) {
-	case Human::ACT_STAND:
-		if (InputCtrl::triggered(InputCtrl::UP)) {
-			pHuman->change_act(Human::ACT_WALK, 2.0f, 20);
-		} else if (InputCtrl::triggered(InputCtrl::DOWN)) {
-			pHuman->change_act(Human::ACT_RETREAT, 0.5f, 20);
-		} else if (InputCtrl::now_active(InputCtrl::LEFT)) {
-			pHuman->change_act(Human::ACT_TURN_L, 0.5f, 30);
-		} else if (InputCtrl::now_active(InputCtrl::RIGHT)) {
-			pHuman->change_act(Human::ACT_TURN_R, 0.5f, 30);
-		}
-		break;
-	case Human::ACT_WALK:
-		if (InputCtrl::now_active(InputCtrl::UP)) {
-			if (InputCtrl::now_active(InputCtrl::LEFT)) {
-				pHuman->add_deg_y(0.5f);
-			} else if (InputCtrl::now_active(InputCtrl::RIGHT)) {
-				pHuman->add_deg_y(-0.5f);
-			}
-		} else if (InputCtrl::triggered(InputCtrl::DOWN)) {
-			pHuman->change_act(Human::ACT_RETREAT, 0.5f, 20);
-		} else {
-			pHuman->change_act(Human::ACT_STAND, 0.5f, 20);
-		}
-		break;
-	case Human::ACT_RETREAT:
-		if (InputCtrl::now_active(InputCtrl::DOWN)) {
-			if (InputCtrl::now_active(InputCtrl::LEFT)) {
-				pHuman->add_deg_y(0.5f);
-			} else if (InputCtrl::now_active(InputCtrl::RIGHT)) {
-				pHuman->add_deg_y(-0.5f);
-			}
-		} else {
-			pHuman->change_act(Human::ACT_STAND, 0.5f, 20);
-		}
-		break;
-	case Human::ACT_TURN_L:
-		if (InputCtrl::now_active(InputCtrl::LEFT)) {
-			if (InputCtrl::triggered(InputCtrl::UP)) {
-				pHuman->change_act(Human::ACT_WALK, 0.5f, 20);
-			}
-		} else {
-			pHuman->change_act(Human::ACT_STAND, 0.5f, 20);
-		}
-		break;
-	case Human::ACT_TURN_R:
-		if (InputCtrl::now_active(InputCtrl::RIGHT)) {
-			if (InputCtrl::triggered(InputCtrl::UP)) {
-				pHuman->change_act(Human::ACT_WALK, 0.5f, 20);
-			}
-		} else {
-			pHuman->change_act(Human::ACT_STAND, 0.5f, 20);
-		}
-		break;
-	default:
-		break;
 	}
 }
 
@@ -139,13 +79,7 @@ static void init_resources() {
 }
 
 void init_player() {
-	Human::Descr descr;
-	descr.reset();
-	descr.type = Human::Type::FEMALE;
-	descr.bodyVariation = 5;
-	descr.scale = 1.0f;
-	descr.pName = "Manana";
-	ScnObj* pPlr = HumanSys::add_human(descr, Manana_exec_ctrl);
+	ScnObj* pPlr = Player::init();
 	pPlr->set_world_quat_pos(nxQuat::from_degrees(0.0f, 0.0f, 0.0f), cxVec(34.5f, 0.0f, -19.0f));
 	s_stage.pPlayer = pPlr;
 }
