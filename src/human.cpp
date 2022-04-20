@@ -46,9 +46,41 @@ void Human::MotLib::init(const Pkg* pPkg, const Pkg* pBasePkg) {
 	}
 }
 
-void Human::change_act(const Action newAct, const double durationSecs, const int blendCnt) {
+int Human::find_nearest_mot_frame(const sxMotionData* pMtd, const char* pNodeName) const {
+	int nearFrame = 0;
+	ScnObj* pObj = this->mpObj;
+	cxMotionWork* pMotWk = pObj ? pObj->mpMotWk : nullptr;
+	if (pNodeName && pMtd) {
+		int nodeId = pObj->find_skel_node_id(pNodeName);
+		int centerId = pObj->find_skel_node_id("n_Center");
+		if (pObj->ck_skel_id(nodeId) && pObj->ck_skel_id(centerId)) {
+			xt_xmtx skelXform = pObj->mpMdlWk->mpData->calc_skel_node_chain_xform(nodeId, centerId, pObj->mpMotWk->mpXformsL);
+			cxVec skelPos = nxMtx::xmtx_get_pos(skelXform);
+			int frame = 0;
+			float nearDist = 0.0f;
+			for (int i = 0; i < pMtd->mFrameNum - 2; i++) {
+				xt_xmtx motXform = pMotWk->eval_skel_node_chain_xform(pMtd, nodeId, centerId, float(i));
+				cxVec motPos = nxMtx::xmtx_get_pos(motXform);
+				float dist = nxVec::dist(skelPos, motPos);
+				if (i == 0) {
+					nearDist = dist;
+				} else {
+					if (dist < nearDist) {
+						nearDist = dist;
+						frame = i;
+					}
+				}
+			}
+			nearFrame = frame;
+		}
+	}
+	return nearFrame;
+}
+
+void Human::change_act(const Action newAct, const double durationSecs, const int blendCnt, const int startFrame) {
 	if (!mpObj) return;
 	float t = nxCalc::div0(float(blendCnt), TimeCtrl::get_motion_speed());
+	mpObj->set_motion_frame(startFrame);
 	mpObj->init_motion_blend(int(t));
 	mAction = newAct;
 	mActionTimer.start(durationSecs);

@@ -90,7 +90,7 @@ struct Human {
 	double mWallTouchStartTime;
 	double mWallTouchDuration;
 
-	void change_act(const Action newAct, const double durationSecs, const int blendCnt = 15);
+	void change_act(const Action newAct, const double durationSecs, const int blendCnt = 15, const int startFrame = 0);
 	void add_deg_y(const float dy);
 
 	State get_state() const { return mState; }
@@ -117,6 +117,7 @@ struct Human {
 		}
 		set_motion(pMot);
 	}
+	int find_nearest_mot_frame(const sxMotionData* pMtd, const char* pNodeName) const;
 
 	double get_obj_touch_duration_secs() const { return mObjTouchDuration / 1000.0; }
 	double get_wall_touch_duration_secs() const { return mWallTouchDuration / 1000.0; }
