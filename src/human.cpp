@@ -335,7 +335,21 @@ ScnObj* add_human(const Human::Descr& descr, Human::CtrlFunc ctrl) {
 			sxModelData* pMdl = pPkg->get_default_model();
 			if (pMdl) {
 				char nameBuf[64];
-				const char* pName = descr.pName;
+				const char* pName = nullptr;
+				if (descr.pName) {
+					pName = descr.pName;
+				} else {
+					sxValuesData* pVal = pPkg->find_values("params");
+					if (pVal) {
+						sxValuesData::Group personalGrp = pVal->find_grp("personal");
+						if (personalGrp.is_valid()) {
+							int nameIdx = personalGrp.find_val_idx("name");
+							if (personalGrp.ck_val_idx(nameIdx)) {
+								pName = personalGrp.get_val_s(nameIdx);
+							}
+						}
+					}
+				}
 				if (!pName) {
 					XD_SPRINTF(XD_SPRINTF_BUF(nameBuf, sizeof(nameBuf)), "%s@%03d", pPkg->get_name(), s_wk.mCount);
 					pName = nameBuf;

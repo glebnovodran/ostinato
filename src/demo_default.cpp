@@ -62,8 +62,9 @@ static void init_resources() {
 				Human::Descr descr;
 				descr.reset();
 				cxVec pos = pGeo->get_pnt(i);
-				descr.type = Human::Type(nxCore::rng_next()%2);
+				descr.type = Human::Type(i % 2);
 				descr.bodyVariation = i;
+				descr.pName = nullptr;
 				float heightMod = 0.0f;
 				if (descr.type == Human::FEMALE) {
 					heightMod = nxCalc::fit(nxCore::rng_f01(), 0.0f, 1.0f, -0.05f, 0.06f);
