@@ -111,17 +111,18 @@ void reset() {
 void set_default_lightning() {
 
 #if 0
+	// Uniform mode
 	Scene::set_shadow_density(1.0f);
 	Scene::set_shadow_fade(35.0f, 40.0f);
 	Scene::set_shadow_proj_params(35.0f, 30.0f, 100.0f);
 	Scene::set_shadow_uniform(true);
 #else
+	// Perspective mode
 	Scene::set_shadow_density(1.0f);
 	Scene::set_shadow_fade(55.0f, 70.0f);
 	Scene::set_shadow_proj_params(55.0f, 30.0f, 100.0f);
-	Scene::set_shadow_uniform(true);
+	Scene::set_shadow_uniform(false);
 #endif
-
 	Scene::set_spec_dir_to_shadow();
 	Scene::set_spec_shadowing(0.9f);
 
