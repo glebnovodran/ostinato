@@ -20,14 +20,16 @@ void roam_ctrl(Human* pHuman) {
 		case Human::ACT_STAND:
 			if (pHuman->mActionTimer.check_time_out()) {
 				uint64_t rng = Scene::glb_rng_next() & 0x3f;
-				if (rng < 0xF) {
-					pHuman->change_act(Human::ACT_RUN, 2.0f);
-				} else if (rng < 0x30) {
-					pHuman->change_act(Human::ACT_WALK, 5.0f);
+				if (rng < 0x10) {
+					float t = nxCalc::fit(Scene::glb_rng_f01(), 0.0f, 1.0f, 1.0f, 4.0f);
+					pHuman->change_act(Human::ACT_RUN, t); // 2
+				} else if (rng < 0x38) {
+					float t = nxCalc::fit(Scene::glb_rng_f01(), 0.0f, 1.0f, 2.0f, 6.0f);
+					pHuman->change_act(Human::ACT_WALK, t);
 					pHuman->reset_wall_touch();
 				} else {
 					float t = nxCalc::fit(Scene::glb_rng_f01(), 0.0f, 1.0f, 0.5f, 2.0f);
-					if (rng < 0x36) {
+					if (rng < 0x3C) {
 						pHuman->change_act(Human::ACT_TURN_L, t);
 					} else {
 						pHuman->change_act(Human::ACT_TURN_R, t);
@@ -95,7 +97,7 @@ void roam_ctrl(Human* pHuman) {
 		case Human::ACT_TURN_L:
 		case Human::ACT_TURN_R:
 			if (pHuman->mActionTimer.check_time_out()) {
-				float t = nxCalc::fit(Scene::glb_rng_f01(), 0.0f, 1.0f, 0.5f, 1.5f);
+				float t = nxCalc::fit(Scene::glb_rng_f01(), 0.0f, 1.0f, 0.5f, 1.0f);
 				pHuman->change_act(Human::ACT_STAND, t);
 			}
 			break;

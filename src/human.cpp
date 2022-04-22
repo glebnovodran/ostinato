@@ -376,6 +376,7 @@ ScnObj* add_human(const Human::Descr& descr, Human::CtrlFunc ctrl) {
 				pObj->set_ptr_wk(0, pHuman);
 				pObj->set_ptr_wk(1, s_pHumanTag);
 				pHuman->mpObj = pObj;
+				pHuman->mType = descr.type;
 
 				pHuman->mMotLib.init(pPkg, pBasePkg);
 				pHuman->mRig.init(pHuman);
