@@ -9,8 +9,10 @@ struct Human {
 		ACTIVE
 	};
 	enum Type {
-		FEMALE = 0,
-		MALE,
+		CITIZEN_FEMALE = 0,
+		CITIZEN_MALE,
+		TRAVELLER,
+		WANDERER,
 		MAX
 	};
 
@@ -23,7 +25,7 @@ struct Human {
 
 		void reset() {
 			pName = nullptr;
-			type = Type::FEMALE;
+			type = Type::CITIZEN_FEMALE;
 			bodyVariation = 0;
 			mtlVariation = 0;
 			scale = 1.0f;
@@ -119,7 +121,7 @@ struct Human {
 		}
 		set_motion(pMot);
 	}
-	int find_nearest_mot_frame(const sxMotionData* pMtd, const char* pNodeName) const;
+	uint32_t find_nearest_mot_frame(const sxMotionData* pMtd, const char* pNodeName) const;
 
 	double get_obj_touch_duration_secs() const { return mObjTouchDuration / 1000.0; }
 	double get_wall_touch_duration_secs() const { return mWallTouchDuration / 1000.0; }

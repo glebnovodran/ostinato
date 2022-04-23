@@ -46,7 +46,7 @@ void Human::MotLib::init(const Pkg* pPkg, const Pkg* pBasePkg) {
 	}
 }
 
-int Human::find_nearest_mot_frame(const sxMotionData* pMtd, const char* pNodeName) const {
+uint32_t Human::find_nearest_mot_frame(const sxMotionData* pMtd, const char* pNodeName) const {
 	int nearFrame = 0;
 	ScnObj* pObj = this->mpObj;
 	cxMotionWork* pMotWk = pObj ? pObj->mpMotWk : nullptr;
@@ -58,7 +58,7 @@ int Human::find_nearest_mot_frame(const sxMotionData* pMtd, const char* pNodeNam
 			cxVec skelPos = nxMtx::xmtx_get_pos(skelXform);
 			int frame = 0;
 			float nearDist = 0.0f;
-			for (int i = 0; i < pMtd->mFrameNum - 2; i++) {
+			for (uint32_t i = 0; i < pMtd->mFrameNum - 2; i++) {
 				xt_xmtx motXform = pMotWk->eval_skel_node_chain_xform(pMtd, nodeId, centerId, float(i));
 				cxVec motPos = nxMtx::xmtx_get_pos(motXform);
 				float dist = nxVec::dist(skelPos, motPos);

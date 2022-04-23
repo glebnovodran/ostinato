@@ -66,7 +66,7 @@ static void init_resources() {
 				descr.bodyVariation = i;
 				descr.pName = nullptr;
 				float heightMod = 0.0f;
-				if (descr.type == Human::FEMALE) {
+				if (descr.type == Human::CITIZEN_FEMALE) {
 					heightMod = nxCalc::fit(nxCore::rng_f01(), 0.0f, 1.0f, -0.05f, 0.06f);
 				} else {
 					heightMod = nxCalc::fit(nxCore::rng_f01(), 0.0f, 1.0f, 0.0f, 0.06f);

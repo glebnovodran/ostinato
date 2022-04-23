@@ -106,7 +106,7 @@ void Manana_exec_ctrl(Human* pHuman) {
 ScnObj* init() {
 	Human::Descr descr;
 	descr.reset();
-	descr.type = Human::Type::FEMALE;
+	descr.type = Human::Type::CITIZEN_FEMALE;
 	descr.bodyVariation = 5;
 	descr.scale = 1.0f;
 	descr.pName = "Manana";
