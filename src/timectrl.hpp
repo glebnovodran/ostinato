@@ -17,5 +17,6 @@ float get_motion_speed();
 double get_sys_time_millis();
 double get_start_time();
 double get_current_time();
+int adjust_counter_to_speed(const int count);
 
 };
