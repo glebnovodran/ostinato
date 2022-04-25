@@ -73,7 +73,8 @@ static void init_resources() {
 					heightMod = nxCalc::fit(nxCore::rng_f01(), 0.0f, 1.0f, 0.0f, 0.06f);
 				}
 				descr.scale = 1.0f + heightMod;
-				ScnObj* pObj = Citizen::add(descr, nxQuat::from_degrees(0.0f, 0.0f, 0.0f), pos);
+				float startY = nxCore::rng_f01() * 360.0f;
+				ScnObj* pObj = Citizen::add(descr, nxQuat::from_degrees(0.0f, startY, 0.0f), pos);
 			}
 		}
 	}
