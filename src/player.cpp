@@ -109,7 +109,6 @@ ScnObj* init() {
 	descr.type = Human::Type::TRAVELLER;
 	descr.personId = 0;
 	descr.scale = 1.0f;
-	descr.pName = "Traveller";
 	ScnObj* pPlr = HumanSys::add_human(descr, traveller_exec_ctrl);
 	return pPlr;
 }
