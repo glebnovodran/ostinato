@@ -89,6 +89,4 @@ double get_current_time() { return s_wk.mCurrentTime; }
 
 double get_sys_time_millis() { return nxSys::time_micros() / 1000.0; }
 
-int adjust_counter_to_speed(const int count) { return count > 0 ? int(nxCalc::div0(float(count), get_motion_speed())) : 0; }
-
 };

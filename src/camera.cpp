@@ -42,9 +42,9 @@ void exec(const Context& ctx) {
 		s_view.pos = s_view.tgt + offs;
 
 		if (Scene::get_frame_count() > 0) {
-			int t = TimeCtrl::adjust_counter_to_speed(40);
+			int t = int(nxCalc::div0(40.0f, TimeCtrl::get_motion_speed()));
 			s_view.pos = nxCalc::approach(s_view.prevPos, s_view.pos, t);
-			t = TimeCtrl::adjust_counter_to_speed(30);
+			t = int(nxCalc::div0(30.0f, TimeCtrl::get_motion_speed()));
 			s_view.tgt = nxCalc::approach(s_view.prevTgt, s_view.tgt, t);
 		}
 		s_view.prevPos = s_view.pos;
