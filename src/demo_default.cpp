@@ -58,12 +58,13 @@ static void init_resources() {
 		s_stage.pNPCPosGeo = pGeo;
 		if (pGeo) {
 			int npts = s_stage.pNPCPosGeo->get_pnt_num();
+			nxCore::dbg_msg("Populating city quarter with %d citizens...\n", npts);
 			for (int i = 0; i < npts; ++i) {
 				Human::Descr descr;
 				descr.reset();
 				cxVec pos = pGeo->get_pnt(i);
 				descr.type = Human::Type(i % 2);
-				descr.personId = i;
+				descr.personId = i / 2;
 				descr.pName = nullptr;
 				float heightMod = 0.0f;
 				if (descr.type == Human::CITIZEN_FEMALE) {

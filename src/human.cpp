@@ -391,6 +391,7 @@ ScnObj* add_human(const Human::Descr& descr, Human::CtrlFunc ctrl) {
 					XD_SPRINTF(XD_SPRINTF_BUF(nameBuf, sizeof(nameBuf)), "%s@%03d", pPkg->get_name(), s_wk.mCount);
 					pName = nameBuf;
 				}
+				nxCore::dbg_msg("Adding %s 	\n", pName);
 				pObj = Scene::add_obj(pMdl, pName);
 			}
 		}
