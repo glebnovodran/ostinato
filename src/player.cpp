@@ -17,7 +17,7 @@ bool check_run_mode() {
 	return InputCtrl::now_active(InputCtrl::L2) || InputCtrl::now_active(InputCtrl::ButtonB);
 }
 
-void Manana_exec_ctrl(Human* pHuman) {
+void traveller_exec_ctrl(Human* pHuman) {
 	if (!pHuman) return;
 	switch (pHuman->mAction) {
 	case Human::ACT_STAND:
@@ -106,11 +106,11 @@ void Manana_exec_ctrl(Human* pHuman) {
 ScnObj* init() {
 	Human::Descr descr;
 	descr.reset();
-	descr.type = Human::Type::CITIZEN_FEMALE;
-	descr.bodyVariation = 5;
+	descr.type = Human::Type::TRAVELLER;
+	descr.personId = 0;
 	descr.scale = 1.0f;
-	descr.pName = "Manana";
-	ScnObj* pPlr = HumanSys::add_human(descr, Manana_exec_ctrl);
+	descr.pName = "Traveller";
+	ScnObj* pPlr = HumanSys::add_human(descr, traveller_exec_ctrl);
 	return pPlr;
 }
 

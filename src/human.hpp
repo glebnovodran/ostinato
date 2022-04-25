@@ -8,6 +8,12 @@ struct Human {
 		INIT = 0,
 		ACTIVE
 	};
+
+	enum Kind {
+		FEMALE = 0,
+		MALE,
+		MAX_KIND
+	};
 	enum Type {
 		CITIZEN_FEMALE = 0,
 		CITIZEN_MALE,
@@ -19,14 +25,14 @@ struct Human {
 	struct Descr {
 		const char* pName;
 		Type type;
-		int bodyVariation;
+		int personId;
 		int mtlVariation;
 		float scale;
 
 		void reset() {
 			pName = nullptr;
 			type = Type::CITIZEN_FEMALE;
-			bodyVariation = 0;
+			personId = 0;
 			mtlVariation = 0;
 			scale = 1.0f;
 		}

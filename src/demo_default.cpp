@@ -63,7 +63,7 @@ static void init_resources() {
 				descr.reset();
 				cxVec pos = pGeo->get_pnt(i);
 				descr.type = Human::Type(i % 2);
-				descr.bodyVariation = i;
+				descr.personId = i;
 				descr.pName = nullptr;
 				float heightMod = 0.0f;
 				if (descr.type == Human::CITIZEN_FEMALE) {

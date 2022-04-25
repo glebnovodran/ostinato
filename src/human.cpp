@@ -203,20 +203,21 @@ void Human::exec_collision() {
 
 namespace HumanSys {
 
-static char get_resource_code(Human::Type type) {
-	static const char htc[Human::Type::MAX + 1] = {'f', 'm', ' '};
+static char get_resource_code(Human::Kind type) {
+	static const char htc[Human::Kind::MAX_KIND + 1] = {'f', 'm', ' '};
 	return htc[type];
 }
 
 static struct HumanWk {
 
-	static const int BODY_VAR_NUM = 10;
+	static const int IDENTITIES_NUM = 10;
 
 	struct ResidentRsrc {
-		Pkg* mBasePkg[Human::Type::MAX];
+		Pkg* mBasePkg[Human::Kind::MAX_KIND];
+		Pkg* mPlr[Human::Kind::MAX_KIND];
 	} mResident;
 	struct TransientRsrc {
-		Pkg* mVariPkg[Human::Type::MAX][BODY_VAR_NUM];
+		Pkg* mVariPkg[Human::Kind::MAX_KIND][IDENTITIES_NUM];
 	} mTransient;
 	sxCollisionData* mpCol;
 	int mCount;
@@ -225,27 +226,63 @@ static struct HumanWk {
 
 
 	Pkg* get_base_pkg(const Human::Type type) {
-		return mResident.mBasePkg[type];
+		Pkg* pBasePkg = nullptr;
+		switch (type) {
+			case Human::CITIZEN_FEMALE:
+			case Human::TRAVELLER:
+				pBasePkg = mResident.mBasePkg[0]; // base female
+				break;
+			case Human::CITIZEN_MALE:
+			case Human::WANDERER:
+				pBasePkg = mResident.mBasePkg[1]; // basemale
+				break;
+			default:
+				break;
+		}
+		return pBasePkg;
 	}
 
 	Pkg* get_pkg(const Human::Type type, uint32_t vari) {
-		return vari < BODY_VAR_NUM ? mTransient.mVariPkg[type][vari] : nullptr;
+		Pkg* pPkg = nullptr;
+		switch (type) {
+			case Human::CITIZEN_FEMALE:
+				pPkg = (vari < IDENTITIES_NUM) ? mTransient.mVariPkg[Human::FEMALE][vari] : nullptr;
+				break;
+			case Human::CITIZEN_MALE:
+				pPkg = (vari < IDENTITIES_NUM) ? mTransient.mVariPkg[Human::MALE][vari] : nullptr;
+				break;
+			case Human::TRAVELLER:
+				pPkg = mResident.mPlr[Human::FEMALE];
+				break;
+			case Human::WANDERER:
+				pPkg = mResident.mPlr[Human::MALE];
+				break;
+			default:
+				break;
+		}
+		return pPkg;
 	}
 
-	void init_base() {
+	void init_resident() {
 		char buff[6];
-		for (int i = 0; i < Human::Type::MAX; ++i) {
-			char htc = get_resource_code(Human::Type(i));
+		for (int i = 0; i < Human::Kind::MAX_KIND; ++i) {
+			char htc = get_resource_code(Human::Kind(i));
 			XD_SPRINTF(XD_SPRINTF_BUF(buff, 5), "npc_%c", htc);
 			mResident.mBasePkg[i] = Scene::load_pkg(buff);
 		}
+		mResident.mPlr[Human::FEMALE] = Scene::load_pkg("traveller");
+#if 0
+		mResident.mPlr[Human::MALE] = Scene::load_pkg("wanderer");
+#else
+		mResident.mPlr[Human::MALE] = nullptr;
+#endif
 	}
 
 	void init_transient() {
 		char buff[10];
-		for (int i = 0; i < Human::Type::MAX; ++i) {
-			char htc = get_resource_code(Human::Type(i));
-			for (int j = 0; j < BODY_VAR_NUM; ++j) {
+		for (int i = 0; i < Human::Kind::MAX_KIND; ++i) {
+			char htc = get_resource_code(Human::Kind(i));
+			for (int j = 0; j < IDENTITIES_NUM; ++j) {
 				XD_SPRINTF(XD_SPRINTF_BUF(buff, 10), "npc_%c%02u", htc, j);
 				mTransient.mVariPkg[i][j] = Scene::load_pkg(buff);
 			}
@@ -256,7 +293,7 @@ static struct HumanWk {
 		mFixedFreq = nxApp::get_bool_opt("fixfreq", false);
 		mLowQ = nxApp::get_bool_opt("lowq", false);
 		mCount = 0;
-		init_base();
+		init_resident();
 		init_transient();
 	}
 	void reset() {}
@@ -328,7 +365,7 @@ static void human_before_blend_func(ScnObj* pObj) {
 ScnObj* add_human(const Human::Descr& descr, Human::CtrlFunc ctrl) {
 	ScnObj* pObj = nullptr;
 	if (s_initFlg) {
-		int bodyId = descr.bodyVariation % HumanWk::BODY_VAR_NUM;
+		int bodyId = descr.personId % HumanWk::IDENTITIES_NUM;
 		bodyId  = nxCalc::clamp(bodyId, 0, bodyId);
 		Pkg* pPkg = s_wk.get_pkg(descr.type, bodyId);
 		if (pPkg) {
