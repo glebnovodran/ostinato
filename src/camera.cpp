@@ -12,6 +12,8 @@ struct ViewWk {
 	cxVec prevTgt;
 	cxVec pos;
 	cxVec tgt;
+	int lastPolId;
+	int cnt;
 
 	void reset() {
 		pos = cxVec(0.75f, 1.3f, 3.5f);
@@ -42,7 +44,7 @@ void init() {
 void exec(const Context& ctx) {
 	ScnObj* pTgtObj = ctx.mpTgtObj;
 	bool zoneFlg = false;
-
+	float multiplier = 1.0f;
 	if (pTgtObj) {
 		cxVec wpos = pTgtObj->get_world_pos();
 
@@ -51,6 +53,24 @@ void exec(const Context& ctx) {
 			cxLineSeg zonesSeg(wpos + cxVec(0.0f, 1.0f, 0.0f), wpos - cxVec(0.0f, 0.5f, 0.0f));
 			ctx.mpZones->hit_query(zonesSeg, zonesHit);
 			zoneFlg = zonesHit.mPolId >= 0;
+			if (zonesHit.mPolId >= 0) {
+				zoneFlg = true;
+				if (s_view.lastPolId == -1) {
+					multiplier = 4.0f;
+					s_view.cnt = 30;
+				} else {
+					multiplier = 1.0f;
+				}
+			} else {
+				zoneFlg = false;
+				if (s_view.lastPolId >= 0) {
+					s_view.cnt = 30;
+					multiplier = 4.0f;
+				} else {
+					multiplier = 1.0f;
+				}
+			}
+			s_view.lastPolId = zonesHit.mPolId;
 		}
 
 		cxAABB bbox = pTgtObj->get_world_bbox();
@@ -68,15 +88,17 @@ void exec(const Context& ctx) {
 		s_view.pos = s_view.tgt + offs;
 
 		if (Scene::get_frame_count() > 0) {
-			int t = int(nxCalc::div0(40.0f, TimeCtrl::get_motion_speed()));
+			int t = int(nxCalc::div0((s_view.cnt > 0? multiplier : 1.0f) * 40.0f, TimeCtrl::get_motion_speed()));
 			s_view.pos = nxCalc::approach(s_view.prevPos, s_view.pos, t);
-			t = int(nxCalc::div0(20.0f, TimeCtrl::get_motion_speed()));
+			t = int(nxCalc::div0((s_view.cnt > 0? multiplier : 1.0f) * 10.0f, TimeCtrl::get_motion_speed()));
 			s_view.tgt = nxCalc::approach(s_view.prevTgt, s_view.tgt, t);
 		}
 		s_view.prevPos = s_view.pos;
 		s_view.prevTgt = s_view.tgt;
 	}
 	Scene::set_view(s_view.pos, s_view.tgt);
+
+	if (s_view.cnt > 0) { --s_view.cnt; }
 }
 
 }; // namespace
