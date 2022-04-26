@@ -6,6 +6,7 @@ namespace Camera {
 struct Context {
 	ScnObj* mpTgtObj;
 	uint32_t mCamMode;
+	sxGeometryData* mpZones;
 };
 void init();
 void exec(const Context& ctx);

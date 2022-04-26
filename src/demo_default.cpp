@@ -54,6 +54,7 @@ static void init_resources() {
 		Scene::for_all_pkg_models(pPkg, add_stg_obj, &s_stage);
 		s_stage.pCol = pPkg->find_collision("col");
 		HumanSys::set_collision(s_stage.pCol);
+		s_stage.camCtx.mpZones = pPkg->find_geometry("cam_zones");
 		sxGeometryData* pGeo = pPkg->find_geometry("npc_pos");
 		s_stage.pNPCPosGeo = pGeo;
 		if (pGeo) {
