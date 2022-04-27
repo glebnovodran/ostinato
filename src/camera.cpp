@@ -74,6 +74,9 @@ void exec(const Context& ctx) {
 
 		if (ctx.mCamMode == 1) {
 			offs = cxVec(-4.0f, 4.0f, 12.0f);
+			if (zoneFlg) {
+				offs = cxVec(-5.0f, 3.8f, -9.0f);
+			}
 		}
 		s_view.pos = s_view.tgt + offs;
 
