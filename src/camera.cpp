@@ -92,8 +92,6 @@ void exec(const Context& ctx) {
 		s_view.prevTgt = s_view.tgt;
 	}
 	Scene::set_view(s_view.pos, s_view.tgt);
-
-	if (s_view.cnt > 0) { --s_view.cnt; }
 }
 
 }; // namespace
