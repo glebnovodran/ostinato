@@ -116,6 +116,13 @@ static bool human_obj_adj_for_each(ScnObj* pObj, void* pHumanMem) {
 	cxVec adjPos = npos;
 	bool adjFlg = Scene::sph_sph_adj(npos, opos, rchar, objPos, robj, &adjPos);
 	if (adjFlg) {
+		sxCollisionData* pCol = HumanSys::get_collision();
+		if (pCol) {
+			sxCollisionData::NearestHit stgHit = pCol->nearest_hit(cxLineSeg(opos, adjPos));
+			if (stgHit.count > 0) {
+				nxCore::dbg_msg("%s ran out of stage!\n", pHuman->mpObj->mpName);
+			}
+		}
 		pHuman->mpObj->set_skel_root_local_tx(adjPos.x);
 		pHuman->mpObj->set_skel_root_local_tz(adjPos.z);
 		++pHuman->mObjAdjCount;
@@ -175,9 +182,10 @@ void Human::exec_collision() {
 	if (!mpObj) return;
 	bool objTouchOngoing = mObjTouchCount > 0;
 	bool wallTouchOngoing = mWallTouchCount > 0;
+	ground_adj();
 	obj_adj();
 	wall_adj();
-	ground_adj();
+
 	if (mObjTouchCount > 0) {
 		if (objTouchOngoing) {
 			mObjTouchDuration = TimeCtrl::get_current_time() - mObjTouchStartTime;
