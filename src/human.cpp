@@ -49,8 +49,8 @@ void Human::MotLib::init(const Pkg* pPkg, const Pkg* pBasePkg) {
 uint32_t Human::find_nearest_mot_frame(const sxMotionData* pMtd, const char* pNodeName) const {
 	int nearFrame = 0;
 	ScnObj* pObj = this->mpObj;
-	cxMotionWork* pMotWk = pObj ? pObj->mpMotWk : nullptr;
-	if (pNodeName && pMtd) {
+	if (pObj && pObj->mpMdlWk && pObj->mpMotWk && pNodeName && pMtd) {
+		cxMotionWork* pMotWk = pObj ? pObj->mpMotWk : nullptr;
 		int nodeId = pObj->find_skel_node_id(pNodeName);
 		int centerId = pObj->find_skel_node_id("n_Center");
 		if (pObj->ck_skel_id(nodeId) && pObj->ck_skel_id(centerId)) {
