@@ -448,7 +448,7 @@ ScnObj* add_human(const Human::Descr& descr, Human::CtrlFunc ctrl) {
 				pHuman->mWallTouchDuration = 0.0;
 
 				pHuman->mCtrlFunc = ctrl;
-
+				pHuman->change_state(Human::INIT);
 				pHuman->mAction = Human::ACT_STAND;
 				pHuman->set_motion();
 				pHuman->mActionTimer.mStartTime = s_wk.mFixedFreq ? 0.0 : TimeCtrl::get_sys_time_millis();
