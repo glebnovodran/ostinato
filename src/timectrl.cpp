@@ -13,7 +13,7 @@ struct Wk {
 	TimeCtrl::Frequency mFreq;
 	bool mTimeFixUpFlg;
 
-	void init(TimeCtrl::Frequency freq) {
+	void init(TimeCtrl::Frequency freq) { // TODO check command line here
 		mFreq = freq;
 		mTimeFixUpFlg = true;
 		mFramerateStopWatch.alloc(10);
@@ -22,7 +22,6 @@ struct Wk {
 	void reset() {
 		mFramerateStopWatch.free();
 	}
-
 
 	void exec() {
 		using namespace TimeCtrl;
@@ -38,10 +37,12 @@ struct Wk {
 			mMedianFPS = float(fps);
 		}
 		mFramerateStopWatch.begin();
-		if (mFreq != Frequency::VARIABLE) {
-			// FIXED_60
+		if (mFreq == Frequency::FIXED_60) {
 			mCurrentTime += 1000.0 / 60.0f;
 			mMotSpeed = 1.0f;
+		} else if (mFreq == Frequency::FIXED_30) {
+			mCurrentTime += 1000.0 / 30.0f;
+			mMotSpeed = 2.0f;
 		} else { // VARIABLE
 			if (mMedianFPS > 0.0f) {
 				if (mMedianFPS >= 57.0f && mMedianFPS <= 62.0f) {
@@ -63,9 +64,11 @@ namespace TimeCtrl {
 
 static bool s_initFlg = false;
 
-void init(TimeCtrl::Frequency freq) {
+void init() {
 	if (s_initFlg) return;
-	s_wk.init(freq);
+	int freq = nxApp::get_int_opt("tfreq", 0);
+	TimeCtrl::Frequency tfreq = TimeCtrl::Frequency(freq < TimeCtrl::NUM_MODES ? freq : 0);
+	s_wk.init(tfreq);
 	s_initFlg = true;
 }
 

@@ -89,7 +89,7 @@ void init_player() {
 }
 
 static void init() {
-	TimeCtrl::init(TimeCtrl::VARIABLE);
+	TimeCtrl::init();
 	HumanSys::init();
 	init_resources();
 	init_player();

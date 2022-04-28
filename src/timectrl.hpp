@@ -6,9 +6,11 @@ namespace TimeCtrl {
 enum Frequency {
 	VARIABLE = 0,
 	FIXED_60,
+	FIXED_30,
+	NUM_MODES
 };
 
-void init(Frequency freq = Frequency::VARIABLE);
+void init();
 void reset();
 void exec();
 

@@ -120,12 +120,15 @@ static bool human_obj_adj_for_each(ScnObj* pObj, void* pHumanMem) {
 		if (pCol) {
 			sxCollisionData::NearestHit stgHit = pCol->nearest_hit(cxLineSeg(opos, adjPos));
 			if (stgHit.count > 0) {
-				nxCore::dbg_msg("%s ran out of stage!\n", pHuman->mpObj->mpName);
+				nxCore::dbg_msg("[BREAK] %s made an attempt to escape out of stage!\n", pHuman->get_name());
+				adjFlg = false;
 			}
 		}
-		pHuman->mpObj->set_skel_root_local_tx(adjPos.x);
-		pHuman->mpObj->set_skel_root_local_tz(adjPos.z);
-		++pHuman->mObjAdjCount;
+		if (adjFlg) {
+			pHuman->mpObj->set_skel_root_local_tx(adjPos.x);
+			pHuman->mpObj->set_skel_root_local_tz(adjPos.z);
+			++pHuman->mObjAdjCount;
+		}
 	}
 	return true;
 }

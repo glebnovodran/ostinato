@@ -139,6 +139,8 @@ struct Human {
 	void wall_adj();
 	void ground_adj();
 	void exec_collision();
+
+	const char* get_name() const { return mpObj->mpName; }
 };
 
 namespace HumanSys {
