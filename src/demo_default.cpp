@@ -98,6 +98,43 @@ static void init() {
 	InputCtrl::init();
 }
 
+static void draw_2d() {
+	char str[32];
+	float refSizeX = 800;
+	float refSizeY = 600;
+	Scene::set_ref_scr_size(refSizeX, refSizeY);
+	if (Scene::get_view_mode_width() < Scene::get_view_mode_height()) {
+		Scene::set_ref_scr_size(refSizeY, refSizeX);
+	}
+
+	float sx = 10.0f;
+	float sy = Scene::get_ref_scr_height() - 20.0f;
+
+	xt_float2 bpos[4];
+	xt_float2 btex[4];
+	btex[0].set(0.0f, 0.0f);
+	btex[1].set(1.0f, 0.0f);
+	btex[2].set(1.0f, 1.0f);
+	btex[3].set(0.0f, 1.0f);
+	float bx = 4.0f;
+	float by = 4.0f;
+	float bw = 80.0f + 10.0f;
+	float bh = 12.0f;
+	cxColor bclr(0.0f, 0.0f, 0.0f, 0.75f);
+	bpos[0].set(sx - bx, sy - by);
+	bpos[1].set(sx + bw + bx, sy - by);
+	bpos[2].set(sx + bw + bx, sy + bh + by);
+	bpos[3].set(sx - bx, sy + bh + by);
+	Scene::quad(bpos, btex, bclr);
+	float fps = TimeCtrl::get_fps();
+	if (fps < 0.0f) {
+		XD_SPRINTF(XD_SPRINTF_BUF(str, sizeof(str)), "FPS: --");
+	} else {
+		XD_SPRINTF(XD_SPRINTF_BUF(str, sizeof(str)), "FPS: %.2f", fps);
+	}
+	Scene::print(sx, sy, cxColor(0.1f, 0.75f, 0.1f, 1.0f), str);
+}
+
 static void loop(void* pLoopCtx) {
 	TimeCtrl::exec();
 	InputCtrl::update();
@@ -107,6 +144,7 @@ static void loop(void* pLoopCtx) {
 	Scene::visibility();
 	Scene::frame_begin(cxColor(0.5f));
 	Scene::draw();
+	draw_2d();
 	Scene::frame_end();
 }
 
