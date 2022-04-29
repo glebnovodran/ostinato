@@ -1,0 +1,17 @@
+# screen -c scr.rc
+
+altscreen on
+caption always
+mousetrack on
+screen 0 mc
+title "main"
+
+split -v
+focus next
+screen 1
+title "sub"
+focus prev
+resize +10%
+
+caption string " %?%F%{.G.}%?%3n %t%?"
+
