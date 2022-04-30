@@ -140,7 +140,7 @@ struct Human {
 	void ground_adj();
 	void exec_collision();
 
-	const char* get_name() const { return mpObj->mpName; }
+	const char* get_name() const { return mpObj ? mpObj->mpName : nullptr; }
 };
 
 namespace HumanSys {
