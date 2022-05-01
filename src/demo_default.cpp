@@ -33,6 +33,7 @@ static void init_view() {
 
 static void view_exec() {
 	if (InputCtrl::triggered(InputCtrl::SWITCH2)) {
+		nxCore::dbg_msg("[BREAK] Cam mode changed");
 		s_stage.camCtx.mCamMode ^= 1;
 	}
 	Camera::exec(s_stage.camCtx);
@@ -82,7 +83,7 @@ static void init_resources() {
 	nxCore::dbg_msg("\n~ Welcome to Ostinato ~\n");
 }
 
-void init_player() {
+static void init_player() {
 	ScnObj* pPlr = Player::init();
 	pPlr->set_world_quat_pos(nxQuat::from_degrees(0.0f, 0.0f, 0.0f), cxVec(34.5f, 0.0f, -19.0f));
 	s_stage.pPlayer = pPlr;
