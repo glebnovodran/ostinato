@@ -211,6 +211,16 @@ void set_default_lightning() {
 	Scene::set_linear_white_rgb(0.65f, 0.65f, 0.55f);
 	Scene::set_linear_gain(1.32f);
 	Scene::set_linear_bias(-0.025f);
+
+	int32_t lval = s_globals.sensors.vals.light;
+	if (lval >= 0 && lval <= 1023) {
+		float val = float(lval) / 1023.0f;
+		float expVal = nxCalc::fit(val, 0.0f, 1.0f, -0.4f, 3.2f);
+		Scene::set_linear_gain(0.5f + nxCalc::cb_root(val)*0.25f);
+		val = nxCalc::fit(val, 0.0f, 1.0f, 0.75f, 0.1f);
+		Scene::set_linear_white_rgb(val, val, val * 0.75f);
+		Scene::set_exposure_rgb(0.75f + expVal, 0.85f + expVal, 0.5f + expVal);
+	}
 }
 
 ScnObj* get_cam_tgt_obj() {
