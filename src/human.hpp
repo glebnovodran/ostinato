@@ -141,6 +141,16 @@ struct Human {
 	void exec_collision();
 
 	const char* get_name() const { return mpObj ? mpObj->mpName : nullptr; }
+	void mark() {
+		if (mpObj) {
+			mpObj->set_base_color_scl(1.5f, 0.25f, 0.25f);
+		}
+	}
+	void unmark() const {
+		if (mpObj) {
+			mpObj->set_base_color_scl(1.0f);
+		}
+	}
 };
 
 namespace HumanSys {
@@ -153,4 +163,17 @@ namespace HumanSys {
 	ScnObj* add_human(const Human::Descr& descr, Human::CtrlFunc ctrl = nullptr);
 	void set_collision(sxCollisionData* pCol);
 	sxCollisionData* get_collision();
+
+	void mark(const char* pName) {
+		Human* pHuman = find(pName);
+		if (pHuman) {
+			pHuman->mark();
+		}
+	}
+	void unmark(const char* pName) {
+		Human* pHuman = find(pName);
+		if (pHuman) {
+			pHuman->unmark();
+		}
+	}
 }
