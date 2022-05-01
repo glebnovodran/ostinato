@@ -33,7 +33,6 @@ static void init_view() {
 
 static void view_exec() {
 	if (InputCtrl::triggered(InputCtrl::SWITCH2)) {
-		nxCore::dbg_msg("[BREAK] Cam mode changed");
 		s_stage.camCtx.mCamMode ^= 1;
 	}
 	Camera::exec(s_stage.camCtx);

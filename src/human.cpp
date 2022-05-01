@@ -473,4 +473,18 @@ sxCollisionData* get_collision() {
 	return s_wk.mpCol;
 }
 
+void mark(const char* pName) {
+	Human* pHuman = find(pName);
+	if (pHuman) {
+		pHuman->mark();
+	}
+}
+
+void unmark(const char* pName) {
+	Human* pHuman = find(pName);
+	if (pHuman) {
+		pHuman->unmark();
+	}
+}
+
 };

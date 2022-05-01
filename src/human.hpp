@@ -164,16 +164,6 @@ namespace HumanSys {
 	void set_collision(sxCollisionData* pCol);
 	sxCollisionData* get_collision();
 
-	void mark(const char* pName) {
-		Human* pHuman = find(pName);
-		if (pHuman) {
-			pHuman->mark();
-		}
-	}
-	void unmark(const char* pName) {
-		Human* pHuman = find(pName);
-		if (pHuman) {
-			pHuman->unmark();
-		}
-	}
+	void mark(const char* pName);
+	void unmark(const char* pName);
 }

@@ -24,3 +24,25 @@ class CamThr(threading.Thread):
 		while True:
 			cam_event()
 			time.sleep(5)
+
+def h_act(name):
+	act = "NONE"
+	h = gdb.parse_and_eval('HumanSys::find("%s")' % name)
+	if h: act = str(h["mAction"])
+	print(act)
+
+def h_mark(name):
+	h = gdb.parse_and_eval('HumanSys::find("%s")' % name)
+	if h:
+		gdb.parse_and_eval('HumanSys::mark("%s")' % name)
+		dbg_out("Put a mark on %s." % name);
+	else:
+		dbg_out("No one to mark.")
+
+def h_unmark(name):
+	h = gdb.parse_and_eval('HumanSys::find("%s")' % name)
+	if h:
+		gdb.parse_and_eval('HumanSys::unmark("%s")' % name)
+		dbg_out("%s was unmarked." % name);
+	else:
+		dbg_out("No one to unmark.")
