@@ -337,18 +337,18 @@ bool obj_is_human(ScnObj* pObj) {
 	return res;
 }
 
-Human* get_human(ScnObj* pObj) {
+Human* as_human(ScnObj* pObj) {
 	return obj_is_human(pObj) ? pObj->get_ptr_wk<Human>(0) : nullptr;
 }
 
 static void human_before_mot_func(ScnObj* pObj) {
-	Human* pHuman = get_human(pObj);
+	Human* pHuman = as_human(pObj);
 	if (!pHuman) return;
 	pHuman->select_motion();
 }
 
 static void human_exec_func(ScnObj* pObj) {
-	Human* pHuman = get_human(pObj);
+	Human* pHuman = as_human(pObj);
 	if (!pHuman) return;
 	pHuman->ctrl();
 	float fps = pObj->mpMoveMot ? pObj->mpMoveMot->mFPS : 0.0f;
@@ -359,7 +359,7 @@ static void human_exec_func(ScnObj* pObj) {
 }
 
 static void human_del_func(ScnObj* pObj) {
-	Human* pHuman = get_human(pObj);
+	Human* pHuman = as_human(pObj);
 	if (!pHuman) return;
 	nxCore::tMem<Human>::free(pHuman);
 	pObj->set_ptr_wk<void>(0, nullptr);
@@ -367,7 +367,7 @@ static void human_del_func(ScnObj* pObj) {
 }
 
 static void human_before_blend_func(ScnObj* pObj) {
-	Human* pHuman = get_human(pObj);
+	Human* pHuman = as_human(pObj);
 	if (!pHuman) return;
 	pHuman->exec_collision();
 	pHuman->mRig.exec();
