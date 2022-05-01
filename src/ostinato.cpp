@@ -7,16 +7,25 @@
 
 #include "ostinato.hpp"
 
-//static const bool c_defBump = true;
-//static const bool c_defSpec = true;
-//static const bool c_defReduce = false;
+#undef OSTINATO_SENSORS
+#if defined(XD_SYS_LINUX) || defined(XD_SYS_BSD)
+#	include <fcntl.h>
+#	include <unistd.h>
+#	define OSTINATO_SENSORS
+#endif
+
+static const bool c_defBump = true;
+static const bool c_defSpec = true;
+static const bool c_defReduce = false;
 
 static struct OstinatoGlobals {
-	const bool c_defBump = true;
-	const bool c_defSpec = true;
-	const bool c_defReduce = false;
-
 	ScnObj* pTgtObj;
+	struct Sensors {
+		int fid;
+		struct Values {
+			int32_t light;
+		} vals;
+	} sensors;
 } s_globals = {};
 
 static void dbgmsg(const char* pMsg) {
@@ -32,6 +41,57 @@ static void oglsys_mem_free(void* pMem) {
 	nxCore::mem_free(pMem);
 }
 
+static void init_sensors() {
+	s_globals.sensors.fid = -1;
+	s_globals.sensors.vals.light = -1;
+#ifdef OSTINATO_SENSORS
+	const char* pSensPath = nxApp::get_opt("sensors");
+	if (pSensPath) {
+		s_globals.sensors.fid = ::open(pSensPath, O_SYNC);
+		if (s_globals.sensors.fid >= 0) {
+			nxCore::dbg_msg("Ostinato: sensors port open @ %s\n", pSensPath);
+		}
+	}
+#endif
+}
+
+static void reset_sensors() {
+#ifdef OSTINATO_SENSORS
+	int fid = s_globals.sensors.fid;
+	if (fid >= 0) {
+		::close(fid);
+	}
+#endif
+	s_globals.sensors.fid = -1;
+}
+
+void update_sensors() {
+#ifdef OSTINATO_SENSORS
+	int fid = s_globals.sensors.fid;
+	if (fid >= 0) {
+		char inBuf[128];
+		char valBuf[128];
+		size_t nread = ::read(fid, inBuf, sizeof(inBuf) - 1);
+		if (nread > 0) {
+			size_t valIdx = 0;
+			for (size_t i = 0; i < nread; ++i) {
+				char c = inBuf[i];
+				if (c >= '0' && c <= '9') {
+					valBuf[valIdx++] = c;
+				}
+			}
+			int32_t val = 0;
+			if (valIdx > 0) {
+				val = ::atoi(inBuf);
+				//nxCore::dbg_msg("%d, ", val);
+				s_globals.sensors.vals.light = val;
+			}
+		}
+	}
+#endif
+}
+
+
 static void init_ogl(const int x, const int y, const int w, const int h, const int msaa) {
 	OGLSysCfg cfg;
 	cfg.clear();
@@ -40,7 +100,7 @@ static void init_ogl(const int x, const int y, const int w, const int h, const i
 	cfg.width = w;
 	cfg.height = h;
 	cfg.msaa = msaa;
-	cfg.reduceRes = nxApp::get_bool_opt("reduce", s_globals.c_defReduce);
+	cfg.reduceRes = nxApp::get_bool_opt("reduce", c_defReduce);
 	cfg.ifc.dbg_msg = nxCore::dbg_msg;
 	cfg.ifc.mem_alloc = oglsys_mem_alloc;
 	cfg.ifc.mem_free = oglsys_mem_free;
@@ -68,8 +128,8 @@ static void init_scn_sys(const char* pAppPath) {
 	scnCfg.pAppPath = pAppPath;
 	scnCfg.shadowMapSize = nxApp::get_int_opt("smap", 2048);
 	scnCfg.numWorkers = nxApp::get_int_opt("nwrk", 0);
-	scnCfg.useBump = nxApp::get_bool_opt("bump", s_globals.c_defBump);
-	scnCfg.useSpec = nxApp::get_bool_opt("spec", s_globals.c_defSpec);
+	scnCfg.useBump = nxApp::get_bool_opt("bump", c_defBump);
+	scnCfg.useSpec = nxApp::get_bool_opt("spec", c_defSpec);
 	nxCore::dbg_msg("#workers: %d\n", scnCfg.numWorkers);
 	nxCore::dbg_msg("shadow size: %d\n", scnCfg.shadowMapSize);
 	Scene::init(scnCfg);
@@ -105,13 +165,14 @@ void init(int argc, char* argv[]) {
 	int msaa = nxApp::get_int_opt("msaa", 0);
 
 	init_ogl(x, y, w, h, msaa);
-
+	init_sensors();
 	init_scn_sys(argv[0]);
 }
 
 void reset() {
 	Scene::reset();
 	reset_ogl();
+	reset_sensors();
 	nxApp::reset();
 	nxCore::mem_dbg();
 }

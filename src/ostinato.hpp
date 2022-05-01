@@ -4,8 +4,9 @@
 namespace Ostinato {
 
 	void init(int argc, char* argv[]);
-
 	void reset();
+
+	void update_sensors();
 
 	void set_default_lightning();
 
