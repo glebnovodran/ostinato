@@ -146,7 +146,8 @@ struct Human {
 namespace HumanSys {
 	void init();
 	void reset();
-	
+
+	Human* find(const char* pName);
 	bool obj_is_human(ScnObj* pObj);
 	Human* as_human(ScnObj* pobj);
 	ScnObj* add_human(const Human::Descr& descr, Human::CtrlFunc ctrl = nullptr);

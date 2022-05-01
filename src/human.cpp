@@ -324,6 +324,11 @@ void reset() {
 	s_initFlg = false;
 }
 
+Human* find(const char* pName) {
+	ScnObj* pObj = Scene::find_obj(pName);
+	return pObj ? HumanSys::as_human(pObj) : nullptr;
+}
+
 bool obj_is_human(ScnObj* pObj) {
 	bool res = false;
 	if (pObj) {
