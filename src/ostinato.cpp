@@ -65,33 +65,6 @@ static void reset_sensors() {
 	s_globals.sensors.fid = -1;
 }
 
-void update_sensors() {
-#ifdef OSTINATO_SENSORS
-	int fid = s_globals.sensors.fid;
-	if (fid >= 0) {
-		char inBuf[128];
-		char valBuf[128];
-		size_t nread = ::read(fid, inBuf, sizeof(inBuf) - 1);
-		if (nread > 0) {
-			size_t valIdx = 0;
-			for (size_t i = 0; i < nread; ++i) {
-				char c = inBuf[i];
-				if (c >= '0' && c <= '9') {
-					valBuf[valIdx++] = c;
-				}
-			}
-			int32_t val = 0;
-			if (valIdx > 0) {
-				val = ::atoi(inBuf);
-				//nxCore::dbg_msg("%d, ", val);
-				s_globals.sensors.vals.light = val;
-			}
-		}
-	}
-#endif
-}
-
-
 static void init_ogl(const int x, const int y, const int w, const int h, const int msaa) {
 	OGLSysCfg cfg;
 	cfg.clear();
@@ -229,6 +202,32 @@ ScnObj* get_cam_tgt_obj() {
 
 void set_cam_tgt(const char* pName) {
 	s_globals.pTgtObj = Scene::find_obj(pName);
+}
+
+void update_sensors() {
+#ifdef OSTINATO_SENSORS
+	int fid = s_globals.sensors.fid;
+	if (fid >= 0) {
+		char inBuf[128];
+		char valBuf[128];
+		size_t nread = ::read(fid, inBuf, sizeof(inBuf) - 1);
+		if (nread > 0) {
+			size_t valIdx = 0;
+			for (size_t i = 0; i < nread; ++i) {
+				char c = inBuf[i];
+				if (c >= '0' && c <= '9') {
+					valBuf[valIdx++] = c;
+				}
+			}
+			int32_t val = 0;
+			if (valIdx > 0) {
+				val = ::atoi(inBuf);
+				//nxCore::dbg_msg("%d, ", val);
+				s_globals.sensors.vals.light = val;
+			}
+		}
+	}
+#endif
 }
 
 }; // namespace
