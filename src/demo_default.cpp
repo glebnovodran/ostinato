@@ -140,6 +140,7 @@ static void draw_2d() {
 static void loop(void* pLoopCtx) {
 	TimeCtrl::exec();
 	InputCtrl::update();
+	Ostinato::update_sensors();
 	Ostinato::set_default_lightning();
 	Scene::exec();
 	view_exec();
