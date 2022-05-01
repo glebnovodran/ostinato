@@ -28,13 +28,14 @@ struct Stage {
 static void init_view() {
 	Camera::init();
 	s_stage.camCtx.mCamMode = 0;
-	s_stage.camCtx.mpTgtObj = s_stage.pPlayer;
+	s_stage.camCtx.mpTgtObj = Ostinato::get_cam_tgt_obj();
 }
 
 static void view_exec() {
 	if (InputCtrl::triggered(InputCtrl::SWITCH2)) {
 		s_stage.camCtx.mCamMode ^= 1;
 	}
+	s_stage.camCtx.mpTgtObj = Ostinato::get_cam_tgt_obj();
 	Camera::exec(s_stage.camCtx);
 }
 
@@ -86,6 +87,7 @@ static void init_player() {
 	ScnObj* pPlr = Player::init();
 	pPlr->set_world_quat_pos(nxQuat::from_degrees(0.0f, 0.0f, 0.0f), cxVec(34.5f, 0.0f, -19.0f));
 	s_stage.pPlayer = pPlr;
+	Ostinato::set_cam_tgt("Traveller");
 }
 
 static void init() {

@@ -7,9 +7,17 @@
 
 #include "ostinato.hpp"
 
-static const bool c_defBump = true;
-static const bool c_defSpec = true;
-static const bool c_defReduce = false;
+//static const bool c_defBump = true;
+//static const bool c_defSpec = true;
+//static const bool c_defReduce = false;
+
+static struct OstinatoGlobals {
+	const bool c_defBump = true;
+	const bool c_defSpec = true;
+	const bool c_defReduce = false;
+
+	ScnObj* pTgtObj;
+} s_globals = {};
 
 static void dbgmsg(const char* pMsg) {
 	::printf("%s", pMsg);
@@ -32,7 +40,7 @@ static void init_ogl(const int x, const int y, const int w, const int h, const i
 	cfg.width = w;
 	cfg.height = h;
 	cfg.msaa = msaa;
-	cfg.reduceRes = nxApp::get_bool_opt("reduce", c_defReduce);
+	cfg.reduceRes = nxApp::get_bool_opt("reduce", s_globals.c_defReduce);
 	cfg.ifc.dbg_msg = nxCore::dbg_msg;
 	cfg.ifc.mem_alloc = oglsys_mem_alloc;
 	cfg.ifc.mem_free = oglsys_mem_free;
@@ -60,8 +68,8 @@ static void init_scn_sys(const char* pAppPath) {
 	scnCfg.pAppPath = pAppPath;
 	scnCfg.shadowMapSize = nxApp::get_int_opt("smap", 2048);
 	scnCfg.numWorkers = nxApp::get_int_opt("nwrk", 0);
-	scnCfg.useBump = nxApp::get_bool_opt("bump", c_defBump);
-	scnCfg.useSpec = nxApp::get_bool_opt("spec", c_defSpec);
+	scnCfg.useBump = nxApp::get_bool_opt("bump", s_globals.c_defBump);
+	scnCfg.useSpec = nxApp::get_bool_opt("spec", s_globals.c_defSpec);
 	nxCore::dbg_msg("#workers: %d\n", scnCfg.numWorkers);
 	nxCore::dbg_msg("shadow size: %d\n", scnCfg.shadowMapSize);
 	Scene::init(scnCfg);
@@ -142,6 +150,14 @@ void set_default_lightning() {
 	Scene::set_linear_white_rgb(0.65f, 0.65f, 0.55f);
 	Scene::set_linear_gain(1.32f);
 	Scene::set_linear_bias(-0.025f);
+}
+
+ScnObj* get_cam_tgt_obj() {
+	return s_globals.pTgtObj;
+}
+
+void set_cam_tgt(const char* pName) {
+	s_globals.pTgtObj = Scene::find_obj(pName);
 }
 
 }; // namespace

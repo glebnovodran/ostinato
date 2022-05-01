@@ -46,3 +46,7 @@ def h_unmark(name):
 		dbg_out("%s was unmarked." % name);
 	else:
 		dbg_out("No one to unmark.")
+
+def cam_tgt(name):
+	h = gdb.parse_and_eval('Ostinato::set_cam_tgt("%s")' % name)
+
