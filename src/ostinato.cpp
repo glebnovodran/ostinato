@@ -188,6 +188,16 @@ void set_default_lightning() {
 	int32_t lval = s_globals.sensors.vals.light;
 	if (lval >= 0 && lval <= 1023) {
 		float val = float(lval) / 1023.0f;
+		const float sunLim = 0.75f;
+		if (val <= sunLim) {
+			float uprScl = nxCalc::fit(val, 0.0f, sunLim, 0.0f, 1.0f);
+			float redScl = uprScl;
+			float biasScl = nxCalc::fit(uprScl, 0.0f, 1.0f, 0.023f, 0.0f);
+			uprScl = nxCalc::fit(uprScl, 0.0f, 1.0f, 0.55f, 0.98f);
+			redScl = nxCalc::fit(redScl, 0.0f, 1.0f, 0.5f, 1.0f);
+			Scene::set_hemi_upper(2.5f * uprScl * redScl, 2.46f * uprScl, 2.62f * uprScl);
+			Scene::set_linear_bias(-0.025f + biasScl);
+		}
 		float expVal = nxCalc::fit(val, 0.0f, 1.0f, -0.4f, 3.2f);
 		Scene::set_linear_gain(0.5f + nxCalc::cb_root(val)*0.25f);
 		val = nxCalc::fit(val, 0.0f, 1.0f, 0.75f, 0.1f);
