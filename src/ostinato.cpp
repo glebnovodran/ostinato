@@ -11,6 +11,9 @@
 #if defined(XD_SYS_LINUX) || defined(XD_SYS_BSD)
 #	include <fcntl.h>
 #	include <unistd.h>
+#	if defined(XD_SYS_BSD)
+#		include <sys/select.h>
+#	endif
 #	define OSTINATO_SENSORS
 #endif
 
@@ -217,6 +220,15 @@ void set_cam_tgt(const char* pName) {
 void update_sensors() {
 #ifdef OSTINATO_SENSORS
 	int fid = s_globals.sensors.fid;
+	if (fid >= 0) {
+		fd_set fds;
+		FD_ZERO(&fds);
+		FD_SET(fid, &fds);
+		int sel = ::select(fid + 1, &fds, nullptr, nullptr, nullptr);
+		if (sel <= 0) {
+			fid = -1;
+		}
+	}
 	if (fid >= 0) {
 		char inBuf[128];
 		char valBuf[128];
