@@ -5,10 +5,12 @@ namespace Camera {
 
 struct Context {
 	ScnObj* mpTgtObj;
-	uint32_t mCamMode;
 	sxGeometryData* mpZones;
+	uint32_t mTgtMode;
 };
+
 void init();
 void exec(const Context& ctx);
+void set(const Context& ctx);
 
 };

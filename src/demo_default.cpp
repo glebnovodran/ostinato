@@ -27,13 +27,16 @@ struct Stage {
 
 static void init_view() {
 	Camera::init();
-	s_stage.camCtx.mCamMode = 0;
+	s_stage.camCtx.mTgtMode = 0;
 	s_stage.camCtx.mpTgtObj = Ostinato::get_cam_tgt_obj();
 }
 
 static void view_exec() {
+	if (InputCtrl::triggered(InputCtrl::SWITCH1)) {
+		Camera::set(s_stage.camCtx);
+	}
 	if (InputCtrl::triggered(InputCtrl::SWITCH2)) {
-		s_stage.camCtx.mCamMode ^= 1;
+		s_stage.camCtx.mTgtMode ^= 1;
 	}
 	s_stage.camCtx.mpTgtObj = Ostinato::get_cam_tgt_obj();
 	Camera::exec(s_stage.camCtx);
