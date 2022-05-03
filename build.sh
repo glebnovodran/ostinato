@@ -23,10 +23,25 @@ INCS="-I crosscore -I inc"
 DEFS="-DX11"
 LIBS="-lpthread -lX11"
 SYS_NAME="`uname -s`"
+SYS_KIND="generic"
+SYS_OGL="Desktop"
+EGL_LIBS="-lEGL -lGLESv2"
+RPI_KIND_PATH="/sys/firmware/devicetree/base/model"
+if [ -f $RPI_KIND_PATH ]; then
+	SYS_KIND="`cat $RPI_KIND_PATH)`"
+fi
 case $SYS_NAME in
 	Linux)
 		CXX=${CXX:-g++}
 		LIBS="$LIBS -ldl"
+		case $SYS_KIND in
+			Raspberry*)
+				SYS_OGL="GLES"
+				LIBS="$LIBS -Llib"
+			;;
+			*)
+			;;
+		esac
 	;;
 	OpenBSD)
 		CXX=${CXX:-clang++}
@@ -44,7 +59,16 @@ case $SYS_NAME in
 	;;
 esac
 
+OGL_MODE=${OGL_MODE:-$SYS_OGL}
+case $OGL_MODE in
+	GLES)
+		LIBS="$LIBS $EGL_LIBS"
+		DEFS="$DEFS -DOGLSYS_ES=1"
+	;;
+esac
+
 printf "Compiling \"$BOLD_ON$YELLOW_ON$UNDER_ON$EXE_PATH$FMT_OFF\" for $BOLD_ON$SYS_NAME$FMT_OFF with $BOLD_ON$CXX$FMT_OFF.\n"
+printf "OGL mode: $BOLD_ON$OGL_MODE$FMT_OFF.\n"
 rm -f $EXE_PATH
 $CXX -ggdb -ffast-math -ftree-vectorize -std=c++11 $DEFS $INCS $SRCS -o $EXE_PATH $LIBS $*
 
