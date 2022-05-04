@@ -8,6 +8,18 @@
 #include "timectrl.hpp"
 #include "camera.hpp"
 
+class CamZonesHitFunc : public sxGeometryData::HitFunc {
+public:
+	int mPolId;
+
+	CamZonesHitFunc() : mPolId(-1) {}
+
+	virtual bool operator()(const sxGeometryData::Polygon& pol, const cxVec& hitPos, const cxVec& hitNrm, float hitDist) {
+		mPolId = pol.get_id();
+		return false; /* any pol for now */
+	}
+};
+
 struct TrackBall {
 	cxQuat mSpin;
 	cxQuat mQuat;
@@ -43,9 +55,14 @@ struct TrackBall {
 };
 
 struct ViewWk {
-	TrackBall mTrackBall;
+	sxQuatTrackball mTrackball;
+	cxVec mTgtOffs;
+	float mRadius;
+	float mDist;
 	float mOrgX;
 	float mOrgY;
+	float mFixedCenterY;
+	bool mFixCenterY;
 
 	cxVec mPrevPos;
 	cxVec mPrevTgt;
@@ -56,7 +73,12 @@ struct ViewWk {
 	uint32_t mPosMode;
 
 	void init() {
-		mTrackBall.init();
+		mRadius = 0.5f;
+		mDist = 7.0f;
+		mTrackball.init();
+		mTgtOffs.set(0.0f, 0.0f, 0.0f);
+		mFixedCenterY = 1.0f;
+		mFixCenterY = false;
 
 		mPos = cxVec(0.75f, 1.3f, 3.5f);
 		mTgt = cxVec(0.0f, 0.95f, 0.0f);
@@ -67,13 +89,19 @@ struct ViewWk {
 		mPosMode = 0;
 	}
 
-	void update(const OGLSysInput& inp) {
+	void update(const OGLSysInput* pInp) {
 		OGLSysMouseState state = OGLSys::get_mouse_state();
-
 		if (state.ck_now(OGLSysMouseState::OGLSYS_BTN_LEFT)) {
-			if (inp.act == OGLSysInput::OGLSYS_ACT_DOWN) {
-				mOrgX = state.mNowX;
-				mOrgY = state.mNowY;
+			if (pInp) {
+				if (pInp->act == OGLSysInput::OGLSYS_ACT_DOWN) {
+					mOrgX = state.mNowX;
+					mOrgY = state.mNowY;
+				}
+			} else {
+				if (!state.ck_old(OGLSysMouseState::OGLSYS_BTN_LEFT)) {
+					mOrgX = state.mOldX;
+					mOrgY = state.mOldY;
+				}
 			}
 			float dx = state.mNowX - state.mOldX;
 			float dy = state.mNowY - state.mOldY;
@@ -82,34 +110,92 @@ struct ViewWk {
 				float y0 = mOrgY - state.mOldY;
 				float x1 = state.mNowX - mOrgX;
 				float y1 = mOrgY - state.mNowY;
-				mTrackBall.update(x0, y0, x1, y1); // radius == 0.5
-				//nxCore::dbg_msg("[DEBUG] track ball update : %f, %f, %f, %f\n", x0, y0, x1, y1);
+				mTrackball.update(x0, y0, x1, y1, mRadius);
 			}
 		}
+	}
+
+	void set_quat(const cxQuat q) {
+		mTrackball.mQuat = q;
+	}
+
+	void exec(const Camera::Context& ctx) {
+		ScnObj* pTgtObj = ctx.mpTgtObj;
+		mPosMode = ctx.mPosMode;
+		bool zoneFlg = false;
+		cxVec up = nxVec::get_axis(exAxis::PLUS_Y);
+
+		if (pTgtObj) {
+			cxVec wpos = pTgtObj->get_world_pos();
+
+			if (mPosMode == 0) {
+				if (ctx.mpZones) {
+					CamZonesHitFunc zonesHit;
+					cxLineSeg zonesSeg(wpos + cxVec(0.0f, 1.0f, 0.0f), wpos - cxVec(0.0f, 0.5f, 0.0f));
+					ctx.mpZones->hit_query(zonesSeg, zonesHit);
+					zoneFlg = zonesHit.mPolId >= 0;
+					bool zoneChange = (mLastPolId ^ zonesHit.mPolId) < 0;
+					mLastPolId = zonesHit.mPolId;
+					if (zoneChange) {
+						mCnt = 30;
+					}
+				}
+			}
+
+			cxMtx wm = pTgtObj->get_world_mtx();
+			cxVec cpos = pTgtObj->get_center_pos();
+			if (mFixCenterY) {
+				cpos.y = mFixedCenterY;
+			}
+
+			mTgt = cpos + mTgtOffs;
+			cxVec offs;
+			if (mPosMode == 0) {
+				if (ctx.mTgtMode == 0) {
+					offs = zoneFlg? cxVec(2.0f, -1.0f, 5.0f) : cxVec(-1.0f, -1.0f, -6.0f);
+				} else {
+					offs = zoneFlg? cxVec(5.0f, -3.8f, 9.0f) : cxVec(4.0f, -4.0f, -12.0f);
+				}
+			} else {
+				offs = mTrackball.calc_dir(-mDist);
+			}
+
+			mPos = mTgt - offs;
+
+			if (mPosMode == 1) {
+				up = mTrackball.calc_up();
+			}
+
+			if (mPosMode == 0) {
+				float factor = 1.0f;
+				if (mCnt > 0) {
+					factor = 10.0f;
+					--mCnt;
+				}
+				if (Scene::get_frame_count() > 0) {
+					int t = int(nxCalc::div0(40.0f * factor, TimeCtrl::get_motion_speed()));
+					mPos = nxCalc::approach(mPrevPos, mPos, t);
+					t = int(nxCalc::div0(10.0f, TimeCtrl::get_motion_speed()));
+					mTgt = nxCalc::approach(mPrevTgt, mTgt, t);
+				}
+				mPrevPos = mPos;
+				mPrevTgt = mTgt;
+			}
+		}
+
+		Scene::set_view(mPos, mTgt, up);
 	}
 } s_view;
 
 static void input_handler(const OGLSysInput& inp, void* pWk) {
 	if (s_view.mPosMode) {
 		if (inp.id == 0) {
-			s_view.update(inp);
+			s_view.update(&inp);
 		}
 	}
 }
 
 namespace Camera {
-
-class CamZonesHitFunc : public sxGeometryData::HitFunc {
-public:
-	int mPolId;
-
-	CamZonesHitFunc() : mPolId(-1) {}
-
-	virtual bool operator()(const sxGeometryData::Polygon& pol, const cxVec& hitPos, const cxVec& hitNrm, float hitDist) {
-		mPolId = pol.get_id();
-		return false; /* any pol for now */
-	}
-};
 
 void init() {
 	s_view.init();
@@ -117,68 +203,7 @@ void init() {
 }
 
 void exec(const Context& ctx) {
-	ScnObj* pTgtObj = ctx.mpTgtObj;
-	s_view.mPosMode = ctx.mPosMode;
-	bool zoneFlg = false;
-	cxVec up = nxVec::get_axis(exAxis::PLUS_Y);
-
-	if (pTgtObj) {
-		cxVec wpos = pTgtObj->get_world_pos();
-
-		if (s_view.mPosMode == 0) {
-			if (ctx.mpZones) {
-				CamZonesHitFunc zonesHit;
-				cxLineSeg zonesSeg(wpos + cxVec(0.0f, 1.0f, 0.0f), wpos - cxVec(0.0f, 0.5f, 0.0f));
-				ctx.mpZones->hit_query(zonesSeg, zonesHit);
-				zoneFlg = zonesHit.mPolId >= 0;
-				bool zoneChange = (s_view.mLastPolId ^ zonesHit.mPolId) < 0;
-				s_view.mLastPolId = zonesHit.mPolId;
-				if (zoneChange) {
-					s_view.mCnt = 30;
-				}
-			}
-		}
-
-		cxAABB bbox = pTgtObj->get_world_bbox();
-		float cy = bbox.get_center().y;
-		float yoffs = cy - bbox.get_min_pos().y;
-		s_view.mTgt = wpos + cxVec(0.0f, yoffs + 0.6f, 0.0f);
-		cxVec offs;
-		if (s_view.mPosMode == 0) {
-			if (ctx.mTgtMode == 0) {
-				offs = zoneFlg? cxVec(2.0f, -1.0f, 5.0f) : cxVec(-1.0f, -1.0f, -6.0f);
-			} else {
-				offs = zoneFlg? cxVec(5.0f, -3.8f, 9.0f) : cxVec(4.0f, -4.0f, -12.0f);
-			}
-		} else {
-			float dist = ctx.mTgtMode == 0 ? 7.0f : 14.0f;
-			offs = s_view.mTrackBall.mQuat.apply(nxVec::get_axis(exAxis::MINUS_Z) * dist);
-		}
-
-		s_view.mPos = s_view.mTgt - offs;
-
-		if (s_view.mPosMode == 1) {
-			up = s_view.mTrackBall.mQuat.apply(up);
-		}
-
-		if (s_view.mPosMode == 0) {
-			float factor = 1.0f;
-			if (s_view.mCnt > 0) {
-				factor = 10.0f;
-				--s_view.mCnt;
-			}
-			if (Scene::get_frame_count() > 0) {
-				int t = int(nxCalc::div0(40.0f * factor, TimeCtrl::get_motion_speed()));
-				s_view.mPos = nxCalc::approach(s_view.mPrevPos, s_view.mPos, t);
-				t = int(nxCalc::div0(10.0f, TimeCtrl::get_motion_speed()));
-				s_view.mTgt = nxCalc::approach(s_view.mPrevTgt, s_view.mTgt, t);
-			}
-			s_view.mPrevPos = s_view.mPos;
-			s_view.mPrevTgt = s_view.mTgt;
-		}
-	}
-
-	Scene::set_view(s_view.mPos, s_view.mTgt, up);
+	s_view.exec(ctx);
 }
 
 }; // namespace
