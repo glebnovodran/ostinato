@@ -146,16 +146,16 @@ void exec(const Context& ctx) {
 		cxVec offs;
 		if (s_view.mPosMode == 0) {
 			if (ctx.mTgtMode == 0) {
-				offs = zoneFlg? cxVec(-2.0f, 1.0f, -5.0f) : cxVec(1.0f, 1.0f, 6.0f);
+				offs = zoneFlg? cxVec(2.0f, -1.0f, 5.0f) : cxVec(-1.0f, -1.0f, -6.0f);
 			} else {
-				offs = zoneFlg? cxVec(-5.0f, 3.8f, -9.0f) : cxVec(-4.0f, 4.0f, 12.0f);
+				offs = zoneFlg? cxVec(5.0f, -3.8f, 9.0f) : cxVec(4.0f, -4.0f, -12.0f);
 			}
 		} else {
 			float dist = ctx.mTgtMode == 0 ? 7.0f : 14.0f;
 			offs = s_view.mTrackBall.mQuat.apply(nxVec::get_axis(exAxis::MINUS_Z) * dist);
 		}
 
-		s_view.mPos = s_view.mTgt + offs;
+		s_view.mPos = s_view.mTgt - offs;
 
 		if (s_view.mPosMode == 1) {
 			up = s_view.mTrackBall.mQuat.apply(up);
