@@ -33,7 +33,7 @@ static void init_view() {
 
 static void view_exec() {
 	if (InputCtrl::triggered(InputCtrl::SWITCH1)) {
-		Camera::set(s_stage.camCtx);
+		s_stage.camCtx.mPosMode ^= 1;
 	}
 	if (InputCtrl::triggered(InputCtrl::SWITCH2)) {
 		s_stage.camCtx.mTgtMode ^= 1;

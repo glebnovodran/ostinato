@@ -7,10 +7,10 @@ struct Context {
 	ScnObj* mpTgtObj;
 	sxGeometryData* mpZones;
 	uint32_t mTgtMode;
+	uint32_t mPosMode;
 };
 
 void init();
 void exec(const Context& ctx);
-void set(const Context& ctx);
 
 };

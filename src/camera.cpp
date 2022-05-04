@@ -69,16 +69,8 @@ struct ViewWk {
 
 	void update(const OGLSysInput& inp) {
 		OGLSysMouseState state = OGLSys::get_mouse_state();
-#if 0
-		if (state.ck_trg(OGLSysMouseState::OGLSYS_BTN_LEFT)) {
-			cxMtx mtx;
-			mtx.mk_view(mPos, mTgt, cxVec(0.0f, 1.0f, 0.0f));
-			mTrackBall.mQuat = mtx.to_quat();
-			mTrackBall.mSpin = nxQuat::identity();
-		}
-#endif
+
 		if (state.ck_now(OGLSysMouseState::OGLSYS_BTN_LEFT)) {
-			mPosMode = 1;
 			if (inp.act == OGLSysInput::OGLSYS_ACT_DOWN) {
 				mOrgX = state.mNowX;
 				mOrgY = state.mNowY;
@@ -91,14 +83,17 @@ struct ViewWk {
 				float x1 = state.mNowX - mOrgX;
 				float y1 = mOrgY - state.mNowY;
 				mTrackBall.update(x0, y0, x1, y1); // radius == 0.5
+				//nxCore::dbg_msg("[DEBUG] track ball update : %f, %f, %f, %f\n", x0, y0, x1, y1);
 			}
 		}
 	}
 } s_view;
 
 static void input_handler(const OGLSysInput& inp, void* pWk) {
-	if (inp.id == 0) {
-		s_view.update(inp);
+	if (s_view.mPosMode) {
+		if (inp.id == 0) {
+			s_view.update(inp);
+		}
 	}
 }
 
@@ -121,12 +116,9 @@ void init() {
 	OGLSys::set_input_handler(input_handler, &s_view);
 }
 
-void set(const Context& ctx) {
-	s_view.mPosMode = 0;
-}
-
 void exec(const Context& ctx) {
 	ScnObj* pTgtObj = ctx.mpTgtObj;
+	s_view.mPosMode = ctx.mPosMode;
 	bool zoneFlg = false;
 
 	if (pTgtObj) {
@@ -163,6 +155,21 @@ void exec(const Context& ctx) {
 		}
 
 		s_view.mPos = s_view.mTgt + offs;
+		if (s_view.mPosMode == 0) {
+			float factor = 1.0f;
+			if (s_view.mCnt > 0) {
+				factor = 10.0f;
+				--s_view.mCnt;
+			}
+			if (Scene::get_frame_count() > 0) {
+				int t = int(nxCalc::div0(40.0f * factor, TimeCtrl::get_motion_speed()));
+				s_view.mPos = nxCalc::approach(s_view.mPrevPos, s_view.mPos, t);
+				t = int(nxCalc::div0(10.0f, TimeCtrl::get_motion_speed()));
+				s_view.mTgt = nxCalc::approach(s_view.mPrevTgt, s_view.mTgt, t);
+			}
+			s_view.mPrevPos = s_view.mPos;
+			s_view.mPrevTgt = s_view.mTgt;
+		}
 	}
 
 	Scene::set_view(s_view.mPos, s_view.mTgt);
