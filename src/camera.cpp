@@ -142,13 +142,10 @@ struct ViewWk {
 				}
 			}
 
-			cxMtx wm = pTgtObj->get_world_mtx();
-			cxVec cpos = pTgtObj->get_center_pos();
-			if (mFixCenterY) {
-				cpos.y = mFixedCenterY;
-			}
-
-			mTgt = cpos + mTgtOffs;
+			cxAABB bbox = pTgtObj->get_world_bbox();
+			float cy = bbox.get_center().y;
+			float yoffs = cy - bbox.get_min_pos().y;
+			mTgt = wpos + cxVec(0.0f, yoffs + 0.6f, 0.0f);
 			cxVec offs;
 			if (mPosMode == 0) {
 				if (ctx.mTgtMode == 0) {
