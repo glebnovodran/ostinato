@@ -56,6 +56,7 @@ struct TrackBall {
 
 struct ViewWk {
 	sxQuatTrackball mTrackball;
+	sxCollisionData* mpCol;
 	cxVec mTgtOffs;
 	float mRadius;
 	float mDist;
@@ -88,6 +89,12 @@ struct ViewWk {
 		mCnt = 0;
 		mPosMode = 0;
 	}
+
+	void set_collision(sxCollisionData* pCol) {
+		mpCol = pCol;
+	}
+
+	sxCollisionData* get_collision() { return mpCol; }
 
 	void update(const OGLSysInput* pInp) {
 		OGLSysMouseState state = OGLSys::get_mouse_state();
@@ -180,14 +187,25 @@ struct ViewWk {
 			}
 		}
 
+		sxCollisionData* pCol = get_collision();
+		if (pCol) {
+			sxCollisionData::NearestHit stgHit = pCol->nearest_hit(cxLineSeg(mTgt, mPos));
+			if (stgHit.count > 0) {
+				mPos = stgHit.pos;
+				if (nxVec::dist(mPos, mTgt) < 2.0f) {
+					mPos.y += 1.7f;
+				}
+			}
+		}
 		Scene::set_view(mPos, mTgt, up);
 	}
-} s_view;
+
+} s_viewWk;
 
 static void input_handler(const OGLSysInput& inp, void* pWk) {
-	if (s_view.mPosMode) {
+	if (s_viewWk.mPosMode) {
 		if (inp.id == 0) {
-			s_view.update(&inp);
+			s_viewWk.update(&inp);
 		}
 	}
 }
@@ -195,12 +213,18 @@ static void input_handler(const OGLSysInput& inp, void* pWk) {
 namespace Camera {
 
 void init() {
-	s_view.init();
-	OGLSys::set_input_handler(input_handler, &s_view);
+	s_viewWk.init();
+	OGLSys::set_input_handler(input_handler, &s_viewWk);
 }
 
 void exec(const Context& ctx) {
-	s_view.exec(ctx);
+	s_viewWk.exec(ctx);
 }
+
+void set_collision(sxCollisionData* pCol) {
+	s_viewWk.set_collision(pCol);
+}
+
+sxCollisionData* get_collision() { return s_viewWk.get_collision(); }
 
 }; // namespace

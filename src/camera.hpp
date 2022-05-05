@@ -13,4 +13,7 @@ struct Context {
 void init();
 void exec(const Context& ctx);
 
+void set_collision(sxCollisionData* pCol);
+sxCollisionData* get_collision();
+
 };
