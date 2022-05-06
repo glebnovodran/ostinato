@@ -1,3 +1,3 @@
 # ostinato
 
-[Web demo](https://glebnovodran.github.io/ostinato.html)
+[Ostinato web-demo](https://glebnovodran.github.io/demo/ostinato.html)
