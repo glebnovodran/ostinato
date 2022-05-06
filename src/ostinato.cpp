@@ -44,6 +44,182 @@ static void oglsys_mem_free(void* pMem) {
 	nxCore::mem_free(pMem);
 }
 
+
+#define BUNDLE_SIG XD_FOURCC('B', 'N', 'D', 'L')
+#define BUNDLE_FNAME "ostinato.bnd"
+
+struct BndFileInfo {
+	uint32_t offs;
+	uint32_t size;
+};
+
+static struct BUNDLE_WK {
+	FILE* pFile;
+	BndFileInfo* pInfos;
+	char* pPaths;
+	int32_t nfiles;
+
+	bool valid() const { return pFile != nullptr; }
+} s_bnd = {};
+
+static FILE* bnd_sys_fopen(const char* pPath, const char* pMode) {
+#if defined(_MSC_VER)
+	FILE* pFile = nullptr;
+	::fopen_s(&pFile, pPath, pMode);
+	return f;
+#else
+	return ::fopen(pPath, pMode);
+#endif
+}
+
+static FILE* bnd_sys_bin_open(const char* pPath) {
+	return bnd_sys_fopen(pPath, "rb");
+}
+
+static bool bnd_check_handle(xt_fhandle fh) {
+	BUNDLE_WK* pBnd = &s_bnd;
+	bool res = false;
+	if (pBnd->valid() && fh) {
+		uint8_t* pInfoTop = (uint8_t*)pBnd->pInfos;
+		uint8_t* pInfoLast = (uint8_t*)(pBnd->pInfos + (pBnd->nfiles-1));
+		uint8_t* pCheck = (uint8_t*)fh;
+		res = pCheck >= pInfoTop && pCheck <= pInfoLast;
+	}
+	return res;
+}
+
+static xt_fhandle bnd_fopen(const char* pPath) {
+	xt_fhandle fh = nullptr;
+	BUNDLE_WK* pBnd = &s_bnd;
+	if (pPath && pBnd->valid()) {
+		const char* pPathPrefix = "./../data/";
+		if (nxCore::str_starts_with(pPath, pPathPrefix)) {
+			const char* pReqPath = pPath + ::strlen(pPathPrefix);
+			char* pBndPath = pBnd->pPaths;
+			int32_t idx = -1;
+			for (int32_t i = 0; i < pBnd->nfiles; ++i) {
+				if (nxCore::str_eq(pReqPath, pBndPath)) {
+					idx = i;
+					break;
+				}
+				size_t bndPathLen = ::strlen(pBndPath);
+				pBndPath += bndPathLen + 1;
+			}
+			if (idx >= 0) {
+				fh = (xt_fhandle)(&pBnd->pInfos[idx]);
+			}
+		}
+	}
+	return fh;
+}
+
+static void bnd_fclose(xt_fhandle fh) {
+}
+
+static size_t bnd_fsize(xt_fhandle fh) {
+	size_t size = 0;
+	if (bnd_check_handle(fh)) {
+		BndFileInfo* pInfo = (BndFileInfo*)fh;
+		size = pInfo->size;
+	}
+	return size;
+}
+
+static size_t bnd_fread(xt_fhandle fh, void* pDst, size_t nbytes) {
+	size_t nread = 0;
+	if (pDst && bnd_check_handle(fh)) {
+		BndFileInfo* pInfo = (BndFileInfo*)fh;
+		if (nbytes == pInfo->size) {
+			BUNDLE_WK* pBnd = &s_bnd;
+			::fseek(pBnd->pFile, pInfo->offs, SEEK_SET);
+			nread = ::fread(pDst, 1, nbytes, pBnd->pFile);
+		}
+	}
+	return nread;
+}
+
+static void init_bundle() {
+	static const char* pPathTbl[] = {
+		BUNDLE_FNAME,
+		"../" BUNDLE_FNAME,
+		"../data/" BUNDLE_FNAME
+	};
+	BUNDLE_WK* pBnd = &s_bnd;
+	pBnd->pFile = nullptr;
+	pBnd->nfiles = 0;
+	pBnd->pPaths = nullptr;
+	for (size_t i = 0; i < XD_ARY_LEN(pPathTbl); ++i) {
+		const char* pPath = pPathTbl[i];
+		FILE* pFile = bnd_sys_bin_open(pPath);
+		if (pFile) {
+			uint32_t sig = 0;
+			size_t nread = ::fread(&sig, 1, sizeof(sig), pFile);
+			if (nread == sizeof(sig) && sig == BUNDLE_SIG) {
+				int32_t nfiles = 0;
+				nread = ::fread(&nfiles, 1, sizeof(nfiles), pFile);
+				if (nread == sizeof(nfiles) && nfiles > 0) {
+					pBnd->nfiles = nfiles;
+					size_t finfoSize = nfiles * sizeof(BndFileInfo);
+					pBnd->pInfos = (BndFileInfo*)nxCore::mem_alloc(finfoSize, "Bnd.infos");
+					if (pBnd->pInfos) {
+						nread = ::fread(pBnd->pInfos, 1, finfoSize, pFile);
+						if (nread == finfoSize) {
+							size_t strsSize = pBnd->pInfos[0].offs - (8 + finfoSize);
+							char* pPathsData = (char*)nxCore::mem_alloc(finfoSize, "Bnd.paths0");
+							if (pPathsData) {
+								nread = ::fread(pPathsData, 1, strsSize, pFile);
+								if (nread == strsSize) {
+									uint8_t* pUnpackedPaths = nxData::unpack((sxPackedData*)pPathsData, "Bnd.paths");
+									if (pUnpackedPaths) {
+										nxCore::mem_free(pPathsData);
+										pBnd->pPaths = (char*)pUnpackedPaths;
+									} else {
+										pBnd->pPaths = pPathsData;
+									}
+									pBnd->pFile = pFile;
+								} else {
+									nxCore::mem_free(pPathsData);
+									nxCore::mem_free(pBnd->pInfos);
+									pBnd->pInfos = nullptr;
+									pBnd->nfiles = 0;
+									::fclose(pFile);
+								}
+							} else {
+								nxCore::mem_free(pBnd->pInfos);
+								pBnd->pInfos = nullptr;
+								pBnd->nfiles = 0;
+								::fclose(pFile);
+							}
+						} else {
+							nxCore::mem_free(pBnd->pInfos);
+							pBnd->pInfos = nullptr;
+							pBnd->nfiles = 0;
+							::fclose(pFile);
+						}
+					}
+				} else {
+					::fclose(pFile);
+				}
+			} else {
+				::fclose(pFile);
+			}
+		}
+	}
+}
+
+static void reset_bundle() {
+	BUNDLE_WK* pBnd = &s_bnd;
+	if (pBnd->valid()) {
+		nxCore::mem_free(pBnd->pPaths);
+		nxCore::mem_free(pBnd->pInfos);
+		::fclose(pBnd->pFile);
+		pBnd->pFile = nullptr;
+		pBnd->pPaths = nullptr;
+		pBnd->pInfos = nullptr;
+		pBnd->nfiles = 0;
+	}
+}
+
 static void init_sensors() {
 	s_globals.sensors.fid = -1;
 	s_globals.sensors.vals.light = -1;
@@ -121,9 +297,18 @@ namespace Ostinato {
 void init(int argc, char* argv[]) {
 	nxApp::init_params(argc, argv);
 
+	init_bundle();
+
 	sxSysIfc sysIfc;
 	::memset(&sysIfc, 0, sizeof(sysIfc));
 	sysIfc.fn_dbgmsg = dbgmsg;
+	if (s_bnd.valid()) {
+		sysIfc.fn_fopen = bnd_fopen;
+		sysIfc.fn_fclose = bnd_fclose;
+		sysIfc.fn_fread = bnd_fread;
+		sysIfc.fn_fsize = bnd_fsize;
+
+	}
 	nxSys::init(&sysIfc);
 
 	float scrScl = 1.0f;
@@ -150,6 +335,7 @@ void reset() {
 	reset_ogl();
 	reset_sensors();
 	nxApp::reset();
+	reset_bundle();
 	nxCore::mem_dbg();
 }
 
