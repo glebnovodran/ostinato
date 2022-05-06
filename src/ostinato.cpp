@@ -92,8 +92,17 @@ static xt_fhandle bnd_fopen(const char* pPath) {
 	xt_fhandle fh = nullptr;
 	BUNDLE_WK* pBnd = &s_bnd;
 	if (pPath && pBnd->valid()) {
-		const char* pPathPrefix = "./../data/";
-		if (nxCore::str_starts_with(pPath, pPathPrefix)) {
+		const char* pPathPrefix = nullptr;
+		static const char* pPrefixLst[] = {
+			"./../data/", "./bin/data/"
+		};
+		for (size_t i = 0; i < XD_ARY_LEN(pPrefixLst); ++i) {
+			if (nxCore::str_starts_with(pPath, pPrefixLst[i])) {
+				pPathPrefix = pPrefixLst[i];
+				break;
+			}
+		}
+		if (pPathPrefix && nxCore::str_starts_with(pPath, pPathPrefix)) {
 			const char* pReqPath = pPath + ::strlen(pPathPrefix);
 			char* pBndPath = pBnd->pPaths;
 			int32_t idx = -1;
