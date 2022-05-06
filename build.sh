@@ -11,6 +11,13 @@ if [ ! -f "crosscore/crosscore.cpp" ]; then
 	./get_crosscore.sh
 fi
 
+OSTINATO_BND="bin/data/ostinato.bnd"
+if [ ! -f "$OSTINATO_BND" ]; then
+        mkdir -p bin/data
+        printf "$BOLD_ON$RED_ON""Downloading resources.""$FMT_OFF\n"
+        wget -O "$OSTINATO_BND"  https://github.com/glebnovodran/glebnovodran.github.io/raw/main/demo/ostinato.data
+fi
+
 EXE_DIR=bin/prog
 if [ ! -d "$EXE_DIR" ]; then
 	mkdir -p $EXE_DIR
