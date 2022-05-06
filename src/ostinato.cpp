@@ -142,7 +142,8 @@ static void init_bundle() {
 	static const char* pPathTbl[] = {
 		BUNDLE_FNAME,
 		"../" BUNDLE_FNAME,
-		"../data/" BUNDLE_FNAME
+		"../data/" BUNDLE_FNAME,
+		"bin/data/" BUNDLE_FNAME
 	};
 	BUNDLE_WK* pBnd = &s_bnd;
 	pBnd->pFile = nullptr;
