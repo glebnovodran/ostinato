@@ -23,6 +23,7 @@ struct Stage {
 	sxGeometryData* pNPCPosGeo;
 	ScnObj* pPlayer;
 	Camera::Context camCtx;
+	bool disableStgShadows;
 } s_stage = {};
 
 static void init_view() {
@@ -46,12 +47,12 @@ static void add_stg_obj(sxModelData* pMdl, void* pWkData) {
 	ScnObj* pObj = Scene::add_obj(pMdl);
 	if (pObj) {
 		pObj->set_base_color_scl(1.0f);
+		pObj->mDisableShadowCast = s_stage.disableStgShadows;
 	}
 }
 
 static void init_resources() {
 	Pkg* pPkg = Scene::load_pkg("street");
-
 	s_stage.pPkg = pPkg;
 	s_stage.pCol = nullptr;
 	if (pPkg) {
@@ -93,8 +94,12 @@ static void init_player() {
 	s_stage.pPlayer = pPlr;
 	Ostinato::set_cam_tgt("Traveller");
 }
+void params_init() {
+	s_stage.disableStgShadows = nxApp::get_bool_opt("nostgshadow", false);
+}
 
 static void init() {
+	params_init();
 	TimeCtrl::init();
 	HumanSys::init();
 	init_resources();
