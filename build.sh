@@ -11,11 +11,13 @@ if [ ! -f "crosscore/crosscore.cpp" ]; then
 	./get_crosscore.sh
 fi
 
+RSRC_BASE=https://github.com/glebnovodran/glebnovodran.github.io/raw/main
+
 OSTINATO_BND="bin/data/ostinato.bnd"
 if [ ! -f "$OSTINATO_BND" ]; then
         mkdir -p bin/data
         printf "$BOLD_ON$RED_ON""Downloading resources.""$FMT_OFF\n"
-        wget -O "$OSTINATO_BND"  https://github.com/glebnovodran/glebnovodran.github.io/raw/main/demo/ostinato.data
+        wget -O "$OSTINATO_BND" $RSRC_BASE/demo/ostinato.data
 fi
 
 EXE_DIR=bin/prog
@@ -45,6 +47,25 @@ case $SYS_NAME in
 			Raspberry*)
 				SYS_OGL="GLES"
 				LIBS="$LIBS -Llib"
+				if [ ! -d "lib" ]; then mkdir -p lib; fi
+				case `uname -m` in
+					armv7l)
+						libDir=/lib/arm-linux-gnueabihf
+					;;
+					*)
+						libDir=/lib/`uname -m`-linux-gnu
+					;;
+				esac
+				for lib in X11 EGL GLESv2
+				do
+					libBase=$libDir/lib$lib.so
+					libPath=`ls -1 $libBase.[0-9]*.* | head -1`
+					lnkPath=./lib/lib$lib.so
+					if [ ! -f "$lnkPath" ]; then
+						echo "Making link to" $libPath
+						ln -s $libPath $lnkPath
+					fi
+				done
 			;;
 			*)
 			;;
