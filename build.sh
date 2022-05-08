@@ -6,7 +6,7 @@ RED_ON="\e[31m"
 GREEN_ON="\e[32m"
 YELLOW_ON="\e[33m"
 FMT_OFF="\e[0m"
-if [ ! -f "crosscore/crosscore.cpp" ]; then
+if [ ! -f "ext/crosscore/crosscore.cpp" ]; then
 	printf "$BOLD_ON$RED_ON""Downloading dependencies.""$FMT_OFF\n"
 	cd util
 	./get_crosscore.sh
@@ -17,9 +17,9 @@ RSRC_BASE=https://github.com/glebnovodran/glebnovodran.github.io/raw/main
 
 OSTINATO_BND="bin/data/ostinato.bnd"
 if [ ! -f "$OSTINATO_BND" ]; then
-        mkdir -p bin/data
-        printf "$BOLD_ON$RED_ON""Downloading resources.""$FMT_OFF\n"
-        wget -O "$OSTINATO_BND" $RSRC_BASE/demo/ostinato.data
+	mkdir -p bin/data
+	printf "$BOLD_ON$RED_ON""Downloading resources.""$FMT_OFF\n"
+	wget -O "$OSTINATO_BND" $RSRC_BASE/demo/ostinato.data
 fi
 
 EXE_DIR=bin/prog
@@ -29,8 +29,8 @@ fi
 EXE_NAME="ostinato"
 EXE_PATH="$EXE_DIR/$EXE_NAME"
 
-SRCS="`ls src/*.cpp` `ls crosscore/*.cpp`"
-INCS="-I crosscore -I inc"
+SRCS="`ls src/*.cpp` `ls ext/crosscore/*.cpp`"
+INCS="-I ext/crosscore -I ext/inc -I inc"
 DEFS="-DX11"
 LIBS="-lpthread -lX11"
 SYS_NAME="`uname -s`"

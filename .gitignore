@@ -4,5 +4,6 @@ bin/**
 lib/**
 etc/**
 hou/**
+ext/**
 crosscore/**
 .vscode/**
