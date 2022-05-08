@@ -38,7 +38,7 @@ void traveller_exec_ctrl(Human* pHuman) {
 	case Human::ACT_WALK:
 		if (InputCtrl::now_active(InputCtrl::UP)) {
 			if (check_run_mode()) {
-				int startFrame = pHuman->find_nearest_mot_frame(pHuman->mMotLib.pRun, "j_Toe_L");
+				int startFrame = pHuman->find_nearest_mot_frame(pHuman->mMotLib.pRun, "j_Ankle_L");
 				pHuman->change_act(Human::ACT_RUN, 2.0f, 8, startFrame);
 			} else {
 				if (InputCtrl::now_active(InputCtrl::LEFT)) {
@@ -73,7 +73,7 @@ void traveller_exec_ctrl(Human* pHuman) {
 					pHuman->add_deg_y(-1.0f);
 				}
 			} else {
-				int startFrame = pHuman->find_nearest_mot_frame(pHuman->mMotLib.pWalk, "j_Toe_L");
+				int startFrame = pHuman->find_nearest_mot_frame(pHuman->mMotLib.pWalk, "j_Ankle_L");
 				pHuman->change_act(Human::ACT_WALK, 2.0f, 12, startFrame);
 			}
 		} else {
