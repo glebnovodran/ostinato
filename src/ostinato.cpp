@@ -424,6 +424,7 @@ void update_sensors() {
 	if (fid >= 0) {
 		char inBuf[128];
 		char valBuf[128];
+		::memset(valBuf, 0, 128 * sizeof(char));
 		size_t nread = ::read(fid, inBuf, sizeof(inBuf) - 1);
 		if (nread > 0) {
 			size_t valIdx = 0;
