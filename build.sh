@@ -8,7 +8,9 @@ YELLOW_ON="\e[33m"
 FMT_OFF="\e[0m"
 if [ ! -f "crosscore/crosscore.cpp" ]; then
 	printf "$BOLD_ON$RED_ON""Downloading dependencies.""$FMT_OFF\n"
+	cd util
 	./get_crosscore.sh
+	cd ..
 fi
 
 RSRC_BASE=https://github.com/glebnovodran/glebnovodran.github.io/raw/main

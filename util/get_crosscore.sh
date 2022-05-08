@@ -1,4 +1,5 @@
 #!/bin/sh
+cd ..
 if [ ! -d "crosscore" ]; then mkdir -p crosscore; fi
 for xcore in crosscore.hpp crosscore.cpp demo.hpp demo.cpp draw.hpp oglsys.hpp oglsys.cpp oglsys.inc scene.hpp scene.cpp smprig.hpp smprig.cpp draw_ogl.cpp
 do
