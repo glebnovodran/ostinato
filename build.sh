@@ -6,13 +6,20 @@ RED_ON="\e[31m"
 GREEN_ON="\e[32m"
 YELLOW_ON="\e[33m"
 FMT_OFF="\e[0m"
-if [ ! -f "ext/crosscore/crosscore.cpp" ]; then
+CROSSCORE_DIR="ext/crosscore"
+
+# dependencies
+if [ ! -f "$CROSSCORE_DIR/crosscore.cpp" ]; then
 	printf "$BOLD_ON$RED_ON""Downloading dependencies.""$FMT_OFF\n"
 	cd util
 	./get_crosscore.sh
 	cd ..
 fi
 
+SRCS="`ls src/*.cpp` `ls $CROSSCORE_DIR/*.cpp`"
+INCS="-I $CROSSCORE_DIR -I ext/inc -I inc"
+
+# resources
 RSRC_BASE=https://github.com/glebnovodran/glebnovodran.github.io/raw/main
 
 OSTINATO_BND="bin/data/ostinato.bnd"
@@ -22,6 +29,44 @@ if [ ! -f "$OSTINATO_BND" ]; then
 	wget -O "$OSTINATO_BND" $RSRC_BASE/demo/ostinato.data
 fi
 
+# web-build
+if [ -n "$EMSDK" ]; then
+	WEB_CC="emcc -std=c++11"
+	WEB_OPTS="-s ASSERTIONS=1 -s ALLOW_MEMORY_GROWTH=1"
+	WEB_OPTS="$WEB_OPTS -s SINGLE_FILE"
+fi
+
+if [ "$#" -gt 0 ]; then
+	if [ "$1" = "wasm" ]; then
+		if [ -z "$WEB_CC" ]; then
+			printf "$RED_ON""WASM build requested, but web-compiler is missing.""$FMT_OFF\n"
+			exit 1
+		fi
+		shift
+		WEB_OPTS="$WEB_OPTS -s WASM=1"
+		WEB_MODE="WebAssembly"
+	elif [ "$1" = "js" ]; then
+	        if [ -z "$WEB_CC" ]; then
+			echo "$RED_ON""JS build requested, but web-compiler is missing.""$FMT_OFF\n"
+			exit 1
+		fi
+		shift
+		WEB_OPTS="$WEB_OPTS -s WASM=0"
+		WEB_MODE="JavaScript"
+	fi
+fi
+
+if [ -n "$WEB_MODE" ]; then
+	OUT_HTML=bin/ostinato.html
+	printf "Compiling $YELLOW_ON$OUT_HTML$FMT_OFF in $GREEN_ON$WEB_MODE$FMT_OFF mode.\n"
+	WGL_OPTS="-s USE_SDL=2  -DOGLSYS_WEB"
+	WEB_EXTS="--pre-js web/opt.js --shell-file web/shell.html --preload-file bin/data"
+	$WEB_CC $WEB_OPTS $WGL_OPTS -I $CROSSCORE_DIR -O3 $SRCS $WEB_EXTS -o $OUT_HTML -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap"]' -s EXPORTED_FUNCTIONS='["_main"]'
+	sed -i 's/antialias:!1/antialias:1/g' $OUT_HTML
+	exit
+fi
+
+# native build
 EXE_DIR=bin/prog
 if [ ! -d "$EXE_DIR" ]; then
 	mkdir -p $EXE_DIR
@@ -29,8 +74,6 @@ fi
 EXE_NAME="ostinato"
 EXE_PATH="$EXE_DIR/$EXE_NAME"
 
-SRCS="`ls src/*.cpp` `ls ext/crosscore/*.cpp`"
-INCS="-I ext/crosscore -I ext/inc -I inc"
 DEFS="-DX11"
 LIBS="-lpthread -lX11"
 SYS_NAME="`uname -s`"
