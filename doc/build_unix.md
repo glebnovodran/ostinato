@@ -1,4 +1,4 @@
-#Unux build
+# Unux build
 
 Ostinato can be built for Linux (including Raspberry Pi OS), OpenBSD or FreeBSD systems.
 
