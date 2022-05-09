@@ -13,4 +13,4 @@ Ostainato can be build for either desktop OpenGL or for OpenGL GLES. By default 
 
 `export OGL_MODE=GLES && ./build.sh`
 
-**Note:** For a Raspberry Pi build GLES is selceted automatically
+**Note:** For a Raspberry Pi build GLES is selected automatically
