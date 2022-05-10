@@ -30,29 +30,50 @@ if [ ! -f "$OSTINATO_BND" ]; then
 fi
 
 # web-build
+WEB_CC_SETUPMSG="To use emscripten: source <emsdk path>/emsdk_env.sh"
 if [ -n "$EMSDK" ]; then
 	WEB_CC="emcc -std=c++11"
 	WEB_OPTS="-s ASSERTIONS=1 -s ALLOW_MEMORY_GROWTH=1"
-	WEB_OPTS="$WEB_OPTS -s SINGLE_FILE"
+	WEB_EMBED_OPT="-s SINGLE_FILE"
 fi
 
 if [ "$#" -gt 0 ]; then
 	if [ "$1" = "wasm" ]; then
 		if [ -z "$WEB_CC" ]; then
 			printf "$RED_ON""WASM build requested, but web-compiler is missing.""$FMT_OFF\n"
+			printf "$WEB_CC_SETUPMSG\n"
+			exit 1
+		fi
+		shift
+		WEB_OPTS="$WEB_OPTS $WEB_EMBED_OPT -s WASM=1"
+		WEB_MODE="WebAssembly"
+	elif [ "$1" = "js" ]; then
+	        if [ -z "$WEB_CC" ]; then
+			printf "$RED_ON""JS build requested, but web-compiler is missing.""$FMT_OFF\n"
+			printf "$WEB_CC_SETUPMSG\n"
+			exit 1
+		fi
+		shift
+		WEB_OPTS="$WEB_OPTS $WEB_EMBED_OPT -s WASM=0"
+		WEB_MODE="JavaScript"
+	elif [ "$1" = "wasm-0" ]; then
+		if [ -z "$WEB_CC" ]; then
+			printf "$RED_ON""Standalone WASM build requested, but web-compiler is missing.""$FMT_OFF\n"
+			printf "$WEB_CC_SETUPMSG\n"
 			exit 1
 		fi
 		shift
 		WEB_OPTS="$WEB_OPTS -s WASM=1"
-		WEB_MODE="WebAssembly"
-	elif [ "$1" = "js" ]; then
+		WEB_MODE="WebAssembly (standalone)"
+	elif [ "$1" = "js-0" ]; then
 	        if [ -z "$WEB_CC" ]; then
-			echo "$RED_ON""JS build requested, but web-compiler is missing.""$FMT_OFF\n"
+			printf "$RED_ON""Standalone JS build requested, but web-compiler is missing.""$FMT_OFF\n"
+			printf "$WEB_CC_SETUPMSG\n"
 			exit 1
 		fi
 		shift
 		WEB_OPTS="$WEB_OPTS -s WASM=0"
-		WEB_MODE="JavaScript"
+		WEB_MODE="JavaScript (standalone)"
 	fi
 fi
 
@@ -61,7 +82,7 @@ if [ -n "$WEB_MODE" ]; then
 	printf "Compiling $YELLOW_ON$OUT_HTML$FMT_OFF in $GREEN_ON$WEB_MODE$FMT_OFF mode.\n"
 	WGL_OPTS="-s USE_SDL=2  -DOGLSYS_WEB"
 	WEB_EXTS="--pre-js web/opt.js --shell-file web/shell.html --preload-file bin/data"
-	$WEB_CC $WEB_OPTS $WGL_OPTS -I $CROSSCORE_DIR -O3 $SRCS $WEB_EXTS -o $OUT_HTML -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap"]' -s EXPORTED_FUNCTIONS='["_main"]'
+	$WEB_CC $WEB_OPTS $WGL_OPTS -I $CROSSCORE_DIR -O3 $SRCS $WEB_EXTS -o $OUT_HTML -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap"]' -s EXPORTED_FUNCTIONS='["_main"]' $*
 	sed -i 's/antialias:!1/antialias:1/g' $OUT_HTML
 	exit
 fi
