@@ -2,7 +2,7 @@
 
 CXX=${CXX:-g++}
 TMP_DIR=../../tmp
-XCORE_DIR=../../crosscore
+XCORE_DIR=../../ext/crosscore
 
 mkdir -p $TMP_DIR
 
