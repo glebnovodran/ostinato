@@ -78,11 +78,18 @@ if [ "$#" -gt 0 ]; then
 fi
 
 if [ -n "$WEB_MODE" ]; then
+	WEB_EXPORTS_LIST=web/exports.txt
 	OUT_HTML=bin/ostinato.html
 	printf "Compiling $YELLOW_ON$OUT_HTML$FMT_OFF in $GREEN_ON$WEB_MODE$FMT_OFF mode.\n"
 	WGL_OPTS="-s USE_SDL=2  -DOGLSYS_WEB"
 	WEB_EXTS="--pre-js web/opt.js --shell-file web/shell.html --preload-file bin/data"
-	$WEB_CC $WEB_OPTS $WGL_OPTS -I $CROSSCORE_DIR -O3 $SRCS $WEB_EXTS -o $OUT_HTML -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap"]' -s EXPORTED_FUNCTIONS='["_main","_ost_set_key_state","_ost_get_test_val"]' $*
+	WEB_EXPS="-s EXPORTED_RUNTIME_METHODS=ccall,cwrap -s EXPORTED_FUNCTIONS=_main"
+	if [ -f $WEB_EXPORTS_LIST ]; then
+		while read exp_fn; do
+			WEB_EXPS="$WEB_EXPS,$exp_fn"
+		done < $WEB_EXPORTS_LIST
+	fi
+	 $WEB_CC $WEB_OPTS $WGL_OPTS -I $CROSSCORE_DIR -O3 $SRCS $WEB_EXTS -o $OUT_HTML $WEB_EXPS $*
 	sed -i 's/antialias:!1/antialias:1/g' $OUT_HTML
 	exit
 fi
