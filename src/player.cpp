@@ -110,6 +110,7 @@ ScnObj* init() {
 	descr.personId = 0;
 	descr.scale = 1.0f;
 	ScnObj* pPlr = HumanSys::add_human(descr, traveller_exec_ctrl);
+	nxCore::dbg_msg("Occupation:%s\n", HumanSys::get_occupation(pPlr->mpName));
 	return pPlr;
 }
 

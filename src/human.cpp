@@ -430,6 +430,7 @@ ScnObj* add_human(const Human::Descr& descr, Human::CtrlFunc ctrl) {
 				pObj->set_ptr_wk(1, s_pHumanTag);
 				pHuman->mpObj = pObj;
 				pHuman->mType = descr.type;
+				pHuman->mPersonId = bodyId;
 
 				pHuman->mMotLib.init(pPkg, pBasePkg);
 				pHuman->mRig.init(pHuman);
@@ -485,6 +486,25 @@ void unmark(const char* pName) {
 	if (pHuman) {
 		pHuman->unmark();
 	}
+}
+
+const char* get_occupation(const char* pName) {
+	Human* pHuman = find(pName);
+	const char* pStr = "";
+		if (pHuman) {
+		Pkg* pPkg = s_wk.get_pkg(pHuman->mType, pHuman->mPersonId);
+		sxValuesData* pVal = pPkg->find_values("params");
+		if (pVal) {
+			sxValuesData::Group personalGrp = pVal->find_grp("personal");
+			if (personalGrp.is_valid()) {
+				int idx = personalGrp.find_val_idx("occupation");
+				if (personalGrp.ck_val_idx(idx)) {
+					pStr = personalGrp.get_val_s(idx);
+				}
+			}
+		}
+	}
+	return pStr;
 }
 
 };

@@ -99,6 +99,7 @@ struct Human {
 	double mWallTouchDuration;
 
 	Type mType;
+	int mPersonId;
 
 	void change_act(const Action newAct, const double durationSecs, const int blendCnt = 15, const int startFrame = 0);
 	void add_deg_y(const float dy);
@@ -166,4 +167,5 @@ namespace HumanSys {
 
 	void mark(const char* pName);
 	void unmark(const char* pName);
+	const char* get_occupation(const char* pName);
 }
