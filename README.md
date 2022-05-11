@@ -2,7 +2,7 @@
 An experimental project attempting to recreate a classic RPG town.
 The project uses [crosscore](https://github.com/schaban/crosscore_dev) library.
 
-[Web-demo](https://glebnovodran.github.io/demo/ostinato.html)
+[Web-demo](https://glebnovodran.github.io/demo/ostinato.html?low&vl)
 
 A couple of screenshots:
 
