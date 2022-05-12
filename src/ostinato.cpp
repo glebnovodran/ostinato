@@ -346,7 +346,6 @@ void reset() {
 }
 
 void set_default_lightning() {
-
 #if 0
 	// Uniform mode
 	Scene::set_shadow_density(1.0f);
@@ -369,9 +368,11 @@ void set_default_lightning() {
 	Scene::set_hemi_exp(2.5f);
 	Scene::set_hemi_gain(0.7f);
 
+	float fogRangeMin = 20.0f;
+	float fogRangeMax = 2000.0f;
 	Scene::set_fog_rgb(0.748f, 0.74f, 0.65f);
 	Scene::set_fog_density(1.0f);
-	Scene::set_fog_range(20.0f, 2000.0f);
+	Scene::set_fog_range(fogRangeMin, 2000.0f);
 	Scene::set_fog_curve(0.21f, 0.3f);
 
 	Scene::set_exposure_rgb(0.75f, 0.85f, 0.5f);
@@ -385,12 +386,20 @@ void set_default_lightning() {
 		float val = float(lval) / 1023.0f;
 		const float sunLim = 0.75f;
 		if (val <= sunLim) {
-			float uprScl = nxCalc::fit(val, 0.0f, sunLim, 0.0f, 1.0f);
-			float redScl = uprScl;
+			float scl = nxCalc::fit(val, 0.0f, sunLim, 0.0f, 1.0f);
+			Scene::set_shadow_density(nxCalc::fit(scl, 0.0f, 1.0, 0.25f, 1.0f));
+			float fogScl = nxCalc::fit(scl, 0.0f, 1.0, 0.1f, 1.0f);
+			Scene::set_fog_range(fogRangeMin * fogScl, fogRangeMax * nxCalc::saturate(fogScl + 0.7f));
+			float uprScl = scl;
+			float redScl = scl;
+			float greenScl = scl;
+			float blueScl = scl;
 			float biasScl = nxCalc::fit(uprScl, 0.0f, 1.0f, 0.023f, 0.0f);
 			uprScl = nxCalc::fit(uprScl, 0.0f, 1.0f, 0.55f, 0.98f);
-			redScl = nxCalc::fit(redScl, 0.0f, 1.0f, 0.5f, 1.0f);
-			Scene::set_hemi_upper(2.5f * uprScl * redScl, 2.46f * uprScl, 2.62f * uprScl);
+			redScl = nxCalc::fit(redScl, 0.0f, 1.0f, 0.3f, 0.8f);
+			greenScl = nxCalc::fit(greenScl, 0.0f, 1.0f, 0.25f, 0.6f);
+			blueScl = nxCalc::fit(blueScl, 0.0f, 1.0f, 2.0f, 1.0f);
+			Scene::set_hemi_upper(2.5f * uprScl * redScl, 2.46f * uprScl * greenScl, 2.62f * uprScl * blueScl);
 			Scene::set_linear_bias(-0.025f + biasScl);
 		}
 		float expVal = nxCalc::fit(val, 0.0f, 1.0f, -0.4f, 3.2f);
@@ -398,8 +407,12 @@ void set_default_lightning() {
 		val = nxCalc::fit(val, 0.0f, 1.0f, 0.75f, 0.1f);
 		Scene::set_linear_white_rgb(val, val, val * 0.75f);
 		Scene::set_exposure_rgb(0.75f + expVal, 0.85f + expVal, 0.5f + expVal);
+		float fogScl = val;
+		Scene::set_fog_curve(nxCalc::lerp(0.21f, 0.79f, fogScl), nxCalc::lerp(0.3f, 0.96f, fogScl));
 	}
 }
+
+
 
 ScnObj* get_cam_tgt_obj() {
 	return s_globals.pTgtObj;
