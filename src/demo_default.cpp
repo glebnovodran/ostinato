@@ -112,8 +112,11 @@ void init_params() {
 static void init() {
 	init_params();
 	TimeCtrl::init();
+	double start = nxSys::time_micros();
 	HumanSys::init();
 	init_resources();
+	double finish = nxSys::time_micros();
+	nxCore::dbg_msg("Resources loaded in %f msec.\n", (finish - start)/1000.0);
 	init_player();
 	init_view();
 	Scene::glb_rng_reset();
