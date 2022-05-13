@@ -26,6 +26,10 @@ struct Stage {
 	bool disableStgShadows;
 } s_stage = {};
 
+struct DemoWk {
+	bool showFPS;
+} s_demoWk;
+
 static void init_view() {
 	Camera::init();
 	s_stage.camCtx.mTgtMode = 0;
@@ -95,12 +99,13 @@ static void init_player() {
 	s_stage.pPlayer = pPlr;
 	Ostinato::set_cam_tgt("Traveller");
 }
-void params_init() {
+void init_params() {
 	s_stage.disableStgShadows = nxApp::get_bool_opt("nostgshadow", false);
+	s_demoWk.showFPS = nxApp::get_bool_opt("showfps", false);
 }
 
 static void init() {
-	params_init();
+	init_params();
 	TimeCtrl::init();
 	HumanSys::init();
 	init_resources();
@@ -119,32 +124,35 @@ static void draw_2d() {
 		Scene::set_ref_scr_size(refSizeY, refSizeX);
 	}
 
-	float sx = 10.0f;
-	float sy = Scene::get_ref_scr_height() - 20.0f;
+	if (s_demoWk.showFPS) {
+		float sx = 10.0f;
+		float sy = Scene::get_ref_scr_height() - 20.0f;
 
-	xt_float2 bpos[4];
-	xt_float2 btex[4];
-	btex[0].set(0.0f, 0.0f);
-	btex[1].set(1.0f, 0.0f);
-	btex[2].set(1.0f, 1.0f);
-	btex[3].set(0.0f, 1.0f);
-	float bx = 4.0f;
-	float by = 4.0f;
-	float bw = 80.0f + 10.0f;
-	float bh = 12.0f;
-	cxColor bclr(0.0f, 0.0f, 0.0f, 0.75f);
-	bpos[0].set(sx - bx, sy - by);
-	bpos[1].set(sx + bw + bx, sy - by);
-	bpos[2].set(sx + bw + bx, sy + bh + by);
-	bpos[3].set(sx - bx, sy + bh + by);
-	Scene::quad(bpos, btex, bclr);
-	float fps = TimeCtrl::get_fps();
-	if (fps < 0.0f) {
-		XD_SPRINTF(XD_SPRINTF_BUF(str, sizeof(str)), "FPS: --");
-	} else {
-		XD_SPRINTF(XD_SPRINTF_BUF(str, sizeof(str)), "FPS: %.2f", fps);
+		xt_float2 bpos[4];
+		xt_float2 btex[4];
+		btex[0].set(0.0f, 0.0f);
+		btex[1].set(1.0f, 0.0f);
+		btex[2].set(1.0f, 1.0f);
+		btex[3].set(0.0f, 1.0f);
+		float bx = 4.0f;
+		float by = 4.0f;
+		float bw = 80.0f + 10.0f;
+		float bh = 12.0f;
+		cxColor bclr(0.0f, 0.0f, 0.0f, 0.75f);
+		bpos[0].set(sx - bx, sy - by);
+		bpos[1].set(sx + bw + bx, sy - by);
+		bpos[2].set(sx + bw + bx, sy + bh + by);
+		bpos[3].set(sx - bx, sy + bh + by);
+		Scene::quad(bpos, btex, bclr);
+
+		float fps = TimeCtrl::get_fps();
+		if (fps < 0.0f) {
+			XD_SPRINTF(XD_SPRINTF_BUF(str, sizeof(str)), "FPS: --");
+		} else {
+			XD_SPRINTF(XD_SPRINTF_BUF(str, sizeof(str)), "FPS: %.2f", fps);
+		}
+		Scene::print(sx, sy, cxColor(0.1f, 0.75f, 0.1f, 1.0f), str);
 	}
-	Scene::print(sx, sy, cxColor(0.1f, 0.75f, 0.1f, 1.0f), str);
 }
 
 static void loop(void* pLoopCtx) {
