@@ -13,10 +13,12 @@ struct Wk {
 	TimeCtrl::Frequency mFreq;
 	bool mTimeFixUpFlg;
 
-	void init(TimeCtrl::Frequency freq) { // TODO check command line here
+	void init(TimeCtrl::Frequency freq) {
 		mFreq = freq;
 		mTimeFixUpFlg = true;
 		mFramerateStopWatch.alloc(10);
+		mMedianFPS = 0.0f;
+		mMotSpeed = 1.0f;
 	}
 
 	void reset() {
