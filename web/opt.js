@@ -4,7 +4,8 @@ Module.arguments = [
 	"-data:bin/data",
 	"-w:900", "-h:600",
 	"-smap:2048",
-	"-nwrk:0"
+	"-nwrk:0",
+	"-showfps:1"
 ];
 
 if (pageParams.get("small") !== null) {
