@@ -69,7 +69,7 @@ static void init_resources() {
 		s_stage.pNPCPosGeo = pGeo;
 		if (pGeo) {
 			int npts = s_stage.pNPCPosGeo->get_pnt_num();
-			nxCore::dbg_msg("Populating city quarter with %d citizens...\n", npts);
+			nxCore::dbg_msg("Populating city quarter with %d citizens...\n\n", npts);
 			for (int i = 0; i < npts; ++i) {
 				Human::Descr descr;
 				descr.reset();
@@ -86,10 +86,14 @@ static void init_resources() {
 				descr.scale = 1.0f + heightMod;
 				float startY = nxCore::rng_f01() * 360.0f;
 				ScnObj* pObj = Citizen::add(descr, nxQuat::from_degrees(0.0f, startY, 0.0f), pos);
-				nxCore::dbg_msg("Occupation:%s\n", HumanSys::get_occupation(pObj->mpName));
+
+				nxCore::dbg_msg("Citizen added: %s \n", pObj->mpName != nullptr ? pObj->mpName: "Anonimous citizen");
+				const char* pOccp = HumanSys::get_occupation(pObj->mpName);
+				nxCore::dbg_msg("[Occupation]:%s\n\n", pOccp != nullptr ? pOccp : "Lounging");
 			}
 		}
 	}
+
 	nxCore::dbg_msg("\n~ Welcome to Ostinato ~\n");
 }
 
