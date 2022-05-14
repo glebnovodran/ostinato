@@ -1,6 +1,6 @@
 # Web build
 
-A web version of Ostainato can be built with [Emscripten](https://emscripten.org/).
+A web version of Ostinato can be built with [Emscripten](https://emscripten.org/).
 
 ## Build prerequisites
 
