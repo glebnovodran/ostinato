@@ -69,7 +69,7 @@ static void init_resources() {
 		s_stage.pNPCPosGeo = pGeo;
 		if (pGeo) {
 			int npts = s_stage.pNPCPosGeo->get_pnt_num();
-			nxCore::dbg_msg("Populating city quarter with %d citizens...\n", npts);
+			nxCore::dbg_msg("\nPopulating city quarter with %d citizens...\n\n", npts);
 			for (int i = 0; i < npts; ++i) {
 				Human::Descr descr;
 				descr.reset();
@@ -90,7 +90,7 @@ static void init_resources() {
 				const char* pName = pObj->mpName != nullptr ? pObj->mpName: "Anonimous";
 				const char* pOccp = HumanSys::get_occupation(pObj->mpName);
 				pOccp = pOccp != nullptr ? pOccp : "Lounging";
-				nxCore::dbg_msg("Enter %s The %s ", pName, pOccp);
+				nxCore::dbg_msg("  Enter %s The %s ", pName, pOccp);
 				Human* pHuman = HumanSys::as_human(pObj);
 				float standFactor = pHuman->mBeh.stand.coef;
 				if (standFactor > 1.0f) {
@@ -119,7 +119,7 @@ static void init() {
 	HumanSys::init();
 	init_resources();
 	double finish = nxSys::time_micros();
-	nxCore::dbg_msg("Resources loaded in %f millis.\n", (finish - start)/1000.0);
+	nxCore::dbg_msg("\nResources loaded in %f millis.\n", (finish - start)/1000.0);
 	init_player();
 	init_view();
 	Scene::glb_rng_reset();
