@@ -38,7 +38,7 @@ void roam_ctrl(Human* pHuman) {
 			}
 			break;
 		case Human::ACT_WALK: 
-			if ( objTouchDT > 0.2 || wallTouchDT > 0.25) {
+			if (objTouchDT > 0.2 || wallTouchDT > 0.25) {
 				if (objTouchDT > 0 && ((Scene::glb_rng_next() & 0x3F) < 0x1F)) {
 					pHuman->change_act(Human::ACT_RETREAT, 0.5f);
 				} else {
@@ -110,4 +110,4 @@ ScnObj* add(const Human::Descr descr, const cxQuat& quat, const cxVec& pos) {
 	return pObj;
 }
 
-};
+}

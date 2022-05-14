@@ -209,7 +209,29 @@ void Human::exec_collision() {
 	} else {
 		mWallTouchDuration = 0.0f;
 	}
+}
 
+void Human::set_behaviour(const sxKeyframesData* pBehData) {
+	Behaviour beh;
+	struct Entry {
+		const char* nodeName;
+		const char* chName;
+		float* pVal;
+	} values[Behaviour::TOTAL_CHANNELS] = { {"stand", "coef", &beh.stand.coef} };
+
+	beh.reset();
+
+	if (pBehData) {
+		int fcvNum = pBehData->get_fcv_num();
+		for (int i = 0; i < fcvNum; ++i) {
+			sxKeyframesData::FCurve fcv = pBehData->find_fcv(values[i].nodeName, values[i].chName);
+			if (fcv.is_valid()) {
+				*values[i].pVal = fcv.eval(0.0f);
+			}
+
+		}
+	}
+	mBeh = beh;
 }
 
 namespace HumanSys {
@@ -458,6 +480,9 @@ ScnObj* add_human(const Human::Descr& descr, Human::CtrlFunc ctrl) {
 				pHuman->mActionTimer.mStartTime = s_wk.mFixedFreq ? 0.0 : TimeCtrl::get_sys_time_millis();
 				pHuman->mActionTimer.set_duration_seconds(0.5f);
 
+				sxKeyframesData* pBehData = pPkg->find_keyframes("behavior");
+				pHuman->set_behaviour(pBehData);
+
 				++s_wk.mCount;
 			}
 		}
@@ -506,4 +531,4 @@ const char* get_occupation(const char* pName) {
 	return pStr;
 }
 
-};
+}

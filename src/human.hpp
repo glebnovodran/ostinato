@@ -71,11 +71,22 @@ struct Human {
 		double get_time() const { return TimeCtrl::get_current_time() - mStartTime; }
 		bool check_time_out() const { return get_time() > mDuration; }
 		void set_duration_seconds(const double sec) {
-			mDuration = nxCalc::max(sec, 0.0) * 1000.0;
-		}
+			mDuration = nxCalc::max(sec, 0.0) * 1000.;
+		};
 		void start(const double sec) {
 			fix_up_time();
 			set_duration_seconds(sec);
+		}
+	};
+
+	struct Behaviour {
+		static const int TOTAL_CHANNELS = 1;
+		struct {
+			float coef;
+		} stand;
+
+		void reset() {
+			stand.coef = 1.0f;
 		}
 	};
 
@@ -89,6 +100,7 @@ struct Human {
 	Action mAction;
 
 	State mState;
+	Behaviour mBeh;
 
 	int32_t mObjAdjCount;
 	int32_t mObjTouchCount;
@@ -152,6 +164,8 @@ struct Human {
 			mpObj->set_base_color_scl(1.0f);
 		}
 	}
+
+	void set_behaviour(const sxKeyframesData* pBehData);
 };
 
 namespace HumanSys {

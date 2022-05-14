@@ -90,7 +90,12 @@ static void init_resources() {
 				const char* pName = pObj->mpName != nullptr ? pObj->mpName: "Anonimous";
 				const char* pOccp = HumanSys::get_occupation(pObj->mpName);
 				pOccp = pOccp != nullptr ? pOccp : "Lounging";
-				nxCore::dbg_msg("Enter %s The %s\n", pName, pOccp);
+				nxCore::dbg_msg("Enter %s The %s ", pName, pOccp);
+				Human* pHuman = HumanSys::as_human(pObj);
+				float standFactor = pHuman->mBeh.stand.coef;
+				if (standFactor > 1.0f) {
+					nxCore::dbg_msg("... and %s is %f times more firm than average\n", pHuman->mType == Human::CITIZEN_MALE ? "he": "she", standFactor);
+				} else { nxCore::dbg_msg("\n"); }
 			}
 		}
 	}
