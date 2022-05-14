@@ -28,11 +28,11 @@ FreeBSD: `pkg install git wget`
 
 `./build.sh <compiler options>`
 
-By default Ostianto is built for debugging. To build an optimized version please add `-O3 -flto` compiler options
+By default Ostinato is built for debugging. To build an optimized version please add `-O3 -flto` compiler options
 
 ## OGL/GLES
 
-Ostainato can be build for either desktop OpenGL or for OpenGL GLES. By default it is built for desktop. To build it for GLES it is necessary to set OGL_MODE environment variable value:
+Ostinato can be build for either desktop OpenGL or for OpenGL GLES. By default it is built for desktop. To build it for GLES it is necessary to set OGL_MODE environment variable value:
 
 `OGL_MODE=GLES ./build.sh`
 
