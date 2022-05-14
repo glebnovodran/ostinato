@@ -6,7 +6,10 @@ RED_ON="\e[31m"
 GREEN_ON="\e[32m"
 YELLOW_ON="\e[33m"
 FMT_OFF="\e[0m"
+
 CROSSCORE_DIR="ext/crosscore"
+BIN_DIR="bin"
+DATA_DIR="$BIN_DIR/data"
 
 # dependencies
 if [ ! -f "$CROSSCORE_DIR/crosscore.cpp" ]; then
@@ -22,11 +25,13 @@ INCS="-I $CROSSCORE_DIR -I ext/inc -I inc"
 # resources
 RSRC_BASE=https://github.com/glebnovodran/glebnovodran.github.io/raw/main
 
-OSTINATO_BND="bin/data/ostinato.bnd"
-if [ ! -f "$OSTINATO_BND" ]; then
-	mkdir -p bin/data
-	printf "$BOLD_ON$RED_ON""Downloading resources.""$FMT_OFF\n"
-	wget -O "$OSTINATO_BND" $RSRC_BASE/demo/ostinato.data
+OSTINATO_BND="$DATA_DIR/ostinato.bnd"
+if [ ! -f "$BIN_DIR/bundle.off" ]; then
+	if [ ! -f "$OSTINATO_BND" ]; then
+		mkdir -p $DATA_DIR
+		printf "$BOLD_ON$RED_ON""Downloading resources.""$FMT_OFF\n"
+		wget -O "$OSTINATO_BND" $RSRC_BASE/demo/ostinato.data
+	fi
 fi
 
 # web-build
@@ -48,7 +53,7 @@ if [ "$#" -gt 0 ]; then
 		WEB_OPTS="$WEB_OPTS $WEB_EMBED_OPT -s WASM=1"
 		WEB_MODE="WebAssembly"
 	elif [ "$1" = "js" ]; then
-	        if [ -z "$WEB_CC" ]; then
+		if [ -z "$WEB_CC" ]; then
 			printf "$RED_ON""JS build requested, but web-compiler is missing.""$FMT_OFF\n"
 			printf "$WEB_CC_SETUPMSG\n"
 			exit 1
@@ -66,7 +71,7 @@ if [ "$#" -gt 0 ]; then
 		WEB_OPTS="$WEB_OPTS -s WASM=1"
 		WEB_MODE="WebAssembly (standalone)"
 	elif [ "$1" = "js-0" ]; then
-	        if [ -z "$WEB_CC" ]; then
+		if [ -z "$WEB_CC" ]; then
 			printf "$RED_ON""Standalone JS build requested, but web-compiler is missing.""$FMT_OFF\n"
 			printf "$WEB_CC_SETUPMSG\n"
 			exit 1
@@ -89,7 +94,7 @@ if [ -n "$WEB_MODE" ]; then
 			WEB_EXPS="$WEB_EXPS,$exp_fn"
 		done < $WEB_EXPORTS_LIST
 	fi
-	 $WEB_CC $WEB_OPTS $WGL_OPTS -I $CROSSCORE_DIR -O3 $SRCS $WEB_EXTS -o $OUT_HTML $WEB_EXPS $*
+	$WEB_CC $WEB_OPTS $WGL_OPTS -I $CROSSCORE_DIR -O3 $SRCS $WEB_EXTS -o $OUT_HTML $WEB_EXPS $*
 	sed -i 's/antialias:!1/antialias:1/g' $OUT_HTML
 	exit
 fi
