@@ -25,7 +25,7 @@ You can try the web version localy by first launching a Python web-server:
 `python3 -m http.server`
 
 Access the web application at 
-http://0.0.0.0:8000/ostinato.html
+http://localhost:8000/ostinato.html
 
 You can pass *small*, *low*, and *vl* parameters to the page one by one or all together.
 
