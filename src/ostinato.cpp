@@ -458,4 +458,18 @@ void update_sensors() {
 #endif
 }
 
+extern "C" {
+
+// web-interface functions
+
+void jsi_set_key_state(const char* pName, const int state) {
+	if (OGLSys::get_frame_count() > 0) {
+		OGLSys::set_key_state(pName, !!state);
+	}
+}
+
+int jsi_get_test_val() { return 42; }
+
+} // extern "C"
+
 }; // namespace
