@@ -99,8 +99,6 @@ static void init_resources() {
 			}
 		}
 	}
-
-	nxCore::dbg_msg("\n~ Welcome to Ostinato ~\n");
 }
 
 static void init_player() {
@@ -121,11 +119,12 @@ static void init() {
 	HumanSys::init();
 	init_resources();
 	double finish = nxSys::time_micros();
-	nxCore::dbg_msg("Resources loaded in %f msec.\n", (finish - start)/1000.0);
+	nxCore::dbg_msg("Resources loaded in %f millis.\n", (finish - start)/1000.0);
 	init_player();
 	init_view();
 	Scene::glb_rng_reset();
 	InputCtrl::init();
+	nxCore::dbg_msg("\n~ Welcome to Ostinato ~\n");
 }
 
 static void draw_2d() {

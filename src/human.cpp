@@ -211,13 +211,13 @@ void Human::exec_collision() {
 	}
 }
 
-void Human::set_behaviour(const sxKeyframesData* pBehData) {
-	Behaviour beh;
+void Human::set_behavior(const sxKeyframesData* pBehData) {
+	Behavior beh;
 	struct Entry {
 		const char* nodeName;
 		const char* chName;
 		float* pVal;
-	} values[Behaviour::TOTAL_CHANNELS] = { {"stand", "coef", &beh.stand.coef} };
+	} values[Behavior::TOTAL_CHANNELS] = { {"stand", "coef", &beh.stand.coef} };
 
 	beh.reset();
 
@@ -481,7 +481,7 @@ ScnObj* add_human(const Human::Descr& descr, Human::CtrlFunc ctrl) {
 				pHuman->mActionTimer.set_duration_seconds(0.5f);
 
 				sxKeyframesData* pBehData = pPkg->find_keyframes("behavior");
-				pHuman->set_behaviour(pBehData);
+				pHuman->set_behavior(pBehData);
 
 				++s_wk.mCount;
 			}

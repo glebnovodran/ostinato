@@ -79,7 +79,7 @@ struct Human {
 		}
 	};
 
-	struct Behaviour {
+	struct Behavior {
 		static const int TOTAL_CHANNELS = 1;
 		struct {
 			float coef;
@@ -100,7 +100,7 @@ struct Human {
 	Action mAction;
 
 	State mState;
-	Behaviour mBeh;
+	Behavior mBeh;
 
 	int32_t mObjAdjCount;
 	int32_t mObjTouchCount;
@@ -165,7 +165,7 @@ struct Human {
 		}
 	}
 
-	void set_behaviour(const sxKeyframesData* pBehData);
+	void set_behavior(const sxKeyframesData* pBehData);
 };
 
 namespace HumanSys {
