@@ -10,7 +10,9 @@ The project uses [crosscore](https://github.com/schaban/crosscore_dev) library.
 
 ### Demo
 
-[Web-demo](https://glebnovodran.github.io/demo/ostinato.html?low&vl)
+[Ostinato web demo](https://glebnovodran.github.io/demo/ostinato.html)
+
+[Ostinato web demo (reduced rendering options)](https://glebnovodran.github.io/demo/ostinato.html?low&vl)
 
 A couple of screenshots:
 
