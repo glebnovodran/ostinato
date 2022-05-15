@@ -49,17 +49,31 @@ static void oglsys_mem_free(void* pMem) {
 #define BUNDLE_SIG XD_FOURCC('B', 'N', 'D', 'L')
 #define BUNDLE_FNAME "ostinato.bnd"
 
+enum class BndSource {
+	NONE,
+	LOCAL,
+	MAX = LOCAL
+};
+
+enum class BndFileSearch {
+	LINEAR,
+	STRMAP,
+	MAX = STRMAP
+};
+
 struct BndFileInfo {
 	uint32_t offs;
 	uint32_t size;
 };
 
-static struct BUNDLE_WK {
+static struct BundleWk {
 	FILE* pFile;
 	BndFileInfo* pInfos;
+	cxStrMap<xt_fhandle>* pFileMap;
 	char* pPaths;
 	int32_t nfiles;
-
+	BndSource bndSrc;
+	bool searchStrMap;
 	bool valid() const { return pFile != nullptr; }
 } s_bnd = {};
 
@@ -78,7 +92,7 @@ static FILE* bnd_sys_bin_open(const char* pPath) {
 }
 
 static bool bnd_check_handle(xt_fhandle fh) {
-	BUNDLE_WK* pBnd = &s_bnd;
+	BundleWk* pBnd = &s_bnd;
 	bool res = false;
 	if (pBnd->valid() && fh) {
 		uint8_t* pInfoTop = (uint8_t*)pBnd->pInfos;
@@ -91,7 +105,7 @@ static bool bnd_check_handle(xt_fhandle fh) {
 
 static xt_fhandle bnd_fopen(const char* pPath) {
 	xt_fhandle fh = nullptr;
-	BUNDLE_WK* pBnd = &s_bnd;
+	BundleWk* pBnd = &s_bnd;
 	if (pPath && pBnd->valid()) {
 		const char* pPathPrefix = nullptr;
 		static const char* pPrefixLst[] = {
@@ -105,18 +119,22 @@ static xt_fhandle bnd_fopen(const char* pPath) {
 		}
 		if (pPathPrefix && nxCore::str_starts_with(pPath, pPathPrefix)) {
 			const char* pReqPath = pPath + ::strlen(pPathPrefix);
-			char* pBndPath = pBnd->pPaths;
-			int32_t idx = -1;
-			for (int32_t i = 0; i < pBnd->nfiles; ++i) {
-				if (nxCore::str_eq(pReqPath, pBndPath)) {
-					idx = i;
-					break;
+			if (s_bnd.searchStrMap) {
+				bool found = s_bnd.pFileMap->get(pReqPath, &fh);
+			} else {
+				char* pBndPath = pBnd->pPaths;
+				int32_t idx = -1;
+				for (int32_t i = 0; i < pBnd->nfiles; ++i) {
+					if (nxCore::str_eq(pReqPath, pBndPath)) {
+						idx = i;
+						break;
+					}
+					size_t bndPathLen = ::strlen(pBndPath);
+					pBndPath += bndPathLen + 1;
 				}
-				size_t bndPathLen = ::strlen(pBndPath);
-				pBndPath += bndPathLen + 1;
-			}
-			if (idx >= 0) {
-				fh = (xt_fhandle)(&pBnd->pInfos[idx]);
+				if (idx >= 0) {
+					fh = (xt_fhandle)(&pBnd->pInfos[idx]);
+				}
 			}
 		}
 	}
@@ -140,7 +158,7 @@ static size_t bnd_fread(xt_fhandle fh, void* pDst, size_t nbytes) {
 	if (pDst && bnd_check_handle(fh)) {
 		BndFileInfo* pInfo = (BndFileInfo*)fh;
 		if (nbytes == pInfo->size) {
-			BUNDLE_WK* pBnd = &s_bnd;
+			BundleWk* pBnd = &s_bnd;
 			::fseek(pBnd->pFile, pInfo->offs, SEEK_SET);
 			nread = ::fread(pDst, 1, nbytes, pBnd->pFile);
 		}
@@ -155,10 +173,12 @@ static void init_bundle() {
 		"../data/" BUNDLE_FNAME,
 		"bin/data/" BUNDLE_FNAME
 	};
-	BUNDLE_WK* pBnd = &s_bnd;
+	BundleWk* pBnd = &s_bnd;
 	pBnd->pFile = nullptr;
 	pBnd->nfiles = 0;
 	pBnd->pPaths = nullptr;
+
+	s_bnd.searchStrMap = nxApp::get_bool_opt("bndsmap", false);
 	for (size_t i = 0; i < XD_ARY_LEN(pPathTbl); ++i) {
 		const char* pPath = pPathTbl[i];
 		FILE* pFile = bnd_sys_bin_open(pPath);
@@ -170,6 +190,9 @@ static void init_bundle() {
 				nread = ::fread(&nfiles, 1, sizeof(nfiles), pFile);
 				if (nread == sizeof(nfiles) && nfiles > 0) {
 					pBnd->nfiles = nfiles;
+					if (s_bnd.searchStrMap) {
+						pBnd->pFileMap = cxStrMap<xt_fhandle>::create("bundleMap");
+					}
 					size_t finfoSize = nfiles * sizeof(BndFileInfo);
 					pBnd->pInfos = (BndFileInfo*)nxCore::mem_alloc(finfoSize, "Bnd.infos");
 					if (pBnd->pInfos) {
@@ -188,6 +211,15 @@ static void init_bundle() {
 										pBnd->pPaths = pPathsData;
 									}
 									pBnd->pFile = pFile;
+									if (s_bnd.searchStrMap) {
+										char* pBndPath = pBnd->pPaths;
+										for (int32_t i = 0; i < pBnd->nfiles; ++i) {
+											xt_fhandle fh = (xt_fhandle)(&pBnd->pInfos[i]);
+											pBnd->pFileMap->add(pBndPath, fh);
+											size_t bndPathLen = ::strlen(pBndPath);
+											pBndPath += bndPathLen + 1;
+										}
+									}
 								} else {
 									nxCore::mem_free(pPathsData);
 									nxCore::mem_free(pBnd->pInfos);
@@ -219,7 +251,7 @@ static void init_bundle() {
 }
 
 static void reset_bundle() {
-	BUNDLE_WK* pBnd = &s_bnd;
+	BundleWk* pBnd = &s_bnd;
 	if (pBnd->valid()) {
 		nxCore::mem_free(pBnd->pPaths);
 		nxCore::mem_free(pBnd->pInfos);
@@ -228,6 +260,9 @@ static void reset_bundle() {
 		pBnd->pPaths = nullptr;
 		pBnd->pInfos = nullptr;
 		pBnd->nfiles = 0;
+	}
+	if (s_bnd.pFileMap) {
+		cxStrMap<xt_fhandle>::destroy(s_bnd.pFileMap);
 	}
 }
 
@@ -304,17 +339,22 @@ namespace Ostinato {
 void init(int argc, char* argv[]) {
 	nxApp::init_params(argc, argv);
 
-	init_bundle();
-
 	sxSysIfc sysIfc;
 	::memset(&sysIfc, 0, sizeof(sysIfc));
 	sysIfc.fn_dbgmsg = dbgmsg;
-	if (s_bnd.valid()) {
-		sysIfc.fn_fopen = bnd_fopen;
-		sysIfc.fn_fclose = bnd_fclose;
-		sysIfc.fn_fread = bnd_fread;
-		sysIfc.fn_fsize = bnd_fsize;
 
+	int bndsrc = nxCalc::clamp(nxApp::get_int_opt("bnd", int(BndSource::LOCAL)), 0, int(BndSource::MAX));
+	BndSource bndSrc = BndSource(bndsrc);
+	if (bndSrc != BndSource::NONE) {
+		init_bundle();
+
+		if (s_bnd.valid()) {
+			sysIfc.fn_fopen = bnd_fopen;
+			sysIfc.fn_fclose = bnd_fclose;
+			sysIfc.fn_fread = bnd_fread;
+			sysIfc.fn_fsize = bnd_fsize;
+
+		}
 	}
 	nxSys::init(&sysIfc);
 
