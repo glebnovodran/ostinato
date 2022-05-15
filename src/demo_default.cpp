@@ -30,6 +30,32 @@ struct DemoWk {
 	bool showFPS;
 } s_demoWk;
 
+static const char* pLampsMtlName = "_lamps_";
+
+static void stg_bat_pre_draw(ScnObj* pObj, const int ibat) {
+	if (!pObj) return;
+	const char* pMtlName = pObj->get_batch_mtl_name(ibat);
+	if (nxCore::str_eq(pMtlName, pLampsMtlName)) {
+		Scene::push_ctx();
+		float scl = Ostinato::get_lamps_brightness();
+		if (scl > 0.0f) {
+			scl = nxCalc::ease_crv(0.03f, 0.1f, scl);
+			scl = nxCalc::ease_crv(0.01f, 0.99f, scl) * 10.0f;
+			Scene::set_hemi_const(1.0f, 0.805248f, 0.192973);
+			Scene::scl_hemi_upper(scl);
+			Scene::scl_hemi_lower(scl);
+		}
+	}
+}
+
+static void stg_bat_post_draw(ScnObj* pObj, const int ibat) {
+	if (!pObj) return;
+	const char* pMtlName = pObj->get_batch_mtl_name(ibat);
+	if (nxCore::str_eq(pMtlName, pLampsMtlName)) {
+		Scene::pop_ctx();
+	}
+}
+
 static void init_view() {
 	Camera::init();
 	s_stage.camCtx.mTgtMode = 0;
@@ -52,6 +78,8 @@ static void add_stg_obj(sxModelData* pMdl, void* pWkData) {
 	if (pObj) {
 		pObj->set_base_color_scl(1.0f);
 		pObj->mDisableShadowCast = s_stage.disableStgShadows;
+		pObj->mBatchPreDrawFunc = stg_bat_pre_draw;
+		pObj->mBatchPostDrawFunc = stg_bat_post_draw;
 	}
 }
 
@@ -166,7 +194,7 @@ static void loop(void* pLoopCtx) {
 	TimeCtrl::exec();
 	InputCtrl::update();
 	Ostinato::update_sensors();
-	Ostinato::set_default_lightning();
+	Ostinato::set_default_lighting();
 	Scene::exec();
 	view_exec();
 	Scene::visibility();

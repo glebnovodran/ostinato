@@ -23,6 +23,7 @@ static const bool c_defReduce = false;
 
 static struct OstinatoGlobals {
 	ScnObj* pTgtObj;
+	float lampsBightness;
 	struct Sensors {
 		int fid;
 		struct Values {
@@ -345,7 +346,7 @@ void reset() {
 	nxCore::mem_dbg();
 }
 
-void set_default_lightning() {
+void set_default_lighting() {
 #if 0
 	// Uniform mode
 	Scene::set_shadow_density(1.0f);
@@ -381,12 +382,17 @@ void set_default_lightning() {
 	Scene::set_linear_gain(1.32f);
 	Scene::set_linear_bias(-0.025f);
 
+ 	s_globals.lampsBightness = 0.0f;
+
 	int32_t lval = s_globals.sensors.vals.light;
 	if (lval >= 0 && lval <= 1023) {
 		float val = float(lval) / 1023.0f;
 		const float sunLim = 0.75f;
 		if (val <= sunLim) {
 			float scl = nxCalc::fit(val, 0.0f, sunLim, 0.0f, 1.0f);
+
+			s_globals.lampsBightness = nxCalc::fit(scl, 0.0f, 1.0f, 1.0f, 0.05f);
+
 			Scene::set_shadow_density(nxCalc::fit(scl, 0.0f, 1.0, 0.25f, 1.0f));
 			float fogScl = nxCalc::fit(scl, 0.0f, 1.0, 0.1f, 1.0f);
 			Scene::set_fog_range(fogRangeMin * fogScl, fogRangeMax * nxCalc::saturate(fogScl + 0.7f));
@@ -412,7 +418,9 @@ void set_default_lightning() {
 	}
 }
 
-
+float get_lamps_brightness() {
+	return s_globals.lampsBightness;
+}
 
 ScnObj* get_cam_tgt_obj() {
 	return s_globals.pTgtObj;
@@ -472,4 +480,4 @@ int jsi_get_test_val() { return 42; }
 
 } // extern "C"
 
-}; // namespace
+} // namespace

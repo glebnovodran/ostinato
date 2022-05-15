@@ -56,4 +56,4 @@ bool triggered(const int id){ return s_wk.state[id].triggered; }
 
 bool changed(const int id){ return s_wk.state[id].changed; }
 
-}; // namespace
+} // namespace

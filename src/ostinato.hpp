@@ -8,9 +8,9 @@ namespace Ostinato {
 
 	void update_sensors();
 
-	void set_default_lightning();
+	void set_default_lighting();
+	float get_lamps_brightness();
 
 	ScnObj* get_cam_tgt_obj();
 	void set_cam_tgt(const char* pName);
-
-}; // namespace
+} // namespace
