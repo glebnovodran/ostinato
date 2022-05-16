@@ -118,7 +118,7 @@ static xt_fhandle bnd_fopen(const char* pPath) {
 			}
 		}
 		if (pPathPrefix && nxCore::str_starts_with(pPath, pPathPrefix)) {
-			const char* pReqPath = pPath + ::strlen(pPathPrefix);
+			const char* pReqPath = pPath + nxCore::str_len(pPathPrefix);
 			if (s_bnd.searchStrMap) {
 				bool found = s_bnd.pFileMap->get(pReqPath, &fh);
 			} else {
@@ -129,7 +129,7 @@ static xt_fhandle bnd_fopen(const char* pPath) {
 						idx = i;
 						break;
 					}
-					size_t bndPathLen = ::strlen(pBndPath);
+					size_t bndPathLen = ::nxCore::str_len(pBndPath);
 					pBndPath += bndPathLen + 1;
 				}
 				if (idx >= 0) {
@@ -178,7 +178,7 @@ static void init_bundle() {
 	pBnd->nfiles = 0;
 	pBnd->pPaths = nullptr;
 
-	s_bnd.searchStrMap = nxApp::get_bool_opt("bndsmap", false);
+	s_bnd.searchStrMap = nxApp::get_bool_opt("bnddict", false);
 	for (size_t i = 0; i < XD_ARY_LEN(pPathTbl); ++i) {
 		const char* pPath = pPathTbl[i];
 		FILE* pFile = bnd_sys_bin_open(pPath);
@@ -216,7 +216,7 @@ static void init_bundle() {
 										for (int32_t i = 0; i < pBnd->nfiles; ++i) {
 											xt_fhandle fh = (xt_fhandle)(&pBnd->pInfos[i]);
 											pBnd->pFileMap->add(pBndPath, fh);
-											size_t bndPathLen = ::strlen(pBndPath);
+											size_t bndPathLen = nxCore::str_len(pBndPath);
 											pBndPath += bndPathLen + 1;
 										}
 									}
