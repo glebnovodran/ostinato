@@ -247,8 +247,8 @@ static void loop(void* pLoopCtx) {
 	Scene::frame_begin(cxColor(0.5f));
 	Scene::draw();
 	draw_2d();
-	Scene::frame_end();
 	s_demoWk.stopWatch.end(MEASURE::DRAW);
+	Scene::frame_end();
 }
 
 static void reset() {
