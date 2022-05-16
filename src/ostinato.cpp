@@ -178,7 +178,7 @@ static void init_bundle() {
 	pBnd->nfiles = 0;
 	pBnd->pPaths = nullptr;
 
-	s_bnd.searchStrMap = nxApp::get_bool_opt("bnddict", false);
+	s_bnd.searchStrMap = nxApp::get_bool_opt("bndtbl", false);
 	for (size_t i = 0; i < XD_ARY_LEN(pPathTbl); ++i) {
 		const char* pPath = pPathTbl[i];
 		FILE* pFile = bnd_sys_bin_open(pPath);
