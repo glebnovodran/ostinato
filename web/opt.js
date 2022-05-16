@@ -5,7 +5,7 @@ Module.arguments = [
 	"-w:900", "-h:600",
 	"-smap:2048",
 	"-nwrk:0",
-	"-showfps:1"
+	"-showperf:0"
 ];
 
 if (pageParams.get("small") !== null) {

@@ -17,18 +17,51 @@
 
 DEMO_PROG_BEGIN
 
-struct Stage {
+enum MEASURE {
+	EXE = 0,
+	VISIBILITY,
+	DRAW,
+	NUM_TIMER
+};
+
+struct DemoWk {
+	struct {
+		cxStopWatch mAll[NUM_TIMER];
+		double mMedian[NUM_TIMER];
+
+		void init() {
+			for (int i = 0; i < NUM_TIMER; ++i) {
+				mAll[i].alloc(10);
+			}
+		}
+		void free() {
+			for (int i = 0; i < NUM_TIMER; ++i) {
+				mAll[i].free();
+			}
+		}
+		void begin(const MEASURE& m) {
+			mAll[m].begin();
+		}
+		void end(const MEASURE& m) {
+			if (mAll[m].end()) {
+				double us = mAll[m].median();
+				mAll[m].reset();
+				mMedian[m] = us / 1000.0;
+			}
+		}
+		double get_median(const MEASURE& m) const {
+			return mMedian[m];
+		}
+	} stopWatch;
+
 	Pkg* pPkg;
 	sxCollisionData* pCol;
 	sxGeometryData* pNPCPosGeo;
 	ScnObj* pPlayer;
 	Camera::Context camCtx;
 	bool disableStgShadows;
-} s_stage = {};
-
-struct DemoWk {
-	bool showFPS;
-} s_demoWk;
+	bool showPerf;
+} s_demoWk = {};
 
 static const char* pLampsMtlName = "_lamps_";
 
@@ -58,26 +91,26 @@ static void stg_bat_post_draw(ScnObj* pObj, const int ibat) {
 
 static void init_view() {
 	Camera::init();
-	s_stage.camCtx.mTgtMode = 0;
-	s_stage.camCtx.mpTgtObj = Ostinato::get_cam_tgt_obj();
+	s_demoWk.camCtx.mTgtMode = 0;
+	s_demoWk.camCtx.mpTgtObj = Ostinato::get_cam_tgt_obj();
 }
 
 static void view_exec() {
 	if (InputCtrl::triggered(InputCtrl::SWITCH1)) {
-		s_stage.camCtx.mPosMode ^= 1;
+		s_demoWk.camCtx.mPosMode ^= 1;
 	}
 	if (InputCtrl::triggered(InputCtrl::SWITCH2)) {
-		s_stage.camCtx.mTgtMode ^= 1;
+		s_demoWk.camCtx.mTgtMode ^= 1;
 	}
-	s_stage.camCtx.mpTgtObj = Ostinato::get_cam_tgt_obj();
-	Camera::exec(s_stage.camCtx);
+	s_demoWk.camCtx.mpTgtObj = Ostinato::get_cam_tgt_obj();
+	Camera::exec(s_demoWk.camCtx);
 }
 
 static void add_stg_obj(sxModelData* pMdl, void* pWkData) {
 	ScnObj* pObj = Scene::add_obj(pMdl);
 	if (pObj) {
 		pObj->set_base_color_scl(1.0f);
-		pObj->mDisableShadowCast = s_stage.disableStgShadows;
+		pObj->mDisableShadowCast = s_demoWk.disableStgShadows;
 		pObj->mBatchPreDrawFunc = stg_bat_pre_draw;
 		pObj->mBatchPostDrawFunc = stg_bat_post_draw;
 	}
@@ -85,18 +118,18 @@ static void add_stg_obj(sxModelData* pMdl, void* pWkData) {
 
 static void init_resources() {
 	Pkg* pPkg = Scene::load_pkg("street");
-	s_stage.pPkg = pPkg;
-	s_stage.pCol = nullptr;
+	s_demoWk.pPkg = pPkg;
+	s_demoWk.pCol = nullptr;
 	if (pPkg) {
-		Scene::for_all_pkg_models(pPkg, add_stg_obj, &s_stage);
-		s_stage.pCol = pPkg->find_collision("col");
-		HumanSys::set_collision(s_stage.pCol);
-		Camera::set_collision(s_stage.pCol);
-		s_stage.camCtx.mpZones = pPkg->find_geometry("cam_zones");
+		Scene::for_all_pkg_models(pPkg, add_stg_obj, &s_demoWk);
+		s_demoWk.pCol = pPkg->find_collision("col");
+		HumanSys::set_collision(s_demoWk.pCol);
+		Camera::set_collision(s_demoWk.pCol);
+		s_demoWk.camCtx.mpZones = pPkg->find_geometry("cam_zones");
 		sxGeometryData* pGeo = pPkg->find_geometry("npc_pos");
-		s_stage.pNPCPosGeo = pGeo;
+		s_demoWk.pNPCPosGeo = pGeo;
 		if (pGeo) {
-			int npts = s_stage.pNPCPosGeo->get_pnt_num();
+			int npts = s_demoWk.pNPCPosGeo->get_pnt_num();
 			nxCore::dbg_msg("\nPopulating city quarter with %d citizens...\n\n", npts);
 			for (int i = 0; i < npts; ++i) {
 				Human::Descr descr;
@@ -127,16 +160,17 @@ static void init_resources() {
 static void init_player() {
 	ScnObj* pPlr = Player::init();
 	pPlr->set_world_quat_pos(nxQuat::from_degrees(0.0f, 0.0f, 0.0f), cxVec(34.5f, 0.0f, -19.0f));
-	s_stage.pPlayer = pPlr;
+	s_demoWk.pPlayer = pPlr;
 	Ostinato::set_cam_tgt("Traveller");
 }
 void init_params() {
-	s_stage.disableStgShadows = nxApp::get_bool_opt("nostgshadow", false);
-	s_demoWk.showFPS = nxApp::get_bool_opt("showfps", false);
+	s_demoWk.disableStgShadows = nxApp::get_bool_opt("nostgshadow", false);
+	s_demoWk.showPerf = nxApp::get_bool_opt("showperf", false);
 }
 
 static void init() {
 	init_params();
+	s_demoWk.stopWatch.init();
 	TimeCtrl::init();
 	double start = nxSys::time_micros();
 	HumanSys::init();
@@ -151,7 +185,7 @@ static void init() {
 }
 
 static void draw_2d() {
-	char str[32];
+	char str[1024];
 	float refSizeX = 800;
 	float refSizeY = 600;
 	Scene::set_ref_scr_size(refSizeX, refSizeY);
@@ -159,7 +193,7 @@ static void draw_2d() {
 		Scene::set_ref_scr_size(refSizeY, refSizeX);
 	}
 
-	if (s_demoWk.showFPS) {
+	if (s_demoWk.showPerf) {
 		float sx = 10.0f;
 		float sy = Scene::get_ref_scr_height() - 20.0f;
 
@@ -171,7 +205,7 @@ static void draw_2d() {
 		btex[3].set(0.0f, 1.0f);
 		float bx = 4.0f;
 		float by = 4.0f;
-		float bw = 80.0f + 10.0f;
+		float bw = 80.0f + 80.0f + 80.0f + 100.0f + 10.0f;
 		float bh = 12.0f;
 		cxColor bclr(0.0f, 0.0f, 0.0f, 0.75f);
 		bpos[0].set(sx - bx, sy - by);
@@ -181,32 +215,46 @@ static void draw_2d() {
 		Scene::quad(bpos, btex, bclr);
 
 		float fps = TimeCtrl::get_fps();
+		double exe = s_demoWk.stopWatch.get_median(MEASURE::EXE);
+		double vis = s_demoWk.stopWatch.get_median(MEASURE::VISIBILITY);
+		double draw = s_demoWk.stopWatch.get_median(MEASURE::DRAW);
+
 		if (fps < 0.0f) {
 			XD_SPRINTF(XD_SPRINTF_BUF(str, sizeof(str)), "FPS: --");
 		} else {
 			XD_SPRINTF(XD_SPRINTF_BUF(str, sizeof(str)), "FPS: %.2f", fps);
 		}
 		Scene::print(sx, sy, cxColor(0.1f, 0.75f, 0.1f, 1.0f), str);
+		sx += 100.0f;
+		XD_SPRINTF(XD_SPRINTF_BUF(str, sizeof(str)), "EXE: %.2f, VIS %.2f, DRW: %.2f", exe, vis, draw);
+		Scene::print(sx, sy, cxColor(0.1f, 0.75f, 0.1f, 1.0f), str);
 	}
 }
 
 static void loop(void* pLoopCtx) {
+	s_demoWk.stopWatch.begin(MEASURE::EXE);
 	TimeCtrl::exec();
 	InputCtrl::update();
 	Ostinato::update_sensors();
 	Ostinato::set_default_lighting();
 	Scene::exec();
 	view_exec();
+	s_demoWk.stopWatch.end(MEASURE::EXE);
+	s_demoWk.stopWatch.begin(MEASURE::VISIBILITY);
 	Scene::visibility();
+	s_demoWk.stopWatch.end(MEASURE::VISIBILITY);
+	s_demoWk.stopWatch.begin(MEASURE::DRAW);
 	Scene::frame_begin(cxColor(0.5f));
 	Scene::draw();
 	draw_2d();
 	Scene::frame_end();
+	s_demoWk.stopWatch.end(MEASURE::DRAW);
 }
 
 static void reset() {
 	HumanSys::reset();
 	TimeCtrl::reset();
+	s_demoWk.stopWatch.free();
 }
 
 DEMO_REGISTER(default);

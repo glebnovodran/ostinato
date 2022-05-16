@@ -120,7 +120,7 @@ static xt_fhandle bnd_fopen(const char* pPath) {
 		if (pPathPrefix && nxCore::str_starts_with(pPath, pPathPrefix)) {
 			const char* pReqPath = pPath + nxCore::str_len(pPathPrefix);
 			if (s_bnd.searchStrMap) {
-				bool found = s_bnd.pFileMap->get(pReqPath, &fh);
+				s_bnd.pFileMap->get(pReqPath, &fh);
 			} else {
 				char* pBndPath = pBnd->pPaths;
 				int32_t idx = -1;
@@ -246,6 +246,7 @@ static void init_bundle() {
 			} else {
 				::fclose(pFile);
 			}
+			break;
 		}
 	}
 }
