@@ -31,7 +31,7 @@ struct DemoWk {
 
 		void init() {
 			for (int i = 0; i < NUM_TIMER; ++i) {
-				mAll[i].alloc(10);
+				mAll[i].alloc(30);
 			}
 		}
 		void free() {
@@ -53,6 +53,53 @@ struct DemoWk {
 			return mMedian[m];
 		}
 	} stopWatch;
+
+	struct {
+		double mSmps[30];
+		int mIdx;
+		uint32_t mTS0;
+		uint32_t mTS1;
+		double mMillis;
+		bool mFlg;
+
+		void init() {
+			mFlg = false;
+			nxCore::mem_zero(mSmps, sizeof(mSmps));
+			mIdx = 0;
+			mMillis = 0.0;
+			mTS0 = OGLSys::create_timestamp();
+			mTS1 = OGLSys::create_timestamp();
+		}
+
+		void begin() const { OGLSys::put_timestamp(mTS0); }
+		void end() const { OGLSys::put_timestamp(mTS1); }
+
+		void exec() {
+			if (mFlg) {
+				OGLSys::wait_timestamp(mTS1);
+				uint64_t t0 = OGLSys::get_timestamp(mTS0);
+				uint64_t t1 = OGLSys::get_timestamp(mTS1);
+				uint64_t dt = t1 - t0;
+				double millis = double(dt) * 1.0e-6;
+				int nsmp = XD_ARY_LEN(mSmps);
+				if (mIdx < nsmp) {
+					mSmps[mIdx] = millis;
+					++mIdx;
+				} else {
+					mIdx = 0;
+					mMillis = nxCalc::median(mSmps, nsmp);
+				}
+			}
+			mFlg = true;
+		}
+
+		void free() {
+			OGLSys::delete_timestamp(mTS0);
+			OGLSys::delete_timestamp(mTS1);
+			mTS0 = 0;
+			mTS1 = 0;
+		}
+	} perfGPU;
 
 	Pkg* pPkg;
 	sxCollisionData* pCol;
@@ -171,6 +218,8 @@ void init_params() {
 static void init() {
 	init_params();
 	s_demoWk.stopWatch.init();
+	s_demoWk.perfGPU.init();
+
 	TimeCtrl::init();
 	double start = nxSys::time_micros();
 	HumanSys::init();
@@ -194,6 +243,22 @@ static void draw_2d() {
 	}
 
 	if (s_demoWk.showPerf) {
+		char fpsStr[16];
+
+		float fps = TimeCtrl::get_fps();
+		double exe = s_demoWk.stopWatch.get_median(MEASURE::EXE);
+		double vis = s_demoWk.stopWatch.get_median(MEASURE::VISIBILITY);
+		double drw = s_demoWk.stopWatch.get_median(MEASURE::DRAW);
+		double gpu = s_demoWk.perfGPU.mMillis;
+
+		if (fps < 0.0f) {
+			XD_SPRINTF(XD_SPRINTF_BUF(fpsStr, sizeof(fpsStr)), " --");
+		} else {
+			XD_SPRINTF(XD_SPRINTF_BUF(fpsStr, sizeof(fpsStr)), "%.2f", fps);
+		}
+		XD_SPRINTF(XD_SPRINTF_BUF(str, sizeof(str)), "FPS: %s, EXE: %.2f, VIS: %.2f, DRW: %.2f, GPU: %.2f, SUM: %.2f", fpsStr, exe, vis, drw, gpu, exe+vis+drw+gpu);
+		size_t slen = nxCore::str_len(str);
+
 		float sx = 10.0f;
 		float sy = Scene::get_ref_scr_height() - 20.0f;
 
@@ -205,33 +270,22 @@ static void draw_2d() {
 		btex[3].set(0.0f, 1.0f);
 		float bx = 4.0f;
 		float by = 4.0f;
-		float bw = 80.0f + 80.0f + 80.0f + 100.0f + 10.0f;
+		float bw = slen * 8;
 		float bh = 12.0f;
 		cxColor bclr(0.0f, 0.0f, 0.0f, 0.75f);
 		bpos[0].set(sx - bx, sy - by);
 		bpos[1].set(sx + bw + bx, sy - by);
 		bpos[2].set(sx + bw + bx, sy + bh + by);
 		bpos[3].set(sx - bx, sy + bh + by);
+
 		Scene::quad(bpos, btex, bclr);
-
-		float fps = TimeCtrl::get_fps();
-		double exe = s_demoWk.stopWatch.get_median(MEASURE::EXE);
-		double vis = s_demoWk.stopWatch.get_median(MEASURE::VISIBILITY);
-		double draw = s_demoWk.stopWatch.get_median(MEASURE::DRAW);
-
-		if (fps < 0.0f) {
-			XD_SPRINTF(XD_SPRINTF_BUF(str, sizeof(str)), "FPS: --");
-		} else {
-			XD_SPRINTF(XD_SPRINTF_BUF(str, sizeof(str)), "FPS: %.2f", fps);
-		}
-		Scene::print(sx, sy, cxColor(0.1f, 0.75f, 0.1f, 1.0f), str);
-		sx += 100.0f;
-		XD_SPRINTF(XD_SPRINTF_BUF(str, sizeof(str)), "EXE: %.2f, VIS %.2f, DRW: %.2f", exe, vis, draw);
 		Scene::print(sx, sy, cxColor(0.1f, 0.75f, 0.1f, 1.0f), str);
 	}
 }
 
 static void loop(void* pLoopCtx) {
+	s_demoWk.perfGPU.exec();
+
 	s_demoWk.stopWatch.begin(MEASURE::EXE);
 	TimeCtrl::exec();
 	InputCtrl::update();
@@ -244,9 +298,11 @@ static void loop(void* pLoopCtx) {
 	Scene::visibility();
 	s_demoWk.stopWatch.end(MEASURE::VISIBILITY);
 	s_demoWk.stopWatch.begin(MEASURE::DRAW);
+	s_demoWk.perfGPU.begin();
 	Scene::frame_begin(cxColor(0.5f));
 	Scene::draw();
 	draw_2d();
+	s_demoWk.perfGPU.end();
 	s_demoWk.stopWatch.end(MEASURE::DRAW);
 	Scene::frame_end();
 }
@@ -255,6 +311,7 @@ static void reset() {
 	HumanSys::reset();
 	TimeCtrl::reset();
 	s_demoWk.stopWatch.free();
+	s_demoWk.perfGPU.free();
 }
 
 DEMO_REGISTER(default);
