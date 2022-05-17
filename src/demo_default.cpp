@@ -20,8 +20,8 @@ DEMO_PROG_BEGIN
 
 
 struct DemoWk {
-	CPUPerfMon stopWatch;
-	GPUPerfMon perfGPU;
+	Performance::CPUMonitor perfCPU;
+	Performance::GPUMonitor perfGPU;
 
 	Pkg* pPkg;
 	sxCollisionData* pCol;
@@ -139,7 +139,7 @@ void init_params() {
 
 static void init() {
 	init_params();
-	s_demoWk.stopWatch.init();
+	s_demoWk.perfCPU.init();
 	s_demoWk.perfGPU.init();
 
 	TimeCtrl::init();
@@ -156,6 +156,8 @@ static void init() {
 }
 
 static void draw_2d() {
+	using namespace Performance;
+
 	char str[1024];
 	float refSizeX = 800;
 	float refSizeY = 600;
@@ -168,9 +170,9 @@ static void draw_2d() {
 		char fpsStr[16];
 
 		float fps = TimeCtrl::get_fps();
-		double exe = s_demoWk.stopWatch.get_median(MEASURE::EXE);
-		double vis = s_demoWk.stopWatch.get_median(MEASURE::VISIBILITY);
-		double drw = s_demoWk.stopWatch.get_median(MEASURE::DRAW);
+		double exe = s_demoWk.perfCPU.get_median(Measure::EXE);
+		double vis = s_demoWk.perfCPU.get_median(Measure::VISIBILITY);
+		double drw = s_demoWk.perfCPU.get_median(Measure::DRAW);
 		double gpu = s_demoWk.perfGPU.mMillis;
 
 		if (fps < 0.0f) {
@@ -206,28 +208,30 @@ static void draw_2d() {
 }
 
 static void loop(void* pLoopCtx) {
+	using namespace Performance;
+
 	s_demoWk.perfGPU.exec();
 
-	s_demoWk.stopWatch.begin(MEASURE::EXE);
+	s_demoWk.perfCPU.begin(Measure::EXE);
 	TimeCtrl::exec();
 	InputCtrl::update();
 	Ostinato::update_sensors();
 	Ostinato::set_default_lighting();
 	Scene::exec();
 	view_exec();
-	s_demoWk.stopWatch.end(MEASURE::EXE);
+	s_demoWk.perfCPU.end(Measure::EXE);
 
-	s_demoWk.stopWatch.begin(MEASURE::VISIBILITY);
+	s_demoWk.perfCPU.begin(Measure::VISIBILITY);
 	Scene::visibility();
-	s_demoWk.stopWatch.end(MEASURE::VISIBILITY);
+	s_demoWk.perfCPU.end(Measure::VISIBILITY);
 
-	s_demoWk.stopWatch.begin(MEASURE::DRAW);
+	s_demoWk.perfCPU.begin(Measure::DRAW);
 	s_demoWk.perfGPU.begin();
 	Scene::frame_begin(cxColor(0.5f));
 	Scene::draw();
 	draw_2d();
 	s_demoWk.perfGPU.end();
-	s_demoWk.stopWatch.end(MEASURE::DRAW);
+	s_demoWk.perfCPU.end(Measure::DRAW);
 
 	Scene::frame_end();
 }
@@ -235,7 +239,7 @@ static void loop(void* pLoopCtx) {
 static void reset() {
 	HumanSys::reset();
 	TimeCtrl::reset();
-	s_demoWk.stopWatch.free();
+	s_demoWk.perfCPU.free();
 	s_demoWk.perfGPU.free();
 }
 

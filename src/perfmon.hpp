@@ -1,14 +1,16 @@
 /* SPDX-License-Identifier: MIT */
 /* SPDX-FileCopyrightText: 2022 Glib Novodran <novodran@gmail.com> */
 
-enum MEASURE {
+namespace Performance {
+
+enum Measure {
 	EXE = 0,
 	VISIBILITY,
 	DRAW,
 	NUM_TIMER
 };
 
-struct CPUPerfMon {
+struct CPUMonitor {
 	cxStopWatch mAll[NUM_TIMER];
 	double mMedian[NUM_TIMER];
 
@@ -22,22 +24,22 @@ struct CPUPerfMon {
 			mAll[i].free();
 		}
 	}
-	void begin(const MEASURE& m) {
+	void begin(const Measure& m) {
 		mAll[m].begin();
 	}
-	void end(const MEASURE& m) {
+	void end(const Measure& m) {
 		if (mAll[m].end()) {
 			double us = mAll[m].median();
 			mAll[m].reset();
 			mMedian[m] = us / 1000.0;
 		}
 	}
-	double get_median(const MEASURE& m) const {
+	double get_median(const Measure& m) const {
 		return mMedian[m];
 	}
 };
 
-struct GPUPerfMon {
+struct GPUMonitor {
 	double mSmps[30];
 	int mIdx;
 	uint32_t mTS0;
@@ -83,3 +85,5 @@ struct GPUPerfMon {
 		mTS1 = 0;
 	}
 };
+
+} // namespace
