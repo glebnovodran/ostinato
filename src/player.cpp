@@ -110,9 +110,10 @@ ScnObj* init() {
 	descr.personId = 0;
 	descr.scale = 1.0f;
 	ScnObj* pPlr = HumanSys::add_human(descr, traveller_exec_ctrl);
-	const char* pOccp = HumanSys::get_occupation(pPlr->mpName);
-	nxCore::dbg_msg("\n  Enter %s The %s\n", pPlr->mpName != nullptr ? pPlr->mpName: "Anonimous",  pOccp != nullptr ? pOccp : "Trouble maker");
-
+	if (pPlr) {
+		const char* pOccp = HumanSys::get_occupation(pPlr->mpName);
+		nxCore::dbg_msg("\n  Enter %s The %s\n", pPlr->mpName != nullptr ? pPlr->mpName: "Anonimous",  pOccp != nullptr ? pOccp : "Trouble maker");
+	}
 	return pPlr;
 }
 

@@ -517,13 +517,15 @@ const char* get_occupation(const char* pName) {
 	const char* pStr = "";
 	if (pHuman) {
 		Pkg* pPkg = s_wk.get_pkg(pHuman->mType, pHuman->mPersonId);
-		sxValuesData* pVal = pPkg->find_values("params");
-		if (pVal) {
-			sxValuesData::Group personalGrp = pVal->find_grp("personal");
-			if (personalGrp.is_valid()) {
-				int idx = personalGrp.find_val_idx("occupation");
-				if (personalGrp.ck_val_idx(idx)) {
-					pStr = personalGrp.get_val_s(idx);
+		if (pPkg) {
+			sxValuesData* pVal = pPkg->find_values("params");
+			if (pVal) {
+				sxValuesData::Group personalGrp = pVal->find_grp("personal");
+				if (personalGrp.is_valid()) {
+					int idx = personalGrp.find_val_idx("occupation");
+					if (personalGrp.ck_val_idx(idx)) {
+						pStr = personalGrp.get_val_s(idx);
+					}
 				}
 			}
 		}

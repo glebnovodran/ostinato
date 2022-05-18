@@ -85,10 +85,11 @@ static void add_stg_obj(sxModelData* pMdl, void* pWkData) {
 	}
 }
 
-static void init_resources() {
+static bool init_resources() {
 	Pkg* pPkg = Scene::load_pkg("street");
 	s_demoWk.pPkg = pPkg;
 	s_demoWk.pCol = nullptr;
+	bool res = false;
 	if (pPkg) {
 		Scene::for_all_pkg_models(pPkg, add_stg_obj, &s_demoWk);
 		s_demoWk.pCol = pPkg->find_collision("col");
@@ -124,13 +125,18 @@ static void init_resources() {
 			}
 		}
 	}
+	return res;
 }
 
 static void init_player() {
 	ScnObj* pPlr = Player::init();
-	pPlr->set_world_quat_pos(nxQuat::from_degrees(0.0f, 0.0f, 0.0f), cxVec(34.5f, 0.0f, -19.0f));
-	s_demoWk.pPlayer = pPlr;
-	Ostinato::set_cam_tgt("Traveller");
+	if (pPlr) {
+		pPlr->set_world_quat_pos(nxQuat::from_degrees(0.0f, 0.0f, 0.0f), cxVec(34.5f, 0.0f, -19.0f));
+		s_demoWk.pPlayer = pPlr;
+		Ostinato::set_cam_tgt("Traveller");
+	} else {
+		//s_demoWk.pPlayer = nullptr;
+	}
 }
 void init_params() {
 	s_demoWk.disableStgShadows = nxApp::get_bool_opt("nostgshadow", false);
