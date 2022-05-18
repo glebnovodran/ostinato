@@ -24,17 +24,17 @@ struct CPUMonitor {
 			mAll[i].free();
 		}
 	}
-	void begin(const Measure& m) {
+	void begin(const Measure m) {
 		mAll[m].begin();
 	}
-	void end(const Measure& m) {
+	void end(const Measure m) {
 		if (mAll[m].end()) {
 			double us = mAll[m].median();
 			mAll[m].reset();
 			mMedian[m] = us / 1000.0;
 		}
 	}
-	double get_median(const Measure& m) const {
+	double get_median(const Measure m) const {
 		return mMedian[m];
 	}
 };
