@@ -117,6 +117,24 @@ static xt_fhandle bnd_fopen(const char* pPath) {
 				break;
 			}
 		}
+		char prefixBuf[256];
+		nxCore::mem_zero(prefixBuf, sizeof(prefixBuf));
+		if (!pPathPrefix) {
+			size_t pathLen = nxCore::str_len(pPath);
+			if (pathLen < sizeof(prefixBuf)) {
+				const char* pStdPrefix = "../data/";
+				size_t stdPrefixLen = nxCore::str_len(pStdPrefix);
+				if (pathLen > stdPrefixLen) {
+					for (size_t i = pathLen - stdPrefixLen; --i >= stdPrefixLen;) {
+						if (nxCore::mem_eq(&pPath[i], pStdPrefix, stdPrefixLen)) {
+							nxCore::mem_copy(prefixBuf, pPath, i + stdPrefixLen);
+							pPathPrefix = prefixBuf;
+							break;
+						}
+					}
+				}
+			}
+		}
 		if (pPathPrefix && nxCore::str_starts_with(pPath, pPathPrefix)) {
 			const char* pReqPath = pPath + nxCore::str_len(pPathPrefix);
 			if (s_bnd.searchStrMap) {
@@ -132,25 +150,6 @@ static xt_fhandle bnd_fopen(const char* pPath) {
 					size_t bndPathLen = ::nxCore::str_len(pBndPath);
 					pBndPath += bndPathLen + 1;
 				}
-
-				char prefixBuf[256];
-				nxCore::mem_zero(prefixBuf, sizeof(prefixBuf));
-				if (!pPathPrefix) {
-					size_t pathLen = nxCore::str_len(pPath);
-					if (pathLen < sizeof(prefixBuf)) {
-						const char* pStdPrefix = "../data/";
-						size_t stdPrefixLen = nxCore::str_len(pStdPrefix);
-						if (pathLen > stdPrefixLen) {
-							for (size_t i = pathLen - stdPrefixLen; --i >= stdPrefixLen;) {
-								if (::memcmp(&pPath[i], pStdPrefix, stdPrefixLen) == 0) {
-									nxCore::mem_copy(prefixBuf, pPath, i + stdPrefixLen);
-									pPathPrefix = prefixBuf;
-									break;
-								}
-							}
-						}
-					}
-				}
 				if (idx >= 0) {
 					fh = (xt_fhandle)(&pBnd->pInfos[idx]);
 				}
@@ -159,6 +158,7 @@ static xt_fhandle bnd_fopen(const char* pPath) {
 	}
 	return fh;
 }
+
 
 static void bnd_fclose(xt_fhandle fh) {
 }
