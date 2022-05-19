@@ -8,6 +8,35 @@
 #include "timectrl.hpp"
 #include "human.hpp"
 
+#define BEH_ENTRY(_act, _param) { #_act, #_param, offsetof(Human::Behavior, _act._param) }
+
+static struct {
+	const char* pNodeName;
+	const char* pChanName;
+	size_t valOffs;
+} s_behMap[] = {
+	BEH_ENTRY(stand, coef),
+};
+
+void Human::set_behavior(const sxKeyframesData* pBehData) {
+	Behavior beh;
+	beh.reset();
+
+	if (pBehData) {
+		size_t n = XD_ARY_LEN(s_behMap);
+		for (size_t i = 0; i < n ;++i) {
+			int fcvNum = pBehData->get_fcv_num();
+			sxKeyframesData::FCurve fcv = pBehData->find_fcv(s_behMap[i].pNodeName, s_behMap[i].pChanName);
+			if (fcv.is_valid()) {
+				size_t offs = s_behMap[i].valOffs;
+				float* pVal = reinterpret_cast<float*>(XD_INCR_PTR(&beh, offs));
+				*pVal = fcv.eval(0.0f);
+			}
+		}
+	}
+	mBeh = beh;
+}
+
 void Human::Rig::init(Human* pHuman) {
 	mpHuman = nullptr;
 	mpObj = nullptr;
@@ -79,11 +108,14 @@ uint32_t Human::find_nearest_mot_frame(const sxMotionData* pMtd, const char* pNo
 
 void Human::change_act(const Action newAct, const double durationSecs, const int blendCnt, const int startFrame) {
 	if (!mpObj) return;
+
 	float t = nxCalc::div0(float(blendCnt), TimeCtrl::get_motion_speed());
 	mpObj->set_motion_frame(startFrame);
 	mpObj->init_motion_blend(int(t));
 	mAction = newAct;
-	mActionTimer.start(durationSecs);
+
+	double duration = durationSecs * (newAct == ACT_STAND)? mBeh.stand.coef : 1.0;
+	mActionTimer.start(duration);
 }
 
 void Human::add_deg_y(const float dy) {
@@ -209,29 +241,6 @@ void Human::exec_collision() {
 	} else {
 		mWallTouchDuration = 0.0f;
 	}
-}
-
-void Human::set_behavior(const sxKeyframesData* pBehData) {
-	Behavior beh;
-	struct Entry {
-		const char* nodeName;
-		const char* chName;
-		float* pVal;
-	} values[Behavior::TOTAL_CHANNELS] = { {"stand", "coef", &beh.stand.coef} };
-
-	beh.reset();
-
-	if (pBehData) {
-		int fcvNum = pBehData->get_fcv_num();
-		for (int i = 0; i < fcvNum; ++i) {
-			sxKeyframesData::FCurve fcv = pBehData->find_fcv(values[i].nodeName, values[i].chName);
-			if (fcv.is_valid()) {
-				*values[i].pVal = fcv.eval(0.0f);
-			}
-
-		}
-	}
-	mBeh = beh;
 }
 
 namespace HumanSys {

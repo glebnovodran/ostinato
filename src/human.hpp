@@ -80,7 +80,6 @@ struct Human {
 	};
 
 	struct Behavior {
-		static const int TOTAL_CHANNELS = 1;
 		struct {
 			float coef;
 		} stand;
