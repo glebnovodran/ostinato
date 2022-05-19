@@ -25,7 +25,6 @@ void Human::set_behavior(const sxKeyframesData* pBehData) {
 	if (pBehData) {
 		size_t n = XD_ARY_LEN(s_behMap);
 		for (size_t i = 0; i < n ;++i) {
-			int fcvNum = pBehData->get_fcv_num();
 			sxKeyframesData::FCurve fcv = pBehData->find_fcv(s_behMap[i].pNodeName, s_behMap[i].pChanName);
 			if (fcv.is_valid()) {
 				size_t offs = s_behMap[i].valOffs;
@@ -113,8 +112,14 @@ void Human::change_act(const Action newAct, const double durationSecs, const int
 	mpObj->set_motion_frame(startFrame);
 	mpObj->init_motion_blend(int(t));
 	mAction = newAct;
-
-	double duration = durationSecs * (newAct == ACT_STAND)? mBeh.stand.coef : 1.0;
+	double duration = durationSecs;
+	switch (newAct) {
+		case ACT_STAND:
+			duration *= mBeh.stand.coef;
+			break;
+		default:
+			break;
+	}
 	mActionTimer.start(duration);
 }
 
