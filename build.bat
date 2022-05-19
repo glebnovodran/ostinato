@@ -22,6 +22,8 @@ if not exist %DATA_DIR% mkdir %DATA_DIR%
 
 set BND_URL=https://glebnovodran.github.io/demo/ostinato.data
 
+echo   ~ Compiling Ostinato for Windows ~
+
 goto :start
 
 :mk_hget
@@ -29,21 +31,22 @@ goto :start
 	echo var req = new ActiveXObject("MSXML2.XMLHTTP.6.0"); >> %_HGET_%
 	echo var url = WScript.Arguments(0); var res = null; >> %_HGET_%
 	echo WScript.StdErr.WriteLine("Downloading " + url + "..."); >> %_HGET_%
-	echo try { req.Open("GET", url, false); req.Send(); res = req.ResponseText; } >> %_HGET_%
-	echo catch (e) { WScript.StdErr.WriteLine(e.description); } >> %_HGET_%
+	echo try{req.Open("GET",url,false);req.Send();if(req.Status==200)res=req.ResponseText; >> %_HGET_%
+	echo } catch (e) { WScript.StdErr.WriteLine(e.description); } >> %_HGET_%
 	echo if (res) { WScript.StdErr.WriteLine("OK^!"); WScript.Echo(res); } >> %_HGET_%
 	echo else { WScript.StdErr.WriteLine("Failed."); } >> %_HGET_%
 goto :EOF
 
 :mk_bndget
-	echo /* Bundle downloader */ > %_BNDGET_%
+	set bnd=%BUNDLE_PATH:\=\\%
+	echo /* WSH bundle downloader */ > %_BNDGET_%
 	echo var req = new ActiveXObject("MSXML2.XMLHTTP.6.0"); >> %_BNDGET_%
 	echo var url = "%BND_URL%"; >> %_BNDGET_%
 	echo var res = null; req.Open("GET", url, false); req.Send(); >> %_BNDGET_%
 	echo if (req.Status == 200) {  >> %_BNDGET_%
 	echo var data=WScript.CreateObject("ADODB.Stream"); >> %_BNDGET_%
 	echo data.Open(); data.Type=1;data.Write(req.ResponseBody);data.Position=0; >> %_BNDGET_%
-	echo data.SaveToFile("bin\\data\\%BUNDLE_NAME%", 2);data.Close(); >> %_BNDGET_%
+	echo data.SaveToFile("%bnd%", 2);data.Close(); >> %_BNDGET_%
 	echo } >> %_BNDGET_%
 goto :EOF
 
@@ -66,7 +69,7 @@ set TDM_GCC=%TDM_BIN%\gcc.exe
 set TDM_GPP=%TDM_BIN%\g++.exe
 set TDM_MAK=%TDM_BIN%\mingw32-make.exe
 set TDM_WRS=%TDM_BIN%\windres.exe
-echo C++ compiler path: %TDM_GPP%
+echo [C++ compiler path: %TDM_GPP%]
 
 set _CSCR_=cscript.exe /nologo
 
@@ -108,6 +111,10 @@ if not exist %BUNDLE_PATH% (
 	%_CSCR_% %_BNDGET_%
 )
 
+if exist %BUNDLE_PATH% (
+	echo [Bundle location: %BUNDLE_PATH%]
+)
+
 if exist %PROG_PATH% (
 	echo [Removing previously compiled executable %PROG_PATH%...]
 	del %PROG_PATH%
@@ -124,11 +131,13 @@ for /f %%i in ('dir /b %XCORE_DIR%\*.cpp') do (
 set CPP_OFLGS=-ffast-math -ftree-vectorize
 rem -O3 -flto
 set XCORE_FLAGS=-DOGLSYS_ES=0 -DOGLSYS_CL=0 -DDRW_NO_VULKAN=1 -DXD_TSK_NATIVE=1
-set CPP_OPTS=%CPP_OFLGS% -std=c++11 -mavx -mf16c -mfpmath=sse -fno-use-linker-plugin -Wno-psabi -Wno-deprecated-declarations 
+set CPP_OPTS=%CPP_OFLGS% -std=c++11 -mavx -mf16c -mfpmath=sse -fno-use-linker-plugin -Wno-psabi -Wno-deprecated-declarations
 set LNK_OPTS=-l gdi32 -l ole32 -l windowscodecs
 echo [Compiling %PROG_PATH%...]
 %TDM_GPP% %CPP_OPTS% %XCORE_FLAGS% -I %INC_DIR% -I %XCORE_DIR% -I %SRC_DIR% %SRC_FILES% -o %PROG_PATH% %LNK_OPTS% %*
 if exist %PROG_PATH% (
 	echo Success^^!
 	%TDM_BIN%\objdump.exe -M intel -d %PROG_PATH% > %PROG_DIR%\%PROG_NAME%.txt
+) else (
+	echo Failure :(
 )
