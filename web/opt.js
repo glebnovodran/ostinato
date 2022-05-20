@@ -22,19 +22,3 @@ if (pageParams.get("vl") !== null) {
 	Module.arguments.push("-vl:1");
 }
 
-var btns = document.getElementsByClassName("btn");
-if (btns !== null) {
-	const ua = navigator.userAgent;
-	if (ua.match(/Android/i) || ua.match(/iPhone/i) || ua.match(/iPad/i)) {
-		Array.prototype.filter.call(btns, function(btn) {
-			btn.onmousedown = "";
-			btn.onmouseup = "";
-		});
-	}
-	if (ua.match(/Android/i) || ua.match(/iPhone/i)) {
-		Array.prototype.filter.call(btns, function(btn) {
-			btn.style.fontSize = "20pt";
-			btn.style.padding = "0 30px";
-		});
-	}
-}
