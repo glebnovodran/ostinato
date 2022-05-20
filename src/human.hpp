@@ -172,13 +172,20 @@ namespace HumanSys {
 	void reset();
 
 	Human* find(const char* pName);
+
 	bool obj_is_human(ScnObj* pObj);
 	Human* as_human(ScnObj* pobj);
 	ScnObj* add_human(const Human::Descr& descr, Human::CtrlFunc ctrl = nullptr);
+
 	void set_collision(sxCollisionData* pCol);
 	sxCollisionData* get_collision();
 
 	void mark(const char* pName);
 	void unmark(const char* pName);
-	const char* get_occupation(const char* pName);
+
+	const char* get_occupation(const char* pCharName);
+	float get_scale(const char* pCharName);
+
+	float query_behavior(const char* pCharName, const char* pActName, const char* pChanName);
+	void modify_behavior(const char* pCharName, const char* pActName, const char* pChanName, float val);
 }

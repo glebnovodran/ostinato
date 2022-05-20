@@ -11,9 +11,9 @@
 #define BEH_ENTRY(_act, _param) { #_act, #_param, offsetof(Human::Behavior, _act._param) }
 
 static struct {
-	const char* pNodeName;
+	const char* pActName;
 	const char* pChanName;
-	size_t valOffs;
+	size_t chValOffs;
 } s_behMap[] = {
 	BEH_ENTRY(stand, coef),
 };
@@ -25,9 +25,9 @@ void Human::set_behavior(const sxKeyframesData* pBehData) {
 	if (pBehData) {
 		size_t n = XD_ARY_LEN(s_behMap);
 		for (size_t i = 0; i < n ;++i) {
-			sxKeyframesData::FCurve fcv = pBehData->find_fcv(s_behMap[i].pNodeName, s_behMap[i].pChanName);
+			sxKeyframesData::FCurve fcv = pBehData->find_fcv(s_behMap[i].pActName, s_behMap[i].pChanName);
 			if (fcv.is_valid()) {
-				size_t offs = s_behMap[i].valOffs;
+				size_t offs = s_behMap[i].chValOffs;
 				float* pVal = reinterpret_cast<float*>(XD_INCR_PTR(&beh, offs));
 				*pVal = fcv.eval(0.0f);
 			}
@@ -469,7 +469,6 @@ ScnObj* add_human(const Human::Descr& descr, Human::CtrlFunc ctrl) {
 
 				pHuman->mMotLib.init(pPkg, pBasePkg);
 				pHuman->mRig.init(pHuman);
-				//pHuman->mRig.mScale = scale;
 
 				pObj->mExecFunc = human_exec_func;
 				pObj->mDelFunc = human_del_func;
@@ -526,8 +525,8 @@ void unmark(const char* pName) {
 	}
 }
 
-const char* get_occupation(const char* pName) {
-	Human* pHuman = find(pName);
+const char* get_occupation(const char* pCharName) {
+	Human* pHuman = find(pCharName);
 	const char* pStr = "";
 	if (pHuman) {
 		Pkg* pPkg = s_wk.get_pkg(pHuman->mType, pHuman->mPersonId);
@@ -547,4 +546,42 @@ const char* get_occupation(const char* pName) {
 	return pStr;
 }
 
+float get_scale(const char* pCharName) {
+	Human* pHuman = find(pCharName);
+	return pHuman == nullptr ? 0.0f : pHuman->mpObj->get_motion_uniform_scl();
 }
+
+float query_behavior(const char* pCharName, const char* pActName, const char* pChanName) {
+	Human* pHuman = find(pCharName);
+	float val = 1.0f;
+	if (pHuman) {
+		size_t n = XD_ARY_LEN(s_behMap);
+		for (size_t i = 0; i < n ;++i) {
+			if (nxCore::str_eq(s_behMap[i].pActName, pActName) && nxCore::str_eq(s_behMap[i].pChanName, pChanName)) {
+				size_t offs = s_behMap[i].chValOffs;
+				float* pVal = reinterpret_cast<float*>(XD_INCR_PTR(&pHuman->mBeh, offs));
+				val = *pVal;
+			}
+		}
+	}
+
+	return val;
+}
+
+void modify_behavior(const char* pCharName, const char* pActName, const char* pChanName, float val) {
+	Human* pHuman = find(pCharName);
+
+	if (pHuman) {
+		Human::Behavior* pBeh = &pHuman->mBeh;
+		size_t n = XD_ARY_LEN(s_behMap);
+		for (size_t i = 0; i < n ;++i) {
+			if (nxCore::str_eq(s_behMap[i].pActName, pActName) && nxCore::str_eq(s_behMap[i].pChanName, pChanName)) {
+				size_t offs = s_behMap[i].chValOffs;
+				float* pVal = reinterpret_cast<float*>(XD_INCR_PTR(&pHuman->mBeh, offs));
+				*pVal = val;
+			}
+		}
+	}
+}
+
+} // namespace
