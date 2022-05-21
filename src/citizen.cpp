@@ -22,7 +22,7 @@ void roam_ctrl(Human* pHuman) {
 				uint64_t rng = Scene::glb_rng_next() & 0x3f;
 				if (rng < 0x10) {
 					float t = nxCalc::fit(Scene::glb_rng_f01(), 0.0f, 1.0f, 1.0f, 4.0f);
-					pHuman->change_act(Human::ACT_RUN, t); // 2
+					pHuman->change_act(Human::ACT_RUN, t);
 				} else if (rng < 0x38) {
 					float t = nxCalc::fit(Scene::glb_rng_f01(), 0.0f, 1.0f, 2.0f, 6.0f);
 					pHuman->change_act(Human::ACT_WALK, t);
