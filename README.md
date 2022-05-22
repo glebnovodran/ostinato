@@ -6,6 +6,8 @@ The project uses [crosscore](https://github.com/schaban/crosscore_dev) library.
 
 [Unix build](https://github.com/glebnovodran/ostinato/blob/main/doc/build_unix.md)
 
+[Windows build](https://github.com/glebnovodran/ostinato/blob/main/doc/build_win.md)
+
 [Web build](https://github.com/glebnovodran/ostinato/blob/main/doc/build_web.md)
 
 ### Demo
