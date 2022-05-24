@@ -1,5 +1,5 @@
 # Windows build
-To build Ostinato for Windows it is necessary you will need to install [TDM](https://jmeubank.github.io/tdm-gcc/download/)
+To build Ostinato for Windows it is necessary you will need to install [tdm-gcc](https://jmeubank.github.io/tdm-gcc/download/)
 
 ## Cloning
 
