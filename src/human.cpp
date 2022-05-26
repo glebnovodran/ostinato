@@ -318,7 +318,7 @@ static struct HumanWk {
 			mResident.mBasePkg[i] = Scene::load_pkg(buff);
 		}
 		mResident.mPlr[Human::FEMALE] = Scene::load_pkg("traveller");
-#if 0
+#if 1
 		mResident.mPlr[Human::MALE] = Scene::load_pkg("wanderer");
 #else
 		mResident.mPlr[Human::MALE] = nullptr;

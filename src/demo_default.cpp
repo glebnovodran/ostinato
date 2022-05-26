@@ -157,8 +157,10 @@ static void init_player() {
 		pPlr->set_world_quat_pos(nxQuat::from_degrees(0.0f, 0.0f, 0.0f), cxVec(34.5f, 0.0f, -19.0f));
 		s_demoWk.pPlayer = pPlr;
 		Ostinato::set_cam_tgt("Traveller");
-	} else {
-		//s_demoWk.pPlayer = nullptr;
+		ScnObj* pWanderer = Scene::find_obj("Wanderer");
+		if (pWanderer) {
+			pWanderer->set_world_quat_pos(nxQuat::from_degrees(0.0f, 48.0f, 0.0f), cxVec(47.35f, 0.0f, -61.676f));
+		}
 	}
 }
 void init_params() {
