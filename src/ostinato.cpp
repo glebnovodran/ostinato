@@ -403,6 +403,7 @@ void reset() {
 	reset_sensors();
 	nxApp::reset();
 	reset_bundle();
+	nxCore::dbg_msg("Peak MB: %f\n", double(nxCore::mem_peak_bytes()) / (1024.0 * 1024.0));
 	nxCore::mem_dbg();
 }
 
