@@ -159,7 +159,8 @@ static void init_player() {
 		Ostinato::set_cam_tgt("Traveller");
 		ScnObj* pWanderer = Scene::find_obj("Wanderer");
 		if (pWanderer) {
-			pWanderer->set_world_quat_pos(nxQuat::from_degrees(0.0f, 48.0f, 0.0f), cxVec(47.35f, 0.0f, -61.676f));
+			//pWanderer->set_world_quat_pos(nxQuat::from_degrees(0.0f, 48.0f, 0.0f), cxVec(47.35f, 0.0f, -61.676f));
+			pWanderer->set_world_quat_pos(nxQuat::from_degrees(0.0f, 48.0f, 0.0f), cxVec(34.5f, 0.0f, -20.0f));
 		}
 	}
 }
@@ -282,38 +283,6 @@ static void draw_prims() {
 	}
 }
 
-static void prim_test_quad() {
-	ScnObj* pObj = Scene::find_obj("Grichka");
-	if (!pObj) return;
-	int ijnt = pObj->find_skel_node_id("j_Head");
-	cxMtx wm = pObj->calc_skel_world_mtx(ijnt);
-	sxPrimVtx vtx[4];
-	cxVec nrm(0.0f, 0.0f, 1.0f);
-	for (int i = 0; i < 4; ++i) {
-		vtx[i].prm.fill(0.0f);
-		vtx[i].encode_normal(nrm);
-		vtx[i].clr.set(0.2f, 0.3f, 0.2f, 0.5f);
-		vtx[i].tex.fill(0.0f);
-	}
-	vtx[0].pos.set(-0.5f, 0.5f, 0.0, 1.0f);
-	vtx[1].pos.set(0.5f, 0.5f, 0.0, 1.0f);
-	vtx[2].pos.set(0.5f, -0.5f, 0.0, 1.0f);
-	vtx[3].pos.set(-0.5f, -0.5f, 0.0, 1.0f);
-	uint16_t idx[] = { 0, 1, 2, 0, 2, 3 };
-	Scene::prim_geom(0, 4, vtx, 0, 6, idx);
-	Scene::idx_tris_semi_dsided(0, 2, &wm, nullptr);
-
-#if 0
-	pObj = Scene::find_obj("Chacha");
-	if (!pObj) return;
-	ijnt = pObj->find_skel_node_id("j_Head");
-	wm = pObj->calc_skel_world_mtx(ijnt);
-
-	Scene::prim_geom(4, 4, vtx, 6, 6, idx);
-	Scene::idx_tris_semi_dsided(0, 2, &wm, nullptr);
-#endif
-}
-
 static void loop(void* pLoopCtx) {
 	using namespace Performance;
 
@@ -337,7 +306,6 @@ static void loop(void* pLoopCtx) {
 	Scene::frame_begin(cxColor(0.5f));
 	Scene::draw();
 	draw_prims();
-//	prim_test_quad();
 	draw_2d();
 	s_demoWk.perfGPU.end();
 	s_demoWk.perfCPU.end(Measure::DRAW);
