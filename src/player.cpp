@@ -105,13 +105,23 @@ void traveller_exec_ctrl(Human* pHuman) {
 
 void wanderer_exec_ctrl(Human* pHuman) {
 	if (!pHuman) return;
-	switch (pHuman->mAction) {
-		case Human::ACT_STAND:
-			break;
-		default:
-			break;
+		switch (pHuman->mAction) {
+			case Human::ACT_STAND:
+				break;
+			default:
+				break;
 	}
 }
+
+void wanderer_bat_pre_draw(ScnObj* pObj, const int ibat) {
+	Scene::push_ctx();
+	Scene::scl_hemi_lower(2.0f);
+}
+
+static void wanderer_bat_post_draw(ScnObj* pObj, const int ibat) {
+	Scene::pop_ctx();
+}
+
 
 ScnObj* init() {
 	Human::Descr descr;
@@ -132,6 +142,8 @@ ScnObj* init() {
 
 	ScnObj* pWanderer = HumanSys::add_human(descr, wanderer_exec_ctrl);
 	if (pWanderer) {
+		pWanderer->mBatchPreDrawFunc = wanderer_bat_pre_draw;
+		pWanderer->mBatchPostDrawFunc = wanderer_bat_post_draw;
 		const char* pOccp = HumanSys::get_occupation(pWanderer->mpName);
 		nxCore::dbg_msg("\n  Enter %s The %s\n", pWanderer->mpName != nullptr ? pWanderer->mpName: "Anonimous",  pOccp != nullptr ? pOccp : "Gorestudent");
 	}
