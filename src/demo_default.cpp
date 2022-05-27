@@ -35,7 +35,6 @@ struct DemoWk {
 struct Primitives {
 	const int NUM_VTX = 1000;
 	const int NUM_IDX = 1000;
-	const char* SHD_TEX_NAME = "shd_common_BASE";
 	sxTextureData* mpShdTex;
 	bool drawPseudoShd;
 
@@ -43,7 +42,7 @@ struct Primitives {
 		Scene::init_prims(NUM_VTX, NUM_IDX);
 		Pkg* pCmnPkg = Scene::find_pkg(SCN_CMN_PKG_NAME);
 		if (pCmnPkg) {
-			mpShdTex = pCmnPkg->find_texture(SHD_TEX_NAME);
+			mpShdTex = pCmnPkg->find_texture("shd_common_BASE");
 		}
 		int smapVal = nxApp::get_int_opt("smap", 2048);
 		drawPseudoShd = (smapVal == -1);
