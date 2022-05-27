@@ -159,8 +159,8 @@ static void init_player() {
 		Ostinato::set_cam_tgt("Traveller");
 		ScnObj* pWanderer = Scene::find_obj("Wanderer");
 		if (pWanderer) {
-			//pWanderer->set_world_quat_pos(nxQuat::from_degrees(0.0f, 48.0f, 0.0f), cxVec(47.35f, 0.0f, -61.676f));
-			pWanderer->set_world_quat_pos(nxQuat::from_degrees(0.0f, 48.0f, 0.0f), cxVec(34.5f, 0.0f, -20.0f));
+			pWanderer->set_world_quat_pos(nxQuat::from_degrees(0.0f, 48.0f, 0.0f), cxVec(47.35f, 0.0f, -61.676f));
+			//pWanderer->set_world_quat_pos(nxQuat::from_degrees(0.0f, 48.0f, 0.0f), cxVec(34.5f, 0.0f, -20.0f));
 		}
 	}
 }
@@ -247,8 +247,8 @@ static bool draw_pseudo_shadow(ScnObj* pObj, void* pMem) {
 		if (iroot < 0) {
 			return false;
 		}
-		cxMtx wm = pObj->calc_skel_world_mtx(iroot);
 
+		cxMtx wm = pObj->calc_skel_world_mtx(iroot);
 		sxPrimVtx vtx[4];
 		cxVec nrm(0.0f, 1.0f, 0.0f);
 		for (int i = 0; i < 4; ++i) {
