@@ -20,3 +20,4 @@ A couple of screenshots:
 
 ![screen1](https://github.com/glebnovodran/glebnovodran.github.io/raw/main/demo/images/Ostinato_scr01.png)
 ![screen0](https://github.com/glebnovodran/glebnovodran.github.io/raw/main/demo/images/Ostinato_scr00.png)
+<img src="https://github.com/glebnovodran/glebnovodran.github.io/raw/main/demo/images/Ostinato_scr02.png" alt="test" width="1000"/>
