@@ -16,5 +16,7 @@ Live **`Web-demo`**: [Normal settings](https://glebnovodran.github.io/demo/ostin
 
 ![screen0](https://github.com/glebnovodran/glebnovodran.github.io/raw/main/demo/images/Ostinato_scr00.png)
 
+![screen0](https://github.com/glebnovodran/glebnovodran.github.io/raw/main/demo/images/Ostinato_scr03.png)
+
 ![screen0](https://github.com/glebnovodran/glebnovodran.github.io/raw/main/demo/images/Ostinato_scr02.png)
 
