@@ -1,6 +1,6 @@
 # Ostinato
-An experimental project attempting to recreate a classic RPG town.
-The project uses [crosscore](https://github.com/schaban/crosscore_dev) library.
+
+An experimental project attempting to recreate a classic RPG town. The project uses [crosscore](https://github.com/schaban/crosscore_dev) library.
 
 ### Build instructions
 
@@ -16,8 +16,11 @@ The project uses [crosscore](https://github.com/schaban/crosscore_dev) library.
 
 [Ostinato web demo (reduced rendering options)](https://glebnovodran.github.io/demo/ostinato.html?low&vl)
 
-A couple of screenshots:
+### Some screenshots
 
 ![screen1](https://github.com/glebnovodran/glebnovodran.github.io/raw/main/demo/images/Ostinato_scr01.png)
+
 ![screen0](https://github.com/glebnovodran/glebnovodran.github.io/raw/main/demo/images/Ostinato_scr00.png)
-<img src="https://github.com/glebnovodran/glebnovodran.github.io/raw/main/demo/images/Ostinato_scr02.png" alt="test" width="1000"/>
+
+![screen0](https://github.com/glebnovodran/glebnovodran.github.io/raw/main/demo/images/Ostinato_scr02.png)
+
