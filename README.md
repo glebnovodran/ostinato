@@ -14,7 +14,6 @@ It can be compiled for Linux, *BSD, Windows and Web by following these build ins
 Live **`Web-demo`**: [Normal settings](https://glebnovodran.github.io/demo/ostinato.html) | [Reduced rendering options](https://glebnovodran.github.io/demo/ostinato.html?low&vl)
 
 ***
-### Screenshots:
-
+### Screenshots:<br>
 <img src="https://github.com/glebnovodran/glebnovodran.github.io/raw/main/demo/images/Ostinato_scr00.png" width=200>&nbsp;&nbsp;<img src="https://github.com/glebnovodran/glebnovodran.github.io/raw/main/demo/images/Ostinato_scr03.png" width=200>&nbsp;&nbsp;<img src="https://github.com/glebnovodran/glebnovodran.github.io/raw/main/demo/images/Ostinato_scr02.png" width=200>
 
