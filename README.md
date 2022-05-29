@@ -1,5 +1,5 @@
 # ~ Ostinato ~
-An experimental project attempting to recreate a stylized RPG town.
+An experimental project attempting to create a stylized RPG town.
 ![screen1](https://github.com/glebnovodran/glebnovodran.github.io/raw/main/demo/images/Ostinato_scr01.png)
 <br>
 The project is written in C++ is built on top of[-=crosscore=-](https://github.com/schaban/crosscore_dev) library.
