@@ -6,8 +6,7 @@ The project is written in C++ is built on top of[-=crosscore=-](https://github.c
 <br>
 Other than that it has no dependencies.
 <br>
-It can be compiled for Linux, *BSD, Windows and Web by following these build instructions:
-
+It can be compiled for Linux, *BSD, Windows and Web by following these build instructions:<br>
 [**Unix build**](https://github.com/glebnovodran/ostinato/blob/main/doc/build_unix.md) | [**Windows build**](https://github.com/glebnovodran/ostinato/blob/main/doc/build_win.md) | [**Web build**](https://github.com/glebnovodran/ostinato/blob/main/doc/build_web.md)
 
 
