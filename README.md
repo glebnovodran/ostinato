@@ -13,7 +13,5 @@ Live **`Web-demo`**: [Normal settings](https://glebnovodran.github.io/demo/ostin
 
 ### Screenshots:
 
-<img src="https://github.com/glebnovodran/glebnovodran.github.io/raw/main/demo/images/Ostinato_scr00.png" width=200>
-<img src="https://github.com/glebnovodran/glebnovodran.github.io/raw/main/demo/images/Ostinato_scr03.png" width=200>
-<img src="https://github.com/glebnovodran/glebnovodran.github.io/raw/main/demo/images/Ostinato_scr02.png" width=200>
+<img src="https://github.com/glebnovodran/glebnovodran.github.io/raw/main/demo/images/Ostinato_scr00.png" width=200>&nbsp;<img src="https://github.com/glebnovodran/glebnovodran.github.io/raw/main/demo/images/Ostinato_scr03.png" width=200>&nbsp;<img src="https://github.com/glebnovodran/glebnovodran.github.io/raw/main/demo/images/Ostinato_scr02.png" width=200>
 
