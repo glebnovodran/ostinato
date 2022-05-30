@@ -9,6 +9,7 @@
 
 #undef OSTINATO_SENSORS
 #if defined(XD_SYS_LINUX) || defined(XD_SYS_BSD)
+#	include <termios.h>
 #	include <fcntl.h>
 #	include <unistd.h>
 #	if defined(XD_SYS_BSD)
@@ -294,7 +295,14 @@ static void init_sensors() {
 	if (pSensPath) {
 		s_globals.sensors.fid = ::open(pSensPath, O_SYNC);
 		if (s_globals.sensors.fid >= 0) {
+			struct termios opts;
+			::tcgetattr(s_globals.sensors.fid, &opts);
+			::cfsetispeed(&opts, B115200);
+			::cfsetospeed(&opts, B115200);
+			opts.c_cflag |= (CLOCAL | CREAD);
+			::tcsetattr(s_globals.sensors.fid, TCSANOW, &opts);
 			nxCore::dbg_msg("Ostinato: sensors port open @ %s\n", pSensPath);
+
 		}
 	}
 #endif
