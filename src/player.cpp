@@ -132,7 +132,7 @@ ScnObj* init() {
 	ScnObj* pPlr = HumanSys::add_human(descr, traveller_exec_ctrl);
 	if (pPlr) {
 		const char* pOccp = HumanSys::get_occupation(pPlr->mpName);
-		nxCore::dbg_msg("\n  Enter %s The %s\n", pPlr->mpName != nullptr ? pPlr->mpName: "Animous",  pOccp != nullptr ? pOccp : "Trouble maker");
+		nxCore::dbg_msg("\n  Enter %s The %s\n", pPlr->mpName != nullptr ? pPlr->mpName: "Animous",  pOccp != nullptr ? pOccp : "<unknown>");
 	}
 
 	descr.reset();
@@ -145,7 +145,7 @@ ScnObj* init() {
 		pWanderer->mBatchPreDrawFunc = wanderer_bat_pre_draw;
 		pWanderer->mBatchPostDrawFunc = wanderer_bat_post_draw;
 		const char* pOccp = HumanSys::get_occupation(pWanderer->mpName);
-		nxCore::dbg_msg("\n  Enter %s The %s\n", pWanderer->mpName != nullptr ? pWanderer->mpName: "Anonimous",  pOccp != nullptr ? pOccp : "Gorestudent");
+		nxCore::dbg_msg("\n  Enter %s The %s\n", pWanderer->mpName != nullptr ? pWanderer->mpName: "Anonimous",  pOccp != nullptr ? pOccp : "<unknown>");
 	}
 
 	return pPlr;
