@@ -7,6 +7,8 @@ GREEN_ON="\e[32m"
 YELLOW_ON="\e[33m"
 FMT_OFF="\e[0m"
 
+SYS_NAME="`uname -s`"
+
 CROSSCORE_DIR="ext/crosscore"
 BIN_DIR="bin"
 DATA_DIR="$BIN_DIR/data"
@@ -23,14 +25,19 @@ SRCS="`ls src/*.cpp` `ls $CROSSCORE_DIR/*.cpp`"
 INCS="-I $CROSSCORE_DIR -I ext/inc -I inc"
 
 # resources
-RSRC_BASE=https://github.com/glebnovodran/glebnovodran.github.io/raw/main
+RSRC_BASE="https://glebnovodran.github.io"
+BUNDLE_URL="$RSRC_BASE/demo/ostinato.data"
 
 OSTINATO_BND="$DATA_DIR/ostinato.bnd"
 if [ ! -f "$BIN_DIR/bundle.off" ]; then
 	if [ ! -f "$OSTINATO_BND" ]; then
 		mkdir -p $DATA_DIR
 		printf "$BOLD_ON$RED_ON""Downloading resources.""$FMT_OFF\n"
-		wget -O "$OSTINATO_BND" $RSRC_BASE/demo/ostinato.data
+		if [ "$SYS_NAME" = "Darwin" ]; then
+			curl "$BUNDLE_URL" -o "$OSTINATO_BND"
+		else
+			wget -O "$OSTINATO_BND" "$BUNDLE_URL"
+		fi
 	fi
 fi
 
@@ -109,7 +116,6 @@ EXE_PATH="$EXE_DIR/$EXE_NAME"
 
 DEFS="-DX11"
 LIBS="-lpthread -lX11"
-SYS_NAME="`uname -s`"
 SYS_KIND="generic"
 SYS_OGL="Desktop"
 EGL_LIBS="-lEGL -lGLESv2"
@@ -158,6 +164,11 @@ case $SYS_NAME in
 		CXX=${CXX:-clang++}
 		INCS="$INCS -I/usr/local/include"
 		LIBS="$LIBS -L/usr/local/lib"
+	;;
+	Darwin)
+		CXX=${CXX:-clang++}
+		printf "macOS: $BOLD_ON$RED_ON""not supported yet""$FMT_OFF.\n"
+		exit
 	;;
 	*)
 		CXX=${CXX:-g++}
