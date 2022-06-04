@@ -271,7 +271,7 @@ static bool draw_pseudo_shadow(ScnObj* pObj, void* pMem) {
 
 		wm.set_translation(wm.get_translation() + cxVec(0.0f, 0.025f, 0.0f));
 		Scene::prim_geom(0, 4, vtx, 0, 6, idx);
-		Scene::idx_tris_semi_dsided(0, 2, &wm, s_primWk.mpShdTex);
+		Scene::idx_tris_semi_dsided(0, 2, &wm, s_primWk.mpShdTex, false);
 	}
 	return true;
 }
