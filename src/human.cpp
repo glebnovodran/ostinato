@@ -24,7 +24,7 @@ void Human::set_behavior(const sxKeyframesData* pBehData) {
 
 	if (pBehData) {
 		size_t n = XD_ARY_LEN(s_behMap);
-		for (size_t i = 0; i < n ;++i) {
+		for (size_t i = 0; i < n; ++i) {
 			sxKeyframesData::FCurve fcv = pBehData->find_fcv(s_behMap[i].pActName, s_behMap[i].pChanName);
 			if (fcv.is_valid()) {
 				size_t offs = s_behMap[i].chValOffs;
@@ -281,7 +281,7 @@ static struct HumanWk {
 				break;
 			case Human::CITIZEN_MALE:
 			case Human::WANDERER:
-				pBasePkg = mResident.mBasePkg[1]; // basemale
+				pBasePkg = mResident.mBasePkg[1]; // base male
 				break;
 			default:
 				break;
@@ -556,7 +556,7 @@ float query_behavior(const char* pCharName, const char* pActName, const char* pC
 	float val = 1.0f;
 	if (pHuman) {
 		size_t n = XD_ARY_LEN(s_behMap);
-		for (size_t i = 0; i < n ;++i) {
+		for (size_t i = 0; i < n; ++i) {
 			if (nxCore::str_eq(s_behMap[i].pActName, pActName) && nxCore::str_eq(s_behMap[i].pChanName, pChanName)) {
 				size_t offs = s_behMap[i].chValOffs;
 				float* pVal = reinterpret_cast<float*>(XD_INCR_PTR(&pHuman->mBeh, offs));
@@ -574,7 +574,7 @@ void modify_behavior(const char* pCharName, const char* pActName, const char* pC
 	if (pHuman) {
 		Human::Behavior* pBeh = &pHuman->mBeh;
 		size_t n = XD_ARY_LEN(s_behMap);
-		for (size_t i = 0; i < n ;++i) {
+		for (size_t i = 0; i < n; ++i) {
 			if (nxCore::str_eq(s_behMap[i].pActName, pActName) && nxCore::str_eq(s_behMap[i].pChanName, pChanName)) {
 				size_t offs = s_behMap[i].chValOffs;
 				float* pVal = reinterpret_cast<float*>(XD_INCR_PTR(&pHuman->mBeh, offs));
