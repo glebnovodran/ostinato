@@ -56,13 +56,13 @@
 		font-family: Verdana, Geneva, sans-serif;
 		border: 0;
 		line-height: 2.5;
-		padding: 0 10px;
+		padding: 0 8px;
 		font-size: 8pt;
 		text-align: center;
 		color: #E2E2F0;
 		text-shadow: 1px 1px 1px #000;
 		border-radius: 4px;
-		background-color: rgba(55, 66, 55, 1);
+		background-color: rgba(155, 66, 55, 1);
 		background-image: linear-gradient(to top left, rgba(0, 0, 0, .2), rgba(0, 0, 0, .2) 30%, rgba(0, 0, 0, 0));
 		box-shadow: inset 2px 2px 3px rgba(200, 200, 200, .5), inset -2px -2px 3px rgba(0, 0, 0, .4);
 		-webkit-user-select: none;
@@ -87,15 +87,54 @@
 </head>
 
 <body>
-	<figure style="overflow:visible;" id="spinner"><div class="spinner"></div>
-	</figure>
+	<figure style="overflow:visible;" id="spinner"><div class="spinner"></div></figure>
 	<div class="emscripten" id="status">Downloading...</div>
 	<div class="emscripten">
 		<progress value="0" max="100" id="progress" hidden=1></progress>  
 	</div>
+	<center>
 	<div class="emscripten_border">
+		<table><tbody><tr>
+		<td>
+		<!-- UP -->
+		<button class="btn" type="button"
+			onmousedown="try{Module.ccall('jsi_set_key_state', '', ['string','number'], ['UP',1])}catch(e){alert(e);}"
+			onmouseup="try{Module.ccall('jsi_set_key_state', '', ['string','number'], ['UP',0])}catch(e){alert(e);}"
+			ontouchstart="try{Module.ccall('jsi_set_key_state', '', ['string','number'], ['UP',1])}catch(e){alert(e);}"
+			ontouchend="try{Module.ccall('jsi_set_key_state', '', ['string','number'], ['UP',0])}catch(e){alert(e);}"
+		>F</button>&nbsp;
+		<br/><br/>
+		<!-- DOWN -->
+		<button class="btn" type="button"
+			onmousedown="try{Module.ccall('jsi_set_key_state', '', ['string','number'], ['DOWN',1])}catch(e){alert(e);}"
+			onmouseup="try{Module.ccall('jsi_set_key_state', '', ['string','number'], ['DOWN',0])}catch(e){alert(e);}"
+			ontouchstart="try{Module.ccall('jsi_set_key_state', '', ['string','number'], ['DOWN',1])}catch(e){alert(e);}"
+			ontouchend="try{Module.ccall('jsi_set_key_state', '', ['string','number'], ['DOWN',0])}catch(e){alert(e);}"
+		>B</button>&nbsp;
+		</td>
+		<td>
 		<canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+		</td>
+		<td>
+		<!-- LEFT -->
+		&nbsp;<button class="btn" type="button"
+			onmousedown="try{Module.ccall('jsi_set_key_state', '', ['string','number'], ['LEFT',1])}catch(e){alert(e);}"
+			onmouseup="try{Module.ccall('jsi_set_key_state', '', ['string','number'], ['LEFT',0])}catch(e){alert(e);}"
+			ontouchstart="try{Module.ccall('jsi_set_key_state', '', ['string','number'], ['LEFT',1])}catch(e){alert(e);}"
+			ontouchend="try{Module.ccall('jsi_set_key_state', '', ['string','number'], ['LEFT',0])}catch(e){alert(e);}"
+		>L</button>
+		<br/><br/>
+		<!-- RIGHT -->
+		&nbsp;<button class="btn" type="button"
+			onmousedown="try{Module.ccall('jsi_set_key_state', '', ['string','number'], ['RIGHT',1])}catch(e){alert(e);}"
+			onmouseup="try{Module.ccall('jsi_set_key_state', '', ['string','number'], ['RIGHT',0])}catch(e){alert(e);}"
+			ontouchstart="try{Module.ccall('jsi_set_key_state', '', ['string','number'], ['RIGHT',1])}catch(e){alert(e);}"
+			ontouchend="try{Module.ccall('jsi_set_key_state', '', ['string','number'], ['RIGHT',0])}catch(e){alert(e);}"
+		>R</button>
+		</td>
+		</tr></tbody></table>
 	</div>
+	</center>
 
 	<br/>
 	<!--<center>
@@ -103,7 +142,7 @@
 		<select name="charlist" id="charlist"></select>
 	</center>-->
 	<br/>
-	<textarea class="emscripten" id="output" rows="8"></textarea>
+	<textarea class="emscripten" id="output" rows="10"></textarea>
 	<script type='text/javascript'>
 		var statusElement = document.getElementById('status');
 		var progressElement = document.getElementById('progress');
@@ -181,7 +220,11 @@
 		};
 	</script>
 
-	<center><small>...</small></center>
+	<center>
+		<small>graphics: "Atelier Buryak &amp; Chaban"</small>
+		<br/>
+		<small>~~ostinato-timestamp~~</small>
+	</center>
 
 
 	{{{ SCRIPT }}}

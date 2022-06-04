@@ -1,5 +1,7 @@
 #!/bin/sh
 
+BUILD_TIMESTAMP="$(date -u)"
+
 BOLD_ON="\e[1m"
 UNDER_ON="\e[4m"
 RED_ON="\e[31m"
@@ -103,6 +105,8 @@ if [ -n "$WEB_MODE" ]; then
 	fi
 	$WEB_CC $WEB_OPTS $WGL_OPTS -I $CROSSCORE_DIR -O3 $SRCS $WEB_EXTS -o $OUT_HTML $WEB_EXPS $*
 	sed -i 's/antialias:!1/antialias:1/g' $OUT_HTML
+	TIMESTAMP_EXPR="s/~~ostinato-timestamp~~/~ $BUILD_TIMESTAMP ~/g"
+	sed -i "$TIMESTAMP_EXPR" $OUT_HTML
 	exit
 fi
 
