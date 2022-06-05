@@ -9,12 +9,15 @@ Ostinato can be built for Linux (including Raspberry Pi OS), OpenBSD or FreeBSD 
 
 The build depends on [crosscore](https://github.com/schaban/crosscore_dev) library sources. build.sh detects presence of the crosscore sources. If not present the build script downloads them automatically through executing util/get_crosscore.sh.
 
-The build depends on OGL/EGL/GLES header files. If not already present, they are downloaded automatically by util/get_crosscore.sh.
+Also, the build depends on OGL/EGL/GLES header files. If not present, they are downloaded by the build script too.
 
 Some systems may not have some necessary tools/libraries preinstalled.
-For RPi OS it is necessary to install C++ compiler toolchain
+For RPi OS the C++ compiler toolchain should be installed
+
 `sudo apt install build-essential`
-and X11 developnment headers:
+
+along with X11 developnment headers
+
 `sudo apt install libx11-dev`
 
 For FreeBSD and OpenBSD it is necessary to install _wget_:
