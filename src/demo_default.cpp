@@ -16,6 +16,7 @@
 #include "ostinato.hpp"
 #include "perfmon.hpp"
 #include "primfx.hpp"
+#include "draw2d.hpp"
 
 DEMO_PROG_BEGIN
 
@@ -139,7 +140,6 @@ static void init_player() {
 		ScnObj* pWanderer = Scene::find_obj("Wanderer");
 		if (pWanderer) {
 			pWanderer->set_world_quat_pos(nxQuat::from_degrees(0.0f, 48.0f, 0.0f), cxVec(47.35f, 0.0f, -61.676f));
-			//pWanderer->set_world_quat_pos(nxQuat::from_degrees(0.0f, 48.0f, 0.0f), cxVec(34.5f, 0.0f, -20.0f));
 		}
 	}
 }
@@ -153,74 +153,30 @@ void init_params() {
 
 static void init() {
 	init_params();
+
 	s_demoWk.perfCPU.init();
 	s_demoWk.perfGPU.init();
+
 	PrimFX::init();
+	Draw2D::init(&s_demoWk.perfCPU, &s_demoWk.perfGPU, s_demoWk.showPerf);
 
 	TimeCtrl::init();
 	double start = nxSys::time_micros();
+
 	HumanSys::init();
 	init_resources();
+
 	double finish = nxSys::time_micros();
 	nxCore::dbg_msg("\nResources loaded in %f millis.\n", (finish - start)/1000.0);
+
 	init_player();
 	init_view();
 	Scene::glb_rng_reset();
 	InputCtrl::init();
+
 	nxCore::dbg_msg("\n~ Welcome to Ostinato ~\n");
 }
 
-static void draw_2d() {
-	using namespace Performance;
-
-	char str[1024];
-	float refSizeX = 800;
-	float refSizeY = 600;
-	Scene::set_ref_scr_size(refSizeX, refSizeY);
-	if (Scene::get_view_mode_width() < Scene::get_view_mode_height()) {
-		Scene::set_ref_scr_size(refSizeY, refSizeX);
-	}
-
-	if (s_demoWk.showPerf) {
-		char fpsStr[16];
-
-		float fps = TimeCtrl::get_fps();
-		double exe = s_demoWk.perfCPU.get_median(Measure::EXE);
-		double vis = s_demoWk.perfCPU.get_median(Measure::VISIBILITY);
-		double drw = s_demoWk.perfCPU.get_median(Measure::DRAW);
-		double gpu = s_demoWk.perfGPU.mMillis;
-
-		if (fps < 0.0f) {
-			XD_SPRINTF(XD_SPRINTF_BUF(fpsStr, sizeof(fpsStr)), " --");
-		} else {
-			XD_SPRINTF(XD_SPRINTF_BUF(fpsStr, sizeof(fpsStr)), "%.2f", fps);
-		}
-		XD_SPRINTF(XD_SPRINTF_BUF(str, sizeof(str)), "FPS: %s, EXE: %.2f, VIS: %.2f, DRW: %.2f, GPU: %.2f, SUM: %.2f", fpsStr, exe, vis, drw, gpu, exe+vis+drw+gpu);
-		size_t slen = nxCore::str_len(str);
-
-		float sx = 10.0f;
-		float sy = Scene::get_ref_scr_height() - 20.0f;
-
-		xt_float2 bpos[4];
-		xt_float2 btex[4];
-		btex[0].set(0.0f, 0.0f);
-		btex[1].set(1.0f, 0.0f);
-		btex[2].set(1.0f, 1.0f);
-		btex[3].set(0.0f, 1.0f);
-		float bx = 4.0f;
-		float by = 4.0f;
-		float bw = slen * 8;
-		float bh = 12.0f;
-		cxColor bclr(0.0f, 0.0f, 0.0f, 0.75f);
-		bpos[0].set(sx - bx, sy - by);
-		bpos[1].set(sx + bw + bx, sy - by);
-		bpos[2].set(sx + bw + bx, sy + bh + by);
-		bpos[3].set(sx - bx, sy + bh + by);
-
-		Scene::quad(bpos, btex, bclr);
-		Scene::print(sx, sy, cxColor(0.1f, 0.75f, 0.1f, 1.0f), str);
-	}
-}
 
 static void draw_prims() {
 	if (s_demoWk.drawPseudoShd) {
@@ -233,27 +189,39 @@ static void loop(void* pLoopCtx) {
 
 	s_demoWk.perfGPU.exec();
 
+	// ------------------------------------------
+
 	s_demoWk.perfCPU.begin(Measure::EXE);
+
 	TimeCtrl::exec();
 	InputCtrl::update();
 	Ostinato::update_sensors();
 	Ostinato::set_default_lighting();
 	Scene::exec();
 	view_exec();
+
 	s_demoWk.perfCPU.end(Measure::EXE);
+
+	// ------------------------------------------
 
 	s_demoWk.perfCPU.begin(Measure::VISIBILITY);
 	Scene::visibility();
 	s_demoWk.perfCPU.end(Measure::VISIBILITY);
 
+	// ------------------------------------------
+
 	s_demoWk.perfCPU.begin(Measure::DRAW);
 	s_demoWk.perfGPU.begin();
+
 	Scene::frame_begin(cxColor(0.5f));
 	Scene::draw();
 	draw_prims();
-	draw_2d();
+	Draw2D::exec();
+
 	s_demoWk.perfGPU.end();
 	s_demoWk.perfCPU.end(Measure::DRAW);
+
+	// ------------------------------------------
 
 	Scene::frame_end();
 }
@@ -262,6 +230,8 @@ static void reset() {
 	HumanSys::reset();
 	TimeCtrl::reset();;
 	PrimFX::reset();
+	Draw2D::reset();
+
 	s_demoWk.perfCPU.free();
 	s_demoWk.perfGPU.free();
 }
