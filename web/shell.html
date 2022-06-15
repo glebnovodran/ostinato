@@ -84,6 +84,14 @@
 		text-align: center;
 	}
 
+	table {
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+		-webkit-touch-callout: none;
+	}
+
 	</style>
 </head>
 
@@ -132,6 +140,12 @@
 			ontouchstart="try{Module.ccall('jsi_set_key_state', '', ['string','number'], ['RIGHT',1])}catch(e){alert(e);}"
 			ontouchend="try{Module.ccall('jsi_set_key_state', '', ['string','number'], ['RIGHT',0])}catch(e){alert(e);}"
 		>R</button>
+		<br/><br/><br/><br/>
+		<!-- LSHIFT/run -->
+		&nbsp;<button class="btn" type="button"
+			ontouchstart="try{Module.ccall('jsi_set_key_state', '', ['string','number'], ['LSHIFT',1])}catch(e){alert(e);}"
+			ontouchend="try{Module.ccall('jsi_set_key_state', '', ['string','number'], ['LSHIFT',0])}catch(e){alert(e);}"
+		>~</button>
 		</td>
 		</tr></tbody></table>
 	</div>
