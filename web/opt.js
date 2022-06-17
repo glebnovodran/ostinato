@@ -25,6 +25,16 @@ if (pageParams.get("vl") !== null) {
 	Module.arguments.push("-vl:1");
 }
 
+if (pageParams.get("perf") !== null) {
+	Module.arguments.push("-showperf:1");
+}
+
+if (pageParams.get("wperf") !== null) {
+	Module.arguments.push("-showperf:1");
+	Module.arguments.push("-exerep:5");
+	Module.arguments.push("-speed:0.2");
+}
+
 var btns = document.getElementsByClassName("btn");
 if (btns !== null) {
 	const ua = navigator.userAgent;
