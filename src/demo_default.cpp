@@ -33,6 +33,7 @@ struct DemoWk {
 	bool disableStgShadows;
 	bool showPerf;
 	bool drawPseudoShd;
+	int exeRep;
 } s_demoWk = {};
 
 static const char* pLampsMtlName = "_lamps_";
@@ -149,6 +150,7 @@ void init_params() {
 	s_demoWk.showPerf = nxApp::get_bool_opt("showperf", false);
 	int smapVal = nxApp::get_int_opt("smap", 2048);
 	s_demoWk.drawPseudoShd = (smapVal == -1);
+	s_demoWk.exeRep = nxCalc::min(nxApp::get_int_opt("exerep", 1), 1);
 }
 
 static void init() {
@@ -184,6 +186,13 @@ static void draw_prims() {
 	}
 }
 
+void scene_exec() {
+	for (int i = 0; i < s_demoWk.exeRep; ++i) {
+		Scene::exec();
+		view_exec();
+	}
+}
+
 static void loop(void* pLoopCtx) {
 	using namespace Performance;
 
@@ -197,8 +206,8 @@ static void loop(void* pLoopCtx) {
 	InputCtrl::update();
 	Ostinato::update_sensors();
 	Ostinato::set_default_lighting();
-	Scene::exec();
-	view_exec();
+
+	scene_exec();
 
 	s_demoWk.perfCPU.end(Measure::EXE);
 
