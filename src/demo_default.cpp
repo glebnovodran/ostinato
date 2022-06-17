@@ -150,7 +150,7 @@ void init_params() {
 	s_demoWk.showPerf = nxApp::get_bool_opt("showperf", false);
 	int smapVal = nxApp::get_int_opt("smap", 2048);
 	s_demoWk.drawPseudoShd = (smapVal == -1);
-	s_demoWk.exeRep = nxCalc::min(nxApp::get_int_opt("exerep", 1), 1);
+	s_demoWk.exeRep = nxCalc::max(nxApp::get_int_opt("exerep", 1), 1);
 }
 
 static void init() {
