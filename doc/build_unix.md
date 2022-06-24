@@ -31,7 +31,7 @@ FreeBSD: `pkg install git wget`
 
 `./build.sh <compiler options>`
 
-By default Ostinato is built for debugging. To build an optimized version add `-O3 -flto -march=native` compiler options
+By default Ostinato is built for debugging. To build an optimized version add `-O3 -flto -march=native` compiler options.
 
 ## OGL/GLES
 
@@ -39,4 +39,4 @@ Ostinato can be build for either desktop OpenGL or for OpenGL GLES. By default i
 
 `OGL_MODE=GLES ./build.sh`
 
-**Note:** For a Raspberry Pi build GLES is selected automatically
+**Note:** For a Raspberry Pi build GLES is selected automatically.
