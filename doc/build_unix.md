@@ -31,7 +31,7 @@ FreeBSD: `pkg install git wget`
 
 `./build.sh <compiler options>`
 
-By default Ostinato is built for debugging. To build an optimized version please add `-O3 -flto` compiler options
+By default Ostinato is built for debugging. To build an optimized version add `-O3 -flto -march=native` compiler options
 
 ## OGL/GLES
 
