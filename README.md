@@ -10,7 +10,7 @@ It can be compiled for Linux, *BSD, Windows and Web by following these instructi
 [**Unix build**](https://github.com/glebnovodran/ostinato/blob/main/doc/build_unix.md) | [**Windows build**](https://github.com/glebnovodran/ostinato/blob/main/doc/build_win.md) | [**Web build**](https://github.com/glebnovodran/ostinato/blob/main/doc/build_web.md)
 
 
-Live **`Web-demo`**: [Normal settings](https://glebnovodran.github.io/demo/ostinato.html) | [Reduced rendering options](https://glebnovodran.github.io/demo/ostinato.html?pseudoshd&vl) | **[Performance test](https://glebnovodran.github.io/demo/perf_ostinato.html)**
+Live **`Web-demo`**: [Normal settings](https://glebnovodran.github.io/demo/ostinato.html) | [Reduced rendering options](https://glebnovodran.github.io/demo/ostinato.html?pseudoshd&vl) | [Performance test](https://glebnovodran.github.io/demo/perf_ostinato.html)
 
 ***
 ### Screenshots:<br>
