@@ -16,8 +16,8 @@ struct BtnState {
 };
 
 struct InputWk {
-	BtnState state[NUM_KEYS] = { {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0} };
-	int keymap[NUM_KEYS] = { 
+	BtnState state[NUM_BUTTONS] = { {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0} };
+	int keymap[NUM_BUTTONS] = { 
 		Keyboard::UP,
 		Keyboard::DOWN,
 		Keyboard::LEFT,
@@ -37,7 +37,7 @@ void init() {
 
 void update() {
 	Keyboard::update();
-	for (int i = 0; i < NUM_KEYS; ++i) {
+	for (int i = 0; i < NUM_BUTTONS; ++i) {
 		int keyId = s_wk.keymap[i];
 		if (keyId >= 0) {
 			s_wk.state[i].active = Keyboard::now_active(keyId);

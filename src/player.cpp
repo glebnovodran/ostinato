@@ -14,50 +14,50 @@
 namespace Player {
 
 bool check_run_mode() {
-	return InputCtrl::now_active(InputCtrl::L2) || InputCtrl::now_active(InputCtrl::ButtonB);
+	return InputCtrl::now_active(InputCtrl::BTN_L2) || InputCtrl::now_active(InputCtrl::BTN_B);
 }
 
 void traveller_exec_ctrl(Human* pHuman) {
 	if (!pHuman) return;
 	switch (pHuman->mAction) {
 		case Human::ACT_STAND:
-			if (InputCtrl::triggered(InputCtrl::UP)) {
+			if (InputCtrl::triggered(InputCtrl::BTN_UP)) {
 				if (check_run_mode()) {
 					pHuman->change_act(Human::ACT_RUN, 2.0f, 12);
 				} else {
 					pHuman->change_act(Human::ACT_WALK, 2.0f, 20);
 				}
-			} else if (InputCtrl::triggered(InputCtrl::DOWN)) {
+			} else if (InputCtrl::triggered(InputCtrl::BTN_DOWN)) {
 				pHuman->change_act(Human::ACT_RETREAT, 0.5f, 20);
-			} else if (InputCtrl::now_active(InputCtrl::LEFT)) {
+			} else if (InputCtrl::now_active(InputCtrl::BTN_LEFT)) {
 				pHuman->change_act(Human::ACT_TURN_L, 0.5f, 30);
-			} else if (InputCtrl::now_active(InputCtrl::RIGHT)) {
+			} else if (InputCtrl::now_active(InputCtrl::BTN_RIGHT)) {
 				pHuman->change_act(Human::ACT_TURN_R, 0.5f, 30);
 			}
 			break;
 		case Human::ACT_WALK:
-			if (InputCtrl::now_active(InputCtrl::UP)) {
+			if (InputCtrl::now_active(InputCtrl::BTN_UP)) {
 				if (check_run_mode()) {
 					int startFrame = pHuman->find_nearest_mot_frame(pHuman->mMotLib.pRun, "j_Ankle_L");
 					pHuman->change_act(Human::ACT_RUN, 2.0f, 8, startFrame);
 				} else {
-					if (InputCtrl::now_active(InputCtrl::LEFT)) {
+					if (InputCtrl::now_active(InputCtrl::BTN_LEFT)) {
 						pHuman->add_deg_y(0.5f);
-					} else if (InputCtrl::now_active(InputCtrl::RIGHT)) {
+					} else if (InputCtrl::now_active(InputCtrl::BTN_RIGHT)) {
 						pHuman->add_deg_y(-0.5f);
 					}
 				}
-			} else if (InputCtrl::triggered(InputCtrl::DOWN)) {
+			} else if (InputCtrl::triggered(InputCtrl::BTN_DOWN)) {
 				pHuman->change_act(Human::ACT_RETREAT, 0.5f, 20);
 			} else {
 				pHuman->change_act(Human::ACT_STAND, 0.5f, 20);
 			}
 			break;
 		case Human::ACT_RETREAT:
-			if (InputCtrl::now_active(InputCtrl::DOWN)) {
-				if (InputCtrl::now_active(InputCtrl::LEFT)) {
+			if (InputCtrl::now_active(InputCtrl::BTN_DOWN)) {
+				if (InputCtrl::now_active(InputCtrl::BTN_LEFT)) {
 					pHuman->add_deg_y(0.5f);
-				} else if (InputCtrl::now_active(InputCtrl::RIGHT)) {
+				} else if (InputCtrl::now_active(InputCtrl::BTN_RIGHT)) {
 					pHuman->add_deg_y(-0.5f);
 				}
 			} else {
@@ -65,11 +65,11 @@ void traveller_exec_ctrl(Human* pHuman) {
 			}
 			break;
 		case Human::ACT_RUN:
-			if (InputCtrl::now_active(InputCtrl::UP)) {
+			if (InputCtrl::now_active(InputCtrl::BTN_UP)) {
 				if (check_run_mode()) {
-					if (InputCtrl::now_active(InputCtrl::LEFT)) {
+					if (InputCtrl::now_active(InputCtrl::BTN_LEFT)) {
 						pHuman->add_deg_y(1.0f);
-					} else if (InputCtrl::now_active(InputCtrl::RIGHT)) {
+					} else if (InputCtrl::now_active(InputCtrl::BTN_RIGHT)) {
 						pHuman->add_deg_y(-1.0f);
 					}
 				} else {
@@ -81,8 +81,8 @@ void traveller_exec_ctrl(Human* pHuman) {
 			}
 			break;
 		case Human::ACT_TURN_L:
-			if (InputCtrl::now_active(InputCtrl::LEFT)) {
-				if (InputCtrl::triggered(InputCtrl::UP)) {
+			if (InputCtrl::now_active(InputCtrl::BTN_LEFT)) {
+				if (InputCtrl::triggered(InputCtrl::BTN_UP)) {
 					pHuman->change_act(Human::ACT_WALK, 0.5f, 20);
 				}
 			} else {
@@ -90,8 +90,8 @@ void traveller_exec_ctrl(Human* pHuman) {
 			}
 			break;
 		case Human::ACT_TURN_R:
-			if (InputCtrl::now_active(InputCtrl::RIGHT)) {
-				if (InputCtrl::triggered(InputCtrl::UP)) {
+			if (InputCtrl::now_active(InputCtrl::BTN_RIGHT)) {
+				if (InputCtrl::triggered(InputCtrl::BTN_UP)) {
 					pHuman->change_act(Human::ACT_WALK, 0.5f, 20);
 				}
 			} else {

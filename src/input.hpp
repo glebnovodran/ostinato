@@ -4,17 +4,17 @@
 namespace InputCtrl {
 // enum input buttons
 enum {
-	UP = 0,
-	DOWN,
-	LEFT,
-	RIGHT,
-	L1,
-	L2,
-	SWITCH1,
-	SWITCH2,
-	ButtonA,
-	ButtonB,
-	NUM_KEYS,
+	BTN_UP = 0,
+	BTN_DOWN,
+	BTN_LEFT,
+	BTN_RIGHT,
+	BTN_L1,
+	BTN_L2,
+	BTN_SWITCH1,
+	BTN_SWITCH2,
+	BTN_A,
+	BTN_B,
+	NUM_BUTTONS,
 };
 
 void init();

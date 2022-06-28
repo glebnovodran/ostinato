@@ -69,10 +69,10 @@ static void init_view() {
 }
 
 static void view_exec() {
-	if (InputCtrl::triggered(InputCtrl::SWITCH1)) {
+	if (InputCtrl::triggered(InputCtrl::BTN_SWITCH1)) {
 		s_demoWk.camCtx.mPosMode ^= 1;
 	}
-	if (InputCtrl::triggered(InputCtrl::SWITCH2)) {
+	if (InputCtrl::triggered(InputCtrl::BTN_SWITCH2)) {
 		s_demoWk.camCtx.mTgtMode ^= 1;
 	}
 	s_demoWk.camCtx.mpTgtObj = Ostinato::get_cam_tgt_obj();
