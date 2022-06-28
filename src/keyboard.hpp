@@ -8,12 +8,12 @@ enum {
 	DOWN,
 	LEFT,
 	RIGHT,
-	LCTRL,// L1
-	LSHIFT,//L2
-	TAB,//SWITCH1
-	BACK,//SWITCH2
-	ENTER,//ButtonA
-	SPACE,//ButtonB
+	LCTRL,
+	LSHIFT,
+	TAB,
+	BACK,
+	ENTER,
+	SPACE,
 	NUM_KEYS
 };
 

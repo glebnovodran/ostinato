@@ -16,11 +16,6 @@ enum {
 	ButtonB,
 	NUM_KEYS,
 };
-// work structure : array of structure (4 booleans + enum(^) key code)
-	// input_now_active
-	// ...
-	// input_triggered
-	// input_update
 
 void init();
 void update();

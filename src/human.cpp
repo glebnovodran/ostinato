@@ -572,7 +572,6 @@ void modify_behavior(const char* pCharName, const char* pActName, const char* pC
 	Human* pHuman = find(pCharName);
 
 	if (pHuman) {
-		Human::Behavior* pBeh = &pHuman->mBeh;
 		size_t n = XD_ARY_LEN(s_behMap);
 		for (size_t i = 0; i < n; ++i) {
 			if (nxCore::str_eq(s_behMap[i].pActName, pActName) && nxCore::str_eq(s_behMap[i].pChanName, pChanName)) {
