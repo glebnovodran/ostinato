@@ -8,15 +8,15 @@
 
 namespace InputCtrl {
 
-struct KeyState {
+struct BtnState {
 	bool active;
 	bool wasActive;
 	bool triggered;
 	bool changed;
 };
 
-struct KEYBOARD_WK {
-	KeyState state[NUM_KEYS] = { {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0} };
+struct InputWk {
+	BtnState state[NUM_KEYS] = { {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0} };
 	int keymap[NUM_KEYS] = { 
 		Keyboard::UP,
 		Keyboard::DOWN,

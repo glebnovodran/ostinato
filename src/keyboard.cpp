@@ -7,7 +7,7 @@
 
 #define KEY_GET(_name) process_key(&mask, _name, #_name)
 
-static struct KBD_CTRL {
+static struct KeyboardCtrl {
 
 	uint64_t mNow;
 	uint64_t mOld;
