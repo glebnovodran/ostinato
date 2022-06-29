@@ -7,6 +7,8 @@
 
 #define KEY_GET(_name) process_key(&mask, _name, #_name)
 
+namespace Keyboard {
+
 static struct KeyboardCtrl {
 
 	uint64_t mNow;
@@ -20,7 +22,6 @@ static struct KeyboardCtrl {
 	}
 
 	const char* get_alt_key_name(const int code) {
-		using namespace Keyboard;
 		static struct {
 			int code;
 			const char* pName;
@@ -47,7 +48,6 @@ static struct KeyboardCtrl {
 	}
 
 	void update() {
-		using namespace Keyboard;
 		if (mSkip) return;
 		mOld = mNow;
 		uint64_t mask = 0;
@@ -70,8 +70,6 @@ static struct KeyboardCtrl {
 	bool ck_chg(const int id) const { return !!((mNow ^ mOld) & (1ULL << id)); }
 
 } s_kbdCtrl;
-
-namespace Keyboard {
 
 void init() { s_kbdCtrl.init(); }
 void update() { s_kbdCtrl.update(); }
