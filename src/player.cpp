@@ -131,6 +131,12 @@ ScnObj* init() {
 	descr.scale = 1.0f;
 	ScnObj* pPlr = HumanSys::add_human(descr, traveller_exec_ctrl);
 	if (pPlr) {
+        Human* pPlrHmn = HumanSys::as_human(pPlr);
+		if (pPlrHmn) {
+			pPlrHmn->mWallAdjParams.distLimit = 0.1f;
+			pPlrHmn->mWallAdjParams.correctionBias = 0.5f;
+			pPlrHmn->mWallAdjParams.approachDuration = 2.0f;
+		}
 		const char* pOccp = HumanSys::get_occupation(pPlr->mpName);
 		nxCore::dbg_msg("\n  Enter %s The %s\n", pPlr->mpName != nullptr ? pPlr->mpName: "Animous",  pOccp != nullptr ? pOccp : "<unknown>");
 	}
