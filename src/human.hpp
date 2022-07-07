@@ -4,6 +4,7 @@
 struct Human {
 
 	typedef void (*CtrlFunc)(Human*);
+
 	enum State {
 		INIT = 0,
 		ACTIVE
@@ -14,6 +15,7 @@ struct Human {
 		MALE,
 		MAX_KIND
 	};
+
 	enum Type {
 		CITIZEN_FEMALE = 0,
 		CITIZEN_MALE,
@@ -89,6 +91,14 @@ struct Human {
 		}
 	};
 
+	struct WallAdjParams {
+		float distLimit;
+		float correctionBias;
+		float approachDuration;
+		bool flg;
+	};
+
+	WallAdjParams mWallAdjParam;
 	Rig mRig;
 	MotLib mMotLib;
 	ScnObj* mpObj;
