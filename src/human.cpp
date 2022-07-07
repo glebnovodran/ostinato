@@ -196,15 +196,40 @@ void Human::wall_adj() {
 	npos.y += yoffs;
 	opos.y += yoffs;
 	float radius = mpObj->mObjAdjRadius * 1.1f;
+
 	bool touchFlg = Scene::wall_touch(mpObj->mpJobCtx, pCol, npos, opos, radius * 1.025f);
+
 	if (touchFlg) {
 		++mWallTouchCount;
 	} else {
 		mWallTouchCount = 0;
 	}
+
 	bool adjFlg = Scene::wall_adj(mpObj->mpJobCtx, pCol, npos, opos, radius, &apos);
+
 	if (adjFlg) {
-		mpObj->set_skel_root_local_pos(apos.x, wpos.y, apos.z);
+		int approachDuration = 0;
+		cxVec prevPos(opos.x, wpos.y, opos.z);
+		cxVec pos(apos.x, wpos.y, apos.z);
+		Human::WallAdjParams* pParams = &mWallAdjParams;
+		if (pParams->flg) {
+			if (pParams->distLimit > 0.0f) {
+				float dist = nxVec::dist(wpos, pos);
+				if (dist > pParams->distLimit) {
+					pos.lerp(opos, pos, pParams->correctionBias);
+					pos.y = wpos.y;
+				}
+				approachDuration = int(nxCalc::div0(pParams->approachDuration, TimeCtrl::get_motion_speed()));
+			}
+		} else {
+			if (pParams->distLimit > 0.0f) {
+				pParams->flg = true;
+			}
+		}
+		if (pParams->flg && approachDuration > 0) {
+			pos = nxCalc::approach(prevPos, pos, approachDuration);
+		}
+		mpObj->set_skel_root_local_pos(pos.x, wpos.y, pos.z);
 	}
 }
 
