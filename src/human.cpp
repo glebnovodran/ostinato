@@ -486,10 +486,10 @@ ScnObj* add_human(const Human::Descr& descr, Human::CtrlFunc ctrl) {
 				pHuman->mWallTouchStartTime = 0.0;
 				pHuman->mWallTouchDuration = 0.0;
 
-				pHuman->mWallAdjParam.distLimit = 0.0f;
-				pHuman->mWallAdjParam.correctionBias = 0.25f;
-				pHuman->mWallAdjParam.approachDuration = 10.0f;
-				pHuman->mWallAdjParam.flg = false;
+				pHuman->mWallAdjParams.distLimit = 0.0f;
+				pHuman->mWallAdjParams.correctionBias = 0.25f;
+				pHuman->mWallAdjParams.approachDuration = 10.0f;
+				pHuman->mWallAdjParams.flg = false;
 
 				pHuman->mCtrlFunc = ctrl;
 				pHuman->change_state(Human::INIT);

@@ -98,7 +98,7 @@ struct Human {
 		bool flg;
 	};
 
-	WallAdjParams mWallAdjParam;
+	WallAdjParams mWallAdjParams;
 	Rig mRig;
 	MotLib mMotLib;
 	ScnObj* mpObj;
