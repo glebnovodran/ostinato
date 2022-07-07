@@ -95,6 +95,7 @@ struct Human {
 		float distLimit;
 		float correctionBias;
 		float approachDuration;
+		float velocityRate;
 		bool flg;
 	};
 

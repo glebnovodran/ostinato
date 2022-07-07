@@ -218,6 +218,8 @@ void Human::wall_adj() {
 				if (dist > pParams->distLimit) {
 					pos.lerp(opos, pos, pParams->correctionBias);
 					pos.y = wpos.y;
+				} else {
+					prevPos.lerp(prevPos, pos, pParams->velocityRate);
 				}
 				approachDuration = int(nxCalc::div0(pParams->approachDuration, TimeCtrl::get_motion_speed()));
 			}
@@ -514,6 +516,7 @@ ScnObj* add_human(const Human::Descr& descr, Human::CtrlFunc ctrl) {
 				pHuman->mWallAdjParams.distLimit = 0.0f;
 				pHuman->mWallAdjParams.correctionBias = 0.25f;
 				pHuman->mWallAdjParams.approachDuration = 10.0f;
+				pHuman->mWallAdjParams.velocityRate = 0.5f;
 				pHuman->mWallAdjParams.flg = false;
 
 				pHuman->mCtrlFunc = ctrl;

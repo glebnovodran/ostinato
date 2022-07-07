@@ -136,6 +136,7 @@ ScnObj* init() {
 			pPlrHmn->mWallAdjParams.distLimit = 0.1f;
 			pPlrHmn->mWallAdjParams.correctionBias = 0.5f;
 			pPlrHmn->mWallAdjParams.approachDuration = 2.0f;
+			pPlrHmn->mWallAdjParams.velocityRate = 0.5f;
 		}
 		const char* pOccp = HumanSys::get_occupation(pPlr->mpName);
 		nxCore::dbg_msg("\n  Enter %s The %s\n", pPlr->mpName != nullptr ? pPlr->mpName: "Animous",  pOccp != nullptr ? pOccp : "<unknown>");
