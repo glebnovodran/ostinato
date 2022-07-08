@@ -169,7 +169,7 @@ static void init() {
 	init_resources();
 
 	double finish = nxSys::time_micros();
-	nxCore::dbg_msg("\nResources loaded in %f millis.\n", (finish - start)/1000.0);
+	nxCore::dbg_msg("\nResources loaded in %.2f millis.\n", (finish - start)/1000.0);
 
 	init_player();
 	init_view();
