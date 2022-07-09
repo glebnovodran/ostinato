@@ -15,10 +15,10 @@ struct Wk {
 	TimeCtrl::Frequency mFreq;
 	bool mTimeFixUpFlg;
 
-	void init(TimeCtrl::Frequency freq, int ntsmps) {
+	void init(TimeCtrl::Frequency freq, int smps) {
 		mFreq = freq;
 		mTimeFixUpFlg = true;
-		mFramerateStopWatch.alloc(ntsmps);
+		mFramerateStopWatch.alloc(smps);
 		mMedianFPS = 0.0f;
 		mMotSpeed = 1.0f;
 	}
@@ -97,10 +97,10 @@ void init() {
 			tfreq = TimeCtrl::Frequency::VARIABLE;
 	}
 
-	int ntsmps = nxApp::get_int_opt("tsmps", 10);
-	ntsmps = nxCalc::max(1, ntsmps);
+	int smps = nxApp::get_int_opt("tsmps", 10);
+	smps = nxCalc::max(1, smps);
 
-	s_wk.init(tfreq, ntsmps);
+	s_wk.init(tfreq, smps);
 }
 
 void reset() {
