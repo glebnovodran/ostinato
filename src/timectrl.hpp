@@ -12,7 +12,7 @@ enum Frequency {
 	FIXED_10 = 6
 };
 
-void init(Frequency freq);
+void init();
 void reset();
 void exec();
 

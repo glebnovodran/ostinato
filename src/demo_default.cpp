@@ -152,30 +152,6 @@ void init_params() {
 	int smapVal = nxApp::get_int_opt("smap", 2048);
 	s_demoWk.drawPseudoShd = (smapVal == -1);
 	s_demoWk.exeRep = nxCalc::max(nxApp::get_int_opt("exerep", 1), 1);
-
-	s_demoWk.tfreq = TimeCtrl::Frequency::VARIABLE;
-	int freq = nxApp::get_int_opt("tfreq", 0);
-	switch (freq) {
-		case 1:
-			s_demoWk.tfreq = TimeCtrl::Frequency::FIXED_60;
-			break;
-		case 2:
-			s_demoWk.tfreq = TimeCtrl::Frequency::FIXED_30;
-			break;
-		case 3:
-			s_demoWk.tfreq = TimeCtrl::Frequency::FIXED_20;
-			break;
-		case 4:
-			s_demoWk.tfreq = TimeCtrl::Frequency::FIXED_15;
-			break;
-		case 6:
-			s_demoWk.tfreq = TimeCtrl::Frequency::FIXED_10;
-			break;
-		case 0:
-		default:
-			s_demoWk.tfreq = TimeCtrl::Frequency::VARIABLE;
-	}
-
 }
 
 static void init() {
@@ -187,7 +163,7 @@ static void init() {
 	PrimFX::init();
 	Draw2D::init(&s_demoWk.perfCPU, &s_demoWk.perfGPU, s_demoWk.showPerf);
 
-	TimeCtrl::init(s_demoWk.tfreq);
+	TimeCtrl::init();
 	double start = nxSys::time_micros();
 
 	HumanSys::init();
