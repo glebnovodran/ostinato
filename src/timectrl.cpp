@@ -49,7 +49,7 @@ struct Wk {
 			case Frequency::FIXED_20:
 			case Frequency::FIXED_15:
 			case Frequency::FIXED_10:
-				motSpeed = int(mFreq);
+				motSpeed = float(mFreq);
 				frate = 60.0f / motSpeed;
 				mCurrentTime += 1000.0 / frate;
 				mMotSpeed = motSpeed;
