@@ -72,42 +72,12 @@ struct Wk {
 
 } s_wk;
 
-static bool s_initFlg = false;
-
-void init() {
-	if (s_initFlg) return;
-
-	Frequency tfreq = Frequency::VARIABLE;
-	int freq = nxApp::get_int_opt("tfreq", 0);
-	switch (freq) {
-		case 1:
-			tfreq = Frequency::FIXED_60;
-			break;
-		case 2:
-			tfreq = Frequency::FIXED_30;
-			break;
-		case 3:
-			tfreq = Frequency::FIXED_20;
-			break;
-		case 4:
-			tfreq = Frequency::FIXED_15;
-			break;
-		case 6:
-			tfreq = Frequency::FIXED_10;
-			break;
-		case 0:
-		default:
-			tfreq = Frequency::VARIABLE;
-	}
-
-	s_wk.init(tfreq);
-	s_initFlg = true;
+void init(Frequency freq) {
+	s_wk.init(freq);
 }
 
 void reset() {
-	if (!s_initFlg) return;
 	s_wk.reset();
-	s_initFlg = false;
 }
 
 void exec() {
