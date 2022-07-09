@@ -5,9 +5,11 @@ namespace TimeCtrl {
 
 enum Frequency {
 	VARIABLE = 0,
-	FIXED_60,
-	FIXED_30,
-	NUM_MODES
+	FIXED_60 = 1,
+	FIXED_30 = 2,
+	FIXED_20 = 3,
+	FIXED_15 = 4,
+	FIXED_10 = 6
 };
 
 void init();

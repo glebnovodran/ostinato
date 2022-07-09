@@ -5,6 +5,8 @@
 #include <scene.hpp>
 #include "timectrl.hpp"
 
+namespace TimeCtrl {
+
 struct Wk {
 	cxStopWatch mFramerateStopWatch;
 	double mCurrentTime;
@@ -26,7 +28,8 @@ struct Wk {
 	}
 
 	void exec() {
-		using namespace TimeCtrl;
+		float motSpeed, frate;
+
 		if (mFreq == Frequency::VARIABLE) {
 			mCurrentTime = TimeCtrl::get_sys_time_millis();
 		}
@@ -39,37 +42,64 @@ struct Wk {
 			mMedianFPS = float(fps);
 		}
 		mFramerateStopWatch.begin();
-		if (mFreq == Frequency::FIXED_60) {
-			mCurrentTime += 1000.0 / 60.0f;
-			mMotSpeed = 1.0f;
-		} else if (mFreq == Frequency::FIXED_30) {
-			mCurrentTime += 1000.0 / 30.0f;
-			mMotSpeed = 2.0f;
-		} else { // VARIABLE
-			if (mMedianFPS > 0.0f) {
-				if (mMedianFPS >= 57.0f && mMedianFPS <= 62.0f) {
-					mMotSpeed = 1.0f;
-				} else if (mMedianFPS >= 29.0f && mMedianFPS <= 31.0f) {
-					mMotSpeed = 2.0f;
+
+		switch (mFreq) {
+			case Frequency::FIXED_60:
+			case Frequency::FIXED_30:
+			case Frequency::FIXED_20:
+			case Frequency::FIXED_15:
+			case Frequency::FIXED_10:
+				motSpeed = int(mFreq);
+				frate = 60.0f / motSpeed;
+				mCurrentTime += 1000.0 / frate;
+				mMotSpeed = motSpeed;
+				break;
+			case Frequency::VARIABLE:
+			default:
+				if (mMedianFPS > 0.0f) {
+					if (mMedianFPS >= 57.0f && mMedianFPS <= 62.0f) {
+						mMotSpeed = 1.0f;
+					} else if (mMedianFPS >= 29.0f && mMedianFPS <= 31.0f) {
+						mMotSpeed = 2.0f;
+					} else {
+						mMotSpeed = nxCalc::div0(60.0f, mMedianFPS);
+					}
 				} else {
-					mMotSpeed = nxCalc::div0(60.0f, mMedianFPS);
+					mMotSpeed = 1.0f;
 				}
-			} else {
-				mMotSpeed = 1.0f;
-			}
 		}
 	}
 
 } s_wk;
 
-namespace TimeCtrl {
-
 static bool s_initFlg = false;
 
 void init() {
 	if (s_initFlg) return;
+
+	Frequency tfreq = Frequency::VARIABLE;
 	int freq = nxApp::get_int_opt("tfreq", 0);
-	TimeCtrl::Frequency tfreq = TimeCtrl::Frequency(freq < TimeCtrl::NUM_MODES ? freq : 0);
+	switch (freq) {
+		case 1:
+			tfreq = Frequency::FIXED_60;
+			break;
+		case 2:
+			tfreq = Frequency::FIXED_30;
+			break;
+		case 3:
+			tfreq = Frequency::FIXED_20;
+			break;
+		case 4:
+			tfreq = Frequency::FIXED_15;
+			break;
+		case 6:
+			tfreq = Frequency::FIXED_10;
+			break;
+		case 0:
+		default:
+			tfreq = Frequency::VARIABLE;
+	}
+
 	s_wk.init(tfreq);
 	s_initFlg = true;
 }
