@@ -43,30 +43,23 @@ struct Wk {
 		}
 		mFramerateStopWatch.begin();
 
-		switch (mFreq) {
-			case Frequency::FIXED_60:
-			case Frequency::FIXED_30:
-			case Frequency::FIXED_20:
-			case Frequency::FIXED_15:
-			case Frequency::FIXED_10:
-				motSpeed = float(mFreq);
-				frate = 60.0f / motSpeed;
-				mCurrentTime += 1000.0 / frate;
-				mMotSpeed = motSpeed;
-				break;
-			case Frequency::VARIABLE:
-			default:
-				if (mMedianFPS > 0.0f) {
-					if (mMedianFPS >= 57.0f && mMedianFPS <= 62.0f) {
-						mMotSpeed = 1.0f;
-					} else if (mMedianFPS >= 29.0f && mMedianFPS <= 31.0f) {
-						mMotSpeed = 2.0f;
-					} else {
-						mMotSpeed = nxCalc::div0(60.0f, mMedianFPS);
-					}
-				} else {
+		if (mFreq == Frequency::VARIABLE) {
+			if (mMedianFPS > 0.0f) {
+				if (mMedianFPS >= 57.0f && mMedianFPS <= 62.0f) {
 					mMotSpeed = 1.0f;
+				} else if (mMedianFPS >= 29.0f && mMedianFPS <= 31.0f) {
+					mMotSpeed = 2.0f;
+				} else {
+					mMotSpeed = nxCalc::div0(60.0f, mMedianFPS);
 				}
+			} else {
+				mMotSpeed = 1.0f;
+			}
+		} else {
+			motSpeed = float(mFreq);
+			frate = 60.0f / motSpeed;
+			mCurrentTime += 1000.0 / frate;
+			mMotSpeed = motSpeed;
 		}
 	}
 
