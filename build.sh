@@ -12,6 +12,7 @@ FMT_OFF="\e[0m"
 SYS_NAME="`uname -s`"
 
 CROSSCORE_DIR="ext/crosscore"
+VEMA_DIR="ext/vema"
 BIN_DIR="bin"
 DATA_DIR="$BIN_DIR/data"
 
@@ -25,6 +26,8 @@ fi
 
 SRCS="`ls src/*.cpp` `ls $CROSSCORE_DIR/*.cpp`"
 INCS="-I $CROSSCORE_DIR -I ext/inc -I inc"
+DEFS="-DX11"
+LIBS="-lpthread -lX11"
 
 # resources
 RSRC_BASE="https://glebnovodran.github.io"
@@ -91,6 +94,25 @@ if [ "$#" -gt 0 ]; then
 	fi
 fi
 
+if [ "$#" -gt 0 ]; then
+	if [ "$1" = "vema" ]; then
+		shift
+		VEMA_URL="https://schaban.github.io/vema"
+		mkdir -p $VEMA_DIR
+		for vema in vema.c vema.h; do
+			if [ ! -f $VEMA_DIR/$vema ]; then
+				curl $VEMA_URL/$vema > $VEMA_DIR/$vema
+			fi
+		done
+		cp $VEMA_DIR/vema.c $VEMA_DIR/vema.cpp
+		VEMA_DEFS="-DXD_USE_VEMA -DVEMA_GCC_BUILTINS"
+		VEMA_INCS="-I$VEMA_DIR"
+		SRCS="$SRCS $VEMA_DIR/vema.cpp"
+		DEFS="$DEFS $VEMA_DEFS"
+		INCS="$INCS $VEMA_INCS"
+	fi
+fi
+
 if [ -n "$WEB_MODE" ]; then
 	WEB_EXPORTS_LIST=web/exports.txt
 	OUT_HTML=bin/ostinato.html
@@ -103,7 +125,7 @@ if [ -n "$WEB_MODE" ]; then
 			WEB_EXPS="$WEB_EXPS,$exp_fn"
 		done < $WEB_EXPORTS_LIST
 	fi
-	$WEB_CC $WEB_OPTS $WGL_OPTS -I $CROSSCORE_DIR -O3 $SRCS $WEB_EXTS -o $OUT_HTML $WEB_EXPS $*
+	$WEB_CC $WEB_OPTS $WGL_OPTS $VEMA_DEFS $VEMA_INCS -I$CROSSCORE_DIR -O3 $SRCS $WEB_EXTS -o $OUT_HTML $WEB_EXPS $*
 	sed -i 's/antialias:!1/antialias:1/g' $OUT_HTML
 	TIMESTAMP_EXPR="s/~~ostinato-timestamp~~/~ $BUILD_TIMESTAMP ~/g"
 	sed -i "$TIMESTAMP_EXPR" $OUT_HTML
@@ -118,8 +140,6 @@ fi
 EXE_NAME="ostinato"
 EXE_PATH="$EXE_DIR/$EXE_NAME"
 
-DEFS="-DX11"
-LIBS="-lpthread -lX11"
 SYS_KIND="generic"
 SYS_OGL="Desktop"
 EGL_LIBS="-lEGL -lGLESv2"
