@@ -81,7 +81,7 @@ echo [Checking OpenGL headers...]
 if not exist %_HGET_% call :mk_hget
 if not exist %INC_DIR%\GL mkdir %INC_DIR%\GL
 if not exist %INC_DIR%\KHR mkdir %INC_DIR%\KHR
-set KHR_REG=https://www.khronos.org/registry
+set KHR_REG=https://registry.khronos.org
 for %%i in (GL\glcorearb.h GL\glext.h GL\wglext.h KHR\khrplatform.h) do (
 	if not exist %INC_DIR%\%%i (
 		set rel=%%i
@@ -130,7 +130,7 @@ for /f %%i in ('dir /b %XCORE_DIR%\*.cpp') do (
 
 set CPP_OFLGS=-ffast-math -ftree-vectorize
 rem -O3 -flto
-set XCORE_FLAGS=-DOGLSYS_ES=0 -DOGLSYS_CL=0 -DDRW_NO_VULKAN=1 -DXD_TSK_NATIVE=1
+set XCORE_FLAGS=-DOGLSYS_ES=0 -DOGLSYS_CL=0 -DDRW_NO_VULKAN=1 -DXD_TSK_NATIVE=1 -DSCN_CMN_PKG_NAME=\"common\"
 set CPP_OPTS=%CPP_OFLGS% -std=c++11 -mavx -mf16c -mfpmath=sse -fno-use-linker-plugin -Wno-psabi -Wno-deprecated-declarations
 set LNK_OPTS=-l gdi32 -l ole32 -l windowscodecs
 echo [Compiling %PROG_PATH%...]
