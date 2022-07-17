@@ -12,6 +12,7 @@ set INC_DIR=%EXT_DIR%\inc
 set DATA_DIR=%BIN_DIR%\data
 set PROG_DIR=%BIN_DIR%\prog
 set XCORE_DIR=%EXT_DIR%\crosscore
+set VEMA_DIR=%EXT_DIR%\vema
 set BUNDLE_NAME=%PROG_NAME%.bnd
 set PROG_PATH=%PROG_DIR%\%PROG_NAME%.exe
 set BUNDLE_PATH=%DATA_DIR%\%BUNDLE_NAME%
@@ -87,7 +88,7 @@ for %%i in (GL\glcorearb.h GL\glext.h GL\wglext.h KHR\khrplatform.h) do (
 		set rel=%%i
 		set rel=!rel:GL\=OpenGL/api/GL/!
 		set rel=!rel:KHR\=EGL/api/KHR/!
-		%_CSCR_% %_HGET_% %KHR_REG%/!rel! >  %INC_DIR%\%%i
+		%_CSCR_% %_HGET_% %KHR_REG%/!rel! > %INC_DIR%\%%i
 	)
 )
 
@@ -128,16 +129,35 @@ for /f %%i in ('dir /b %XCORE_DIR%\*.cpp') do (
 	set SRC_FILES=!SRC_FILES! %XCORE_DIR%/%%i
 )
 
+set BUILD_OPTS=%*
+set VEMA_OPTS=
+if x%1==x__vema__ (
+	echo [Building with vema...]
+	if not exist %VEMA_DIR% mkdir %VEMA_DIR%
+	for %%i in (vema.c vema.h) do (
+		if not exist %VEMA_DIR%\%%i (
+			%_CSCR_% %_HGET_% https://schaban.github.io/vema/%%i > %VEMA_DIR%\%%i
+		)
+	)
+	copy /Y %VEMA_DIR%\vema.c %VEMA_DIR%\vema.cpp
+	set SRC_FILES=!SRC_FILES! %VEMA_DIR%\vema.cpp %VEMA_DIR%\vema.h
+	set VEMA_OPTS=-I %VEMA_DIR% -DXD_USE_VEMA -DVEMA_GCC_BUILTINS
+	set BUILD_OPTS=%BUILD_OPTS:__vema__=%
+)
+
+
 set CPP_OFLGS=-ffast-math -ftree-vectorize
 rem -O3 -flto
 set XCORE_FLAGS=-DOGLSYS_ES=0 -DOGLSYS_CL=0 -DDRW_NO_VULKAN=1 -DXD_TSK_NATIVE=1 -DSCN_CMN_PKG_NAME=\"common\"
-set CPP_OPTS=%CPP_OFLGS% -std=c++11 -mavx -mf16c -mfpmath=sse -fno-use-linker-plugin -Wno-psabi -Wno-deprecated-declarations
+rem -fno-use-linker-plugin
+set CPP_OPTS=%CPP_OFLGS% -std=c++11 -ggdb -Wno-psabi -Wno-deprecated-declarations
 set LNK_OPTS=-l gdi32 -l ole32 -l windowscodecs
 echo [Compiling %PROG_PATH%...]
-%TDM_GPP% %CPP_OPTS% %XCORE_FLAGS% -I %INC_DIR% -I %XCORE_DIR% -I %SRC_DIR% %SRC_FILES% -o %PROG_PATH% %LNK_OPTS% %*
+%TDM_GPP% %CPP_OPTS% %XCORE_FLAGS% -I %INC_DIR% -I %XCORE_DIR% -I %SRC_DIR% %VEMA_OPTS% %SRC_FILES% -o %PROG_PATH% %LNK_OPTS% %BUILD_OPTS%
 if exist %PROG_PATH% (
 	echo Success^^!
-	%TDM_BIN%\objdump.exe -M intel -d %PROG_PATH% > %PROG_DIR%\%PROG_NAME%.txt
+	%TDM_BIN%\objdump.exe -M intel -d -C %PROG_PATH% > %PROG_DIR%\%PROG_NAME%.txt
+	rem %TDM_BIN%\strip.exe %PROG_PATH%
 ) else (
 	echo Failure :(
 )
