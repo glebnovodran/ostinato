@@ -7,3 +7,5 @@ hou/**
 ext/**
 crosscore/**
 .vscode/**
+ostinato_*.lst
+build_*.sh
