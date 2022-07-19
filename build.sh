@@ -26,8 +26,8 @@ fi
 
 SRCS="`ls src/*.cpp` `ls $CROSSCORE_DIR/*.cpp`"
 INCS="-I $CROSSCORE_DIR -I ext/inc -I inc"
-DEFS="-DX11"
-LIBS="-lpthread -lX11"
+DEFS=${OSTINATO_ALT_DEFS:-"-DX11"}
+LIBS=${OSTINATO_ALT_LIBS:-"-lpthread -lX11"}
 
 # resources
 RSRC_BASE="https://glebnovodran.github.io"
