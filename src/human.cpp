@@ -444,7 +444,7 @@ ScnObj* add_human(const Human::Descr& descr, Human::CtrlFunc ctrl) {
 	ScnObj* pObj = nullptr;
 	if (s_initFlg) {
 		int bodyId = descr.personId % HumanWk::IDENTITIES_NUM;
-		bodyId  = nxCalc::clamp(bodyId, 0, bodyId);
+		bodyId = nxCalc::clamp(bodyId, 0, bodyId);
 		Pkg* pPkg = s_wk.get_pkg(descr.type, bodyId);
 		if (pPkg) {
 			sxModelData* pMdl = pPkg->get_default_model();
