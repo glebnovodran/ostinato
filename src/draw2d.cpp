@@ -28,6 +28,11 @@ void exec() {
 	using namespace Performance;
 
 	char str[1024];
+
+	if (s_wk.resScale <= 0.0f) {
+		return;
+	}
+
 	float refSizeX = 800 * s_wk.resScale;
 	float refSizeY = 600 * s_wk.resScale;
 	Scene::set_ref_scr_size(refSizeX, refSizeY);
