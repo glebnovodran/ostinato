@@ -46,6 +46,9 @@ static void oglsys_mem_free(void* pMem) {
 	nxCore::mem_free(pMem);
 }
 
+static const char* oglsys_get_opt(const char* pName) {
+	return nxApp::get_opt(pName);
+}
 
 #define BUNDLE_SIG XD_FOURCC('B', 'N', 'D', 'L')
 #define BUNDLE_FNAME "ostinato.bnd"
@@ -330,6 +333,7 @@ static void init_ogl(const int x, const int y, const int w, const int h, const i
 	cfg.ifc.dbg_msg = nxCore::dbg_msg;
 	cfg.ifc.mem_alloc = oglsys_mem_alloc;
 	cfg.ifc.mem_free = oglsys_mem_free;
+	cfg.ifc.get_opt = oglsys_get_opt;
 	Draw::Ifc* pDrawIfc = Draw::get_ifc_impl();
 	if (pDrawIfc) {
 		cfg.withoutCtx = !pDrawIfc->info.needOGLContext;
