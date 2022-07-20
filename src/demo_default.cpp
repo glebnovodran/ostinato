@@ -31,7 +31,6 @@ struct DemoWk {
 	ScnObj* pPlayer;
 	Camera::Context camCtx;
 	bool disableStgShadows;
-	bool showPerf;
 	bool drawPseudoShd;
 	int exeRep;
 	TimeCtrl::Frequency tfreq;
@@ -148,7 +147,6 @@ static void init_player() {
 
 void init_params() {
 	s_demoWk.disableStgShadows = nxApp::get_bool_opt("nostgshadow", false);
-	s_demoWk.showPerf = nxApp::get_bool_opt("showperf", false);
 	int smapVal = nxApp::get_int_opt("smap", 2048);
 	s_demoWk.drawPseudoShd = (smapVal == -1);
 	s_demoWk.exeRep = nxCalc::max(nxApp::get_int_opt("exerep", 1), 1);
@@ -161,7 +159,7 @@ static void init() {
 	s_demoWk.perfGPU.init();
 
 	PrimFX::init();
-	Draw2D::init(&s_demoWk.perfCPU, &s_demoWk.perfGPU, s_demoWk.showPerf);
+	Draw2D::init(&s_demoWk.perfCPU, &s_demoWk.perfGPU);
 
 	TimeCtrl::init();
 	double start = nxSys::time_micros();

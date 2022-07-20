@@ -3,7 +3,7 @@
 
 namespace Draw2D {
 
-	void init(Performance::CPUMonitor* pPerfCPU, Performance::GPUMonitor* pPerfGPU, bool showPerf);
+	void init(Performance::CPUMonitor* pPerfCPU, Performance::GPUMonitor* pPerfGPU);
 
 	void exec();
 	

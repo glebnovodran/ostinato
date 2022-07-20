@@ -12,23 +12,24 @@ static struct DrawWk {
 	Performance::CPUMonitor* pPerfCPU;
 	Performance::GPUMonitor* pPerfGPU;
 	bool showPerf;
-
+	float resScale;
 } s_wk = {};
 
 namespace Draw2D {
 
-void init(Performance::CPUMonitor* pPerfCPU, Performance::GPUMonitor* pPerfGPU, bool showPerf) {
+void init(Performance::CPUMonitor* pPerfCPU, Performance::GPUMonitor* pPerfGPU) {
 	s_wk.pPerfCPU = pPerfCPU;
 	s_wk.pPerfGPU = pPerfGPU;
-	s_wk.showPerf = showPerf;
+	s_wk.showPerf = nxApp::get_bool_opt("showperf", false);
+	s_wk.resScale = nxApp::get_float_opt("res2d_scl", 1.0f);
 }
 
 void exec() {
 	using namespace Performance;
 
 	char str[1024];
-	float refSizeX = 800;
-	float refSizeY = 600;
+	float refSizeX = 800 * s_wk.resScale;
+	float refSizeY = 600 * s_wk.resScale;
 	Scene::set_ref_scr_size(refSizeX, refSizeY);
 	if (Scene::get_view_mode_width() < Scene::get_view_mode_height()) {
 		Scene::set_ref_scr_size(refSizeY, refSizeX);
