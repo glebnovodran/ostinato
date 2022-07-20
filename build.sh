@@ -16,6 +16,21 @@ VEMA_DIR="ext/vema"
 BIN_DIR="bin"
 DATA_DIR="$BIN_DIR/data"
 
+USE_WGET=0
+USE_CURL=0
+case `uname -s` in
+	Darwin)
+		USE_CURL=1
+	;;
+	*)
+		if [ -x "`command -v wget`" ]; then
+			USE_WGET=1
+		elif [ -x "`command -v curl`" ]; then
+			USE_CURL=1
+		fi
+	;;
+esac
+
 # dependencies
 if [ ! -f "$CROSSCORE_DIR/crosscore.cpp" ]; then
 	printf "$BOLD_ON$RED_ON""Downloading dependencies.""$FMT_OFF\n"
@@ -27,7 +42,7 @@ fi
 SRCS="`ls src/*.cpp` `ls $CROSSCORE_DIR/*.cpp`"
 INCS="-I $CROSSCORE_DIR -I ext/inc -I inc"
 DEFS=${OSTINATO_ALT_DEFS:-"-DX11"}
-LIBS=${OSTINATO_ALT_LIBS:-"-lpthread -lX11"}
+LIBS=${OSTINATO_ALT_LIBS:-"-lX11"}
 
 # resources
 RSRC_BASE="https://glebnovodran.github.io"
@@ -38,10 +53,12 @@ if [ ! -f "$BIN_DIR/bundle.off" ]; then
 	if [ ! -f "$OSTINATO_BND" ]; then
 		mkdir -p $DATA_DIR
 		printf "$BOLD_ON$RED_ON""Downloading resources.""$FMT_OFF\n"
-		if [ "$SYS_NAME" = "Darwin" ]; then
+		if [ $USE_CURL -ne 0 ]; then
 			curl "$BUNDLE_URL" -o "$OSTINATO_BND"
-		else
+		elif [ $USE_WGET -ne 0 ]; then
 			wget -O "$OSTINATO_BND" "$BUNDLE_URL"
+		else
+			printf "$RED_ON""Neither wget nor curl was found.""$FMT_OFF\n"
 		fi
 	fi
 fi
@@ -101,7 +118,13 @@ if [ "$#" -gt 0 ]; then
 		mkdir -p $VEMA_DIR
 		for vema in vema.c vema.h; do
 			if [ ! -f $VEMA_DIR/$vema ]; then
-				curl $VEMA_URL/$vema > $VEMA_DIR/$vema
+				if [ $USE_CURL -ne 0 ]; then
+					curl $VEMA_URL/$vema > $VEMA_DIR/$vema
+				elif [ $USE_WGET -ne 0 ]; then
+					wget -O "$VEMA_DIR/$vema" "$VEMA_URL/$vema"
+				else
+					printf "$RED_ON""Can't get \"$vema\".""$FMT_OFF\n"
+				fi
 			fi
 		done
 		cp $VEMA_DIR/vema.c $VEMA_DIR/vema.cpp
@@ -211,7 +234,7 @@ esac
 printf "Compiling \"$BOLD_ON$YELLOW_ON$UNDER_ON$EXE_PATH$FMT_OFF\" for $BOLD_ON$SYS_NAME$FMT_OFF with $BOLD_ON$CXX$FMT_OFF.\n"
 printf "OGL mode: $BOLD_ON$OGL_MODE$FMT_OFF.\n"
 rm -f $EXE_PATH
-$CXX -ggdb -ffast-math -ftree-vectorize -std=c++11 $DEFS $INCS $SRCS -o $EXE_PATH $LIBS $*
+$CXX -pthread -ggdb -ffast-math -ftree-vectorize -std=c++11 $DEFS $INCS $SRCS -o $EXE_PATH $LIBS $*
 
 echo -n "Build result: "
 if [ -f "$EXE_PATH" ]; then
