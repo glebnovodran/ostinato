@@ -205,7 +205,7 @@ static void loop(void* pLoopCtx) {
 	InputCtrl::update();
 	Ostinato::update_sensors();
 	Ostinato::set_default_lighting();
-
+	PrimFX::begin();
 	scene_exec();
 
 	s_demoWk.perfCPU.end(Measure::EXE);

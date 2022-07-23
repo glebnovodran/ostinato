@@ -11,9 +11,10 @@
 namespace PrimFX {
 
 struct Primitives {
-	const int NUM_VTX = 1000;
-	const int NUM_IDX = 1000;
+	static const int NUM_VTX = 1000;
+	static const int NUM_IDX = 1000;
 	sxTextureData* mpShdTex;
+	uint32_t mNextVtx = 0;
 
 	void init() {
 		Scene::init_prims(NUM_VTX, NUM_IDX);
@@ -34,6 +35,10 @@ void init() {
 
 void reset() {
 	s_primWk.reset();
+}
+
+void begin() {
+	s_primWk.mNextVtx = 0;
 }
 
 bool draw_pseudo_shadow(ScnObj* pObj, void* pMem) {
@@ -67,7 +72,8 @@ bool draw_pseudo_shadow(ScnObj* pObj, void* pMem) {
 		uint16_t idx[] = { 0, 1, 2, 0, 2, 3 };
 
 		wm.set_translation(wm.get_translation() + cxVec(0.0f, 0.025f, 0.0f));
-		Scene::prim_geom(0, 4, vtx, 0, 6, idx);
+		Scene::prim_geom(s_primWk.mNextVtx, 4, vtx, 0, 6, idx);
+		s_primWk.mNextVtx =  s_primWk.mNextVtx <= (Primitives::NUM_VTX - 4) ? s_primWk.mNextVtx + 4 : 0;
 		Scene::idx_tris_semi_dsided(0, 2, &wm, s_primWk.mpShdTex, false);
 	}
 	return true;

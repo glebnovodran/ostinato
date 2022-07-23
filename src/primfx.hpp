@@ -5,6 +5,8 @@ namespace PrimFX {
 
 void init();
 
+void begin();
+
 void reset();
 
 bool draw_pseudo_shadow(ScnObj* pObj, void* pMem);
