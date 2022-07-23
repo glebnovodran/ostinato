@@ -76,7 +76,7 @@ bool draw_pseudo_shadow(ScnObj* pObj, void* pMem) {
 		wm.set_translation(wm.get_translation() + cxVec(0.0f, 0.025f, 0.0f));
 		Scene::prim_geom(s_primWk.mNextVtx, 4, vtx, s_primWk.mNextIdx, 6, idx);
 		s_primWk.mNextVtx =  s_primWk.mNextVtx <= (Primitives::NUM_VTX - 4) ? s_primWk.mNextVtx + 4 : 0;
-		s_primWk.mNextIdx =  s_primWk.mNextIdx <= (Primitives::NUM_VTX - 6) ? s_primWk.mNextIdx + 6 : 0;
+		s_primWk.mNextIdx =  s_primWk.mNextIdx <= (Primitives::NUM_IDX - 6) ? s_primWk.mNextIdx + 6 : 0;
 		Scene::idx_tris_semi_dsided(0, 2, &wm, s_primWk.mpShdTex, false);
 	}
 	return true;
