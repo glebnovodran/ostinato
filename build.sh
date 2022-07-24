@@ -165,7 +165,7 @@ EXE_PATH="$EXE_DIR/$EXE_NAME"
 
 SYS_KIND="generic"
 SYS_OGL="Desktop"
-EGL_LIBS="-lEGL -lGLESv2"
+EGL_LIBS=${OSTINATO_ALT_EGL_LIBS:-"-lEGL -lGLESv2"}
 RPI_KIND_PATH="/sys/firmware/devicetree/base/model"
 if [ -f $RPI_KIND_PATH ]; then
 	SYS_KIND="`cat $RPI_KIND_PATH)`"
