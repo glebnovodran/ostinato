@@ -24,7 +24,8 @@ static const bool c_defReduce = false;
 
 static struct OstinatoGlobals {
 	ScnObj* pTgtObj;
-	float lampsBightness;
+	float lampsBrightness;
+	float ccBrightness;
 	struct Sensors {
 		int fid;
 		struct Values {
@@ -375,6 +376,8 @@ void init(int argc, char* argv[]) {
 	::memset(&sysIfc, 0, sizeof(sysIfc));
 	sysIfc.fn_dbgmsg = dbgmsg;
 
+	s_globals.ccBrightness = nxApp::get_float_opt("cc_brightness", 1.0f);
+
 	int bndsrc = nxCalc::clamp(nxApp::get_int_opt("bnd", int(BndSource::LOCAL)), 0, int(BndSource::MAX));
 	BndSource bndSrc = BndSource(bndsrc);
 	if (bndSrc != BndSource::NONE) {
@@ -452,10 +455,10 @@ void set_default_lighting() {
 	Scene::set_exposure_rgb(0.75f, 0.85f, 0.5f);
 
 	Scene::set_linear_white_rgb(0.65f, 0.65f, 0.55f);
-	Scene::set_linear_gain(1.32f);
-	Scene::set_linear_bias(-0.025f);
+	Scene::set_linear_gain(1.32f * s_globals.ccBrightness);
+	Scene::set_linear_bias(-0.025f * s_globals.ccBrightness);
 
- 	s_globals.lampsBightness = 0.0f;
+ 	s_globals.lampsBrightness = 0.0f;
 
 	int32_t lval = s_globals.sensors.vals.light;
 	if (lval >= 0 && lval <= 1023) {
@@ -464,7 +467,7 @@ void set_default_lighting() {
 		if (val <= sunLim) {
 			float scl = nxCalc::fit(val, 0.0f, sunLim, 0.0f, 1.0f);
 
-			s_globals.lampsBightness = nxCalc::fit(scl, 0.0f, 1.0f, 1.0f, 0.05f);
+			s_globals.lampsBrightness = nxCalc::fit(scl, 0.0f, 1.0f, 1.0f, 0.05f);
 
 			Scene::set_shadow_density(nxCalc::fit(scl, 0.0f, 1.0, 0.25f, 1.0f));
 			float fogScl = nxCalc::fit(scl, 0.0f, 1.0, 0.1f, 1.0f);
@@ -492,7 +495,7 @@ void set_default_lighting() {
 }
 
 float get_lamps_brightness() {
-	return s_globals.lampsBightness;
+	return s_globals.lampsBrightness;
 }
 
 ScnObj* get_cam_tgt_obj() {
