@@ -32,6 +32,7 @@ static struct OstinatoGlobals {
 			int32_t light;
 		} vals;
 	} sensors;
+	int32_t dummySleep;
 } s_globals = {};
 
 static void dbgmsg(const char* pMsg) {
@@ -322,8 +323,19 @@ static void reset_sensors() {
 	s_globals.sensors.fid = -1;
 }
 
+static void dummygl_swap_func() {
+	if (s_globals.dummySleep > 0) {
+		nxSys::sleep_millis(s_globals.dummySleep);
+	} else if (s_globals.dummySleep < 0) {
+		double len = double(-s_globals.dummySleep) * 1.0e3;
+		double start = nxSys::time_micros();
+		while ((nxSys::time_micros() - start) < len) {}
+	}
+}
+
 static void init_ogl(const int x, const int y, const int w, const int h, const int msaa) {
 	OGLSysCfg cfg;
+
 	cfg.clear();
 	cfg.x = x;
 	cfg.y = y;
@@ -335,13 +347,18 @@ static void init_ogl(const int x, const int y, const int w, const int h, const i
 	cfg.ifc.mem_alloc = oglsys_mem_alloc;
 	cfg.ifc.mem_free = oglsys_mem_free;
 	cfg.ifc.get_opt = oglsys_get_opt;
+
 	Draw::Ifc* pDrawIfc = Draw::get_ifc_impl();
 	if (pDrawIfc) {
 		cfg.withoutCtx = !pDrawIfc->info.needOGLContext;
 	}
+
 	OGLSys::init(cfg);
 	OGLSys::CL::init();
 	OGLSys::set_swap_interval(nxApp::get_int_opt("swap", 1));
+
+	s_globals.dummySleep = nxCalc::max(0, nxApp::get_int_opt("dummygl_swap_sleep", 1));
+	OGLSys::set_dummygl_swap_func(dummygl_swap_func);
 }
 
 static void reset_ogl() {
