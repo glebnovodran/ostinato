@@ -193,13 +193,12 @@ void scene_exec() {
 }
 
 static void loop(void* pLoopCtx) {
-	using namespace Performance;
 
 	s_demoWk.perfGPU.exec();
 
 	// ------------------------------------------
 
-	s_demoWk.perfCPU.begin(Measure::EXE);
+	s_demoWk.perfCPU.begin(Performance::Measure::EXE);
 
 	TimeCtrl::exec();
 	InputCtrl::update();
@@ -208,17 +207,17 @@ static void loop(void* pLoopCtx) {
 	PrimFX::begin();
 	scene_exec();
 
-	s_demoWk.perfCPU.end(Measure::EXE);
+	s_demoWk.perfCPU.end(Performance::Measure::EXE);
 
 	// ------------------------------------------
 
-	s_demoWk.perfCPU.begin(Measure::VISIBILITY);
+	s_demoWk.perfCPU.begin(Performance::Measure::VISIBILITY);
 	Scene::visibility();
-	s_demoWk.perfCPU.end(Measure::VISIBILITY);
+	s_demoWk.perfCPU.end(Performance::Measure::VISIBILITY);
 
 	// ------------------------------------------
 
-	s_demoWk.perfCPU.begin(Measure::DRAW);
+	s_demoWk.perfCPU.begin(Performance::Measure::DRAW);
 	s_demoWk.perfGPU.begin();
 
 	Scene::frame_begin(cxColor(0.5f));
@@ -227,7 +226,7 @@ static void loop(void* pLoopCtx) {
 	Draw2D::exec();
 
 	s_demoWk.perfGPU.end();
-	s_demoWk.perfCPU.end(Measure::DRAW);
+	s_demoWk.perfCPU.end(Performance::Measure::DRAW);
 
 	// ------------------------------------------
 

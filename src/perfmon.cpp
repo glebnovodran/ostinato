@@ -7,32 +7,48 @@
 
 namespace Performance {
 
-void CPUMonitor::init() {
+XD_NOINLINE void CPUMonitor::echo_cpu_stat() const {
+	double exe = get_median(Performance::Measure::EXE);
+	double vis = get_median(Performance::Measure::VISIBILITY);
+	double drw = get_median(Performance::Measure::DRAW);
+	nxCore::dbg_msg("EXE: %.2f, VIS: %.2f, DRW: %.2f, SUM: %.2f\n", exe, vis, drw, exe+vis+drw);
+}
+
+XD_NOINLINE void CPUMonitor::init() {
+	mEcho = nxApp::get_bool_opt("perfmon_echo", false);
+	int nsmps = nxApp::get_int_opt("perfmon_nsmps", 30);
+	int n = nxCalc::max(1, nsmps);
 	for (int i = 0; i < NUM_TIMER; ++i) {
-		mTimers[i].alloc(30);
+		mTimers[i].alloc(n);
 	}
 }
-void CPUMonitor::free() {
+
+XD_NOINLINE void CPUMonitor::free() {
 	for (int i = 0; i < NUM_TIMER; ++i) {
 		mTimers[i].free();
 	}
 }
-void CPUMonitor::begin(const Measure m) {
+
+XD_NOINLINE void CPUMonitor::begin(const Measure m) {
 	mTimers[m].begin();
 }
-void CPUMonitor::end(const Measure m) {
+
+XD_NOINLINE void CPUMonitor::end(const Measure m) {
 	if (mTimers[m].end()) {
 		double us = mTimers[m].median();
 		mTimers[m].reset();
 		mMedian[m] = us / 1000.0;
+		if (mEcho) {
+			echo_cpu_stat();
+		}
 	}
 }
-double CPUMonitor::get_median(const Measure m) const {
+
+XD_NOINLINE double CPUMonitor::get_median(const Measure m) const {
 	return mMedian[m];
 }
 
-
-void GPUMonitor::init() {
+XD_NOINLINE void GPUMonitor::init() {
 	mFlg = false;
 	nxCore::mem_zero(mSmps, sizeof(mSmps));
 	mIdx = 0;
@@ -41,10 +57,15 @@ void GPUMonitor::init() {
 	mTS1 = OGLSys::create_timestamp();
 }
 
-void GPUMonitor::begin() const { OGLSys::put_timestamp(mTS0); }
-void GPUMonitor::end() const { OGLSys::put_timestamp(mTS1); }
+XD_NOINLINE void GPUMonitor::begin() const {
+	OGLSys::put_timestamp(mTS0);
+}
 
-void GPUMonitor::exec() {
+XD_NOINLINE  void GPUMonitor::end() const {
+	OGLSys::put_timestamp(mTS1);
+}
+
+XD_NOINLINE void GPUMonitor::exec() {
 	if (mFlg) {
 		OGLSys::wait_timestamp(mTS1);
 		uint64_t t0 = OGLSys::get_timestamp(mTS0);
@@ -63,7 +84,7 @@ void GPUMonitor::exec() {
 	mFlg = true;
 }
 
-void GPUMonitor::free() {
+XD_NOINLINE void GPUMonitor::free() {
 	OGLSys::delete_timestamp(mTS0);
 	OGLSys::delete_timestamp(mTS1);
 	mTS0 = 0;

@@ -14,16 +14,19 @@ struct CPUMonitor {
 
 	cxStopWatch mTimers[NUM_TIMER];
 	double mMedian[NUM_TIMER];
+	bool mEcho;
 
-	XD_NOINLINE void init();
+	void init();
 
-	XD_NOINLINE void free();
+	void free();
 
-	XD_NOINLINE void begin(const Measure m);
+	void begin(const Measure m);
 
-	XD_NOINLINE void end(const Measure m);
+	void end(const Measure m);
 
-	XD_NOINLINE double get_median(const Measure m) const;
+	double get_median(const Measure m) const;
+
+	void echo_cpu_stat() const;
 };
 
 struct GPUMonitor {
@@ -35,15 +38,15 @@ struct GPUMonitor {
 	double mMillis;
 	bool mFlg;
 
-	XD_NOINLINE void init();
+	void init();
 
-	XD_NOINLINE void begin() const;
+	void begin() const;
 
-	XD_NOINLINE void end() const;
+	void end() const;
 
-	XD_NOINLINE void exec();
+	void exec();
 
-	XD_NOINLINE void free();
+	void free();
 };
 
 } // namespace
