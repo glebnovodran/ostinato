@@ -25,8 +25,6 @@ void init(Performance::CPUMonitor* pPerfCPU, Performance::GPUMonitor* pPerfGPU) 
 }
 
 void exec() {
-	using namespace Performance;
-
 	char str[1024];
 
 	if (s_wk.resScale <= 0.0f) {
@@ -44,9 +42,9 @@ void exec() {
 		char fpsStr[16];
 
 		float fps = TimeCtrl::get_fps();
-		double exe = s_wk.pPerfCPU->get_median(Measure::EXE);
-		double vis = s_wk.pPerfCPU->get_median(Measure::VISIBILITY);
-		double drw = s_wk.pPerfCPU->get_median(Measure::DRAW);
+		double exe = s_wk.pPerfCPU->get_median(Performance::Measure::EXE);
+		double vis = s_wk.pPerfCPU->get_median(Performance::Measure::VISIBILITY);
+		double drw = s_wk.pPerfCPU->get_median(Performance::Measure::DRAW);
 		double gpu = s_wk.pPerfGPU->mMillis;
 
 		if (fps < 0.0f) {
