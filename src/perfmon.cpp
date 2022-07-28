@@ -7,20 +7,23 @@
 
 namespace Performance {
 
-XD_NOINLINE void CPUMonitor::echo_cpu_stat() const {
-	double exe = get_median(Performance::Measure::EXE);
-	double vis = get_median(Performance::Measure::VISIBILITY);
-	double drw = get_median(Performance::Measure::DRAW);
-	nxCore::dbg_msg("EXE: %.2f, VIS: %.2f, DRW: %.2f, SUM: %.2f\n", exe, vis, drw, exe+vis+drw);
+XD_NOINLINE void CPUMonitor::echo_stats() const {
+	if (mEchoEnabled && (mStatus != 0)) {
+		double exe = get_median(Performance::Measure::EXE);
+		double vis = get_median(Performance::Measure::VISIBILITY);
+		double drw = get_median(Performance::Measure::DRAW);
+		nxCore::dbg_msg("EXE: %.2f, VIS: %.2f, DRW: %.2f\n", exe, vis, drw);
+	}
 }
 
 XD_NOINLINE void CPUMonitor::init() {
-	mEcho = nxApp::get_bool_opt("perfmon_echo", false);
+	mEchoEnabled = nxApp::get_bool_opt("perfmon_echo", false);
 	int nsmps = nxApp::get_int_opt("perfmon_nsmps", 30);
 	int n = nxCalc::max(1, nsmps);
 	for (int i = 0; i < NUM_TIMER; ++i) {
 		mTimers[i].alloc(n);
 	}
+	mStatus = 0;
 }
 
 XD_NOINLINE void CPUMonitor::free() {
@@ -34,13 +37,13 @@ XD_NOINLINE void CPUMonitor::begin(const Measure m) {
 }
 
 XD_NOINLINE void CPUMonitor::end(const Measure m) {
+	uint32_t id = uint32_t(m);
+	XD_BIT_ARY_CL(uint32_t, &mStatus, id);
 	if (mTimers[m].end()) {
 		double us = mTimers[m].median();
 		mTimers[m].reset();
 		mMedian[m] = us / 1000.0;
-		if (mEcho) {
-			echo_cpu_stat();
-		}
+		XD_BIT_ARY_ST(uint32_t, &mStatus, id);
 	}
 }
 

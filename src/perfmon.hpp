@@ -14,7 +14,8 @@ struct CPUMonitor {
 
 	cxStopWatch mTimers[NUM_TIMER];
 	double mMedian[NUM_TIMER];
-	bool mEcho;
+	bool mEchoEnabled;
+	uint32_t mStatus;
 
 	void init();
 
@@ -26,7 +27,7 @@ struct CPUMonitor {
 
 	double get_median(const Measure m) const;
 
-	void echo_cpu_stat() const;
+	void echo_stats() const;
 };
 
 struct GPUMonitor {

@@ -229,7 +229,7 @@ static void loop(void* pLoopCtx) {
 	s_demoWk.perfCPU.end(Performance::Measure::DRAW);
 
 	// ------------------------------------------
-
+	s_demoWk.perfCPU.echo_stats();
 	Scene::frame_end();
 }
 

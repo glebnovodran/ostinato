@@ -357,7 +357,7 @@ static void init_ogl(const int x, const int y, const int w, const int h, const i
 	OGLSys::CL::init();
 	OGLSys::set_swap_interval(nxApp::get_int_opt("swap", 1));
 
-	s_globals.dummySleep = nxCalc::max(0, nxApp::get_int_opt("dummygl_swap_sleep", 1));
+	s_globals.dummySleep = nxApp::get_int_opt("dummygl_swap_sleep", 1);
 	OGLSys::set_dummygl_swap_func(dummygl_swap_func);
 }
 
