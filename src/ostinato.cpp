@@ -381,6 +381,13 @@ static void init_scn_sys(const char* pAppPath) {
 	nxCore::dbg_msg("#workers: %d\n", scnCfg.numWorkers);
 	nxCore::dbg_msg("shadow size: %d\n", scnCfg.shadowMapSize);
 	Scene::init(scnCfg);
+
+	float heapSizeMb = nxApp::get_float_opt("local_heap_size", 2.0f);
+
+	if (heapSizeMb > 0.0f) {
+		heapSizeMb = nxCalc::max(1.0f, heapSizeMb);
+		 Scene::alloc_local_heaps(1024 * 1024 * heapSizeMb);
+	}
 }
 
 
