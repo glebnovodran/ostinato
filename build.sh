@@ -150,7 +150,10 @@ if [ -n "$WEB_MODE" ]; then
 	fi
 	$WEB_CC $WEB_OPTS $WGL_OPTS $VEMA_DEFS $VEMA_INCS -I$CROSSCORE_DIR -O3 $SRCS $WEB_EXTS -o $OUT_HTML $WEB_EXPS $*
 	sed -i 's/antialias:!1/antialias:1/g' $OUT_HTML
-	TIMESTAMP_EXPR="s/~~ostinato-timestamp~~/~ $BUILD_TIMESTAMP ~/g"
+	if [ -n "$WEB_BUILD_TAG" ]; then
+		WEB_BUILD_TAG=" [$WEB_BUILD_TAG]"
+	fi
+	TIMESTAMP_EXPR="s/~~ostinato-timestamp~~/~ $BUILD_TIMESTAMP ~$WEB_BUILD_TAG/g"
 	sed -i "$TIMESTAMP_EXPR" $OUT_HTML
 	exit
 fi
