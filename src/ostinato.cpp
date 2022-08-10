@@ -386,7 +386,7 @@ static void init_scn_sys(const char* pAppPath) {
 
 	if (heapSizeMb > 0.0f) {
 		heapSizeMb = nxCalc::max(1.0f, heapSizeMb);
-		 Scene::alloc_local_heaps(1024 * 1024 * heapSizeMb);
+		 Scene::alloc_local_heaps(size_t(1024 * 1024 * heapSizeMb));
 	}
 }
 
