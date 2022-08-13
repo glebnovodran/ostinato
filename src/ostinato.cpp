@@ -268,7 +268,7 @@ static bool init_bundle(const char* pPath, BundleWk* pBnd) {
 	return res;
 }
 
-static void init_bundle() {
+static const char* init_bundle() {
 	static const char* pPathTbl[] = {
 		BUNDLE_FNAME,
 		"../" BUNDLE_FNAME,
@@ -276,6 +276,8 @@ static void init_bundle() {
 		"bin/data/" BUNDLE_FNAME
 	};
 	BundleWk* pBnd = &s_bnd;
+	const char* pLoadedPath = nullptr;
+
 	pBnd->pFile = nullptr;
 	pBnd->nfiles = 0;
 	pBnd->pPaths = nullptr;
@@ -283,15 +285,19 @@ static void init_bundle() {
 	s_bnd.searchStrMap = nxApp::get_bool_opt("bndtbl", false);
 	const char* pBndPath = nxApp::get_opt("bndpath");
 
-	if (!init_bundle(pBndPath, pBnd)) {
-
+	if (init_bundle(pBndPath, pBnd)) {
+		pLoadedPath = pBndPath;
+	} else {
 		for (size_t i = 0; i < XD_ARY_LEN(pPathTbl); ++i) {
 			const char* pPath = pPathTbl[i];
 			if (init_bundle(pPath, pBnd)) {
+				pLoadedPath = pPath;
 				break;
 			}
 		}
 	}
+
+	return pLoadedPath;
 }
 
 static void reset_bundle() {
@@ -422,8 +428,9 @@ void init(int argc, char* argv[]) {
 
 	int bndsrc = nxCalc::clamp(nxApp::get_int_opt("bnd", int(BndSource::LOCAL)), 0, int(BndSource::MAX));
 	BndSource bndSrc = BndSource(bndsrc);
+	const char* pLoadedPath = nullptr;
 	if (bndSrc != BndSource::NONE) {
-		init_bundle();
+		pLoadedPath = init_bundle();
 
 		if (s_bnd.valid()) {
 			sysIfc.fn_fopen = bnd_fopen;
@@ -434,6 +441,12 @@ void init(int argc, char* argv[]) {
 		}
 	}
 	nxSys::init(&sysIfc);
+
+	if (pLoadedPath) {
+		nxCore::dbg_msg("Loaded bundle [%s]\n", pLoadedPath);
+	} else {
+		nxCore::dbg_msg("No bundle loaded\n");
+	}
 
 	float scrScl = 1.0f;
 	int x = 10;
