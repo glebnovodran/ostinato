@@ -193,6 +193,7 @@ static size_t bnd_fread(xt_fhandle fh, void* pDst, size_t nbytes) {
 
 static void init_bundle() {
 	static const char* pPathTbl[] = {
+		nullptr,
 		BUNDLE_FNAME,
 		"../" BUNDLE_FNAME,
 		"../data/" BUNDLE_FNAME,
@@ -203,10 +204,15 @@ static void init_bundle() {
 	pBnd->nfiles = 0;
 	pBnd->pPaths = nullptr;
 
+	pPathTbl[0] = nxApp::get_opt("bndpath");
 	s_bnd.searchStrMap = nxApp::get_bool_opt("bndtbl", false);
 	for (size_t i = 0; i < XD_ARY_LEN(pPathTbl); ++i) {
 		const char* pPath = pPathTbl[i];
+
+		if (pPath == nullptr) { continue; }
+
 		FILE* pFile = bnd_sys_bin_open(pPath);
+
 		if (pFile) {
 			uint32_t sig = 0;
 			size_t nread = ::fread(&sig, 1, sizeof(sig), pFile);
