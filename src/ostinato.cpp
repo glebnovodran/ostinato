@@ -191,25 +191,10 @@ static size_t bnd_fread(xt_fhandle fh, void* pDst, size_t nbytes) {
 	return nread;
 }
 
-static void init_bundle() {
-	static const char* pPathTbl[] = {
-		nullptr,
-		BUNDLE_FNAME,
-		"../" BUNDLE_FNAME,
-		"../data/" BUNDLE_FNAME,
-		"bin/data/" BUNDLE_FNAME
-	};
-	BundleWk* pBnd = &s_bnd;
-	pBnd->pFile = nullptr;
-	pBnd->nfiles = 0;
-	pBnd->pPaths = nullptr;
+static bool init_bundle(const char* pPath, BundleWk* pBnd) {
+	bool res = false;
 
-	pPathTbl[0] = nxApp::get_opt("bndpath");
-	s_bnd.searchStrMap = nxApp::get_bool_opt("bndtbl", false);
-	for (size_t i = 0; i < XD_ARY_LEN(pPathTbl); ++i) {
-		const char* pPath = pPathTbl[i];
-
-		if (pPath == nullptr) { continue; }
+	if (pPath != nullptr) {
 
 		FILE* pFile = bnd_sys_bin_open(pPath);
 
@@ -251,6 +236,7 @@ static void init_bundle() {
 											pBndPath += bndPathLen + 1;
 										}
 									}
+									res = true;
 								} else {
 									nxCore::mem_free(pPathsData);
 									nxCore::mem_free(pBnd->pInfos);
@@ -277,7 +263,33 @@ static void init_bundle() {
 			} else {
 				::fclose(pFile);
 			}
-			break;
+		}
+	}
+	return res;
+}
+
+static void init_bundle() {
+	static const char* pPathTbl[] = {
+		BUNDLE_FNAME,
+		"../" BUNDLE_FNAME,
+		"../data/" BUNDLE_FNAME,
+		"bin/data/" BUNDLE_FNAME
+	};
+	BundleWk* pBnd = &s_bnd;
+	pBnd->pFile = nullptr;
+	pBnd->nfiles = 0;
+	pBnd->pPaths = nullptr;
+
+	s_bnd.searchStrMap = nxApp::get_bool_opt("bndtbl", false);
+	const char* pBndPath = nxApp::get_opt("bndpath");
+
+	if (!init_bundle(pBndPath, pBnd)) {
+
+		for (size_t i = 0; i < XD_ARY_LEN(pPathTbl); ++i) {
+			const char* pPath = pPathTbl[i];
+			if (init_bundle(pPath, pBnd)) {
+				break;
+			}
 		}
 	}
 }
