@@ -176,7 +176,7 @@ static void init() {
 	Scene::glb_rng_reset();
 	InputCtrl::init();
 
-	nxCore::dbg_msg("\n~ Welcome to Ostinato ~\n");
+	nxCore::dbg_msg("\n~ Welcome to Ostinato ~\n\n");
 
 	bool showCtrlHelp = nxApp::get_bool_opt("show_ctrl_help", false);
 	if (showCtrlHelp) {
