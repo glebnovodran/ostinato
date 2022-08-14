@@ -96,10 +96,12 @@ static bool init_resources() {
 	bool res = false;
 	if (pPkg) {
 		Scene::for_all_pkg_models(pPkg, add_stg_obj, &s_demoWk);
+
 		s_demoWk.pCol = pPkg->find_collision("col");
 		HumanSys::set_collision(s_demoWk.pCol);
 		Camera::set_collision(s_demoWk.pCol);
 		s_demoWk.camCtx.mpZones = pPkg->find_geometry("cam_zones");
+
 		sxGeometryData* pGeo = pPkg->find_geometry("npc_pos");
 		s_demoWk.pNPCPosGeo = pGeo;
 		if (pGeo) {
@@ -166,7 +168,6 @@ static void init() {
 
 	HumanSys::init();
 	init_resources();
-
 	double finish = nxSys::time_micros();
 	nxCore::dbg_msg("\nResources loaded in %.2f millis.\n", (finish - start)/1000.0);
 
@@ -175,7 +176,9 @@ static void init() {
 	Scene::glb_rng_reset();
 	InputCtrl::init();
 
+	const char* pMsg = nxApp::get_opt("welcome_msg");
 	nxCore::dbg_msg("\n~ Welcome to Ostinato ~\n");
+	nxCore::dbg_msg("%s\n", pMsg ? pMsg : "");
 }
 
 
