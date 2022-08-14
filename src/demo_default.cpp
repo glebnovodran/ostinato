@@ -179,6 +179,14 @@ static void init() {
 	const char* pMsg = nxApp::get_opt("welcome_msg");
 	nxCore::dbg_msg("\n~ Welcome to Ostinato ~\n");
 	nxCore::dbg_msg("%s\n", pMsg ? pMsg : "");
+	bool showCtrlHelp = nxApp::get_bool_opt("show_ctrl_help", false);
+	if (showCtrlHelp) {
+			nxCore::dbg_msg("\e[1mCursor/WASD\e[0m: walk\n");
+			nxCore::dbg_msg("\e[1mL-Shift\e[0m: hold to run\n");
+			nxCore::dbg_msg("\e[1mBackspace\e[0m: change view distance\n");
+			nxCore::dbg_msg("\e[1mTAB\e[0m: free camera mode\n");
+			nxCore::dbg_msg("\n");
+	}
 }
 
 
