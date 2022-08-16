@@ -14,6 +14,8 @@ struct Wk {
 	float mMotSpeed;
 	TimeCtrl::Frequency mFreq;
 	bool mTimeFixUpFlg;
+	bool mDoEcho;
+	bool mEchoFPS;
 
 	void init(TimeCtrl::Frequency freq, int smps) {
 		mFreq = freq;
@@ -21,6 +23,7 @@ struct Wk {
 		mFramerateStopWatch.alloc(smps);
 		mMedianFPS = 0.0f;
 		mMotSpeed = 1.0f;
+		mEchoFPS = false;
 	}
 
 	void reset() {
@@ -34,6 +37,7 @@ struct Wk {
 			mCurrentTime = TimeCtrl::get_sys_time_millis();
 		}
 		if (mFramerateStopWatch.end()) {
+			mDoEcho = true;
 			double us = mFramerateStopWatch.median();
 			mFramerateStopWatch.reset();
 			double millis = us / 1000.0;
@@ -92,8 +96,8 @@ void init() {
 
 	int smps = nxApp::get_int_opt("tsmps", 10);
 	smps = nxCalc::max(1, smps);
-
 	s_wk.init(tfreq, smps);
+	s_wk.mEchoFPS = nxApp::get_bool_opt("echo_fps", false);
 }
 
 void reset() {
@@ -106,6 +110,16 @@ void exec() {
 
 float get_fps() { return s_wk.mMedianFPS; }
 
+void get_fps_str(char* pBuf) {
+	if (pBuf) {
+		if (s_wk.mMedianFPS < 0.0f) {
+			XD_SPRINTF(XD_SPRINTF_BUF(pBuf, sizeof(pBuf)), " --");
+		} else {
+			XD_SPRINTF(XD_SPRINTF_BUF(pBuf, sizeof(pBuf)), "%.2f", s_wk.mMedianFPS);
+		}
+	}
+}
+
 float get_motion_speed() { return s_wk.mMotSpeed * Scene::speed(); }
 
 double get_start_time() { return s_wk.mFreq == Frequency::VARIABLE ? get_sys_time_millis() : 0.0; }
@@ -113,5 +127,14 @@ double get_start_time() { return s_wk.mFreq == Frequency::VARIABLE ? get_sys_tim
 double get_current_time() { return s_wk.mCurrentTime; }
 
 double get_sys_time_millis() { return nxSys::time_micros() / 1000.0; }
+
+void echo_fps(const char* pFmt) {
+	char fpsStr[16];
+	if (s_wk.mEchoFPS && s_wk.mDoEcho) {
+		get_fps_str(fpsStr);
+		nxCore::dbg_msg(pFmt, fpsStr);
+		s_wk.mDoEcho = false;
+	}
+}
 
 };

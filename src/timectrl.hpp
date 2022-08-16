@@ -17,9 +17,12 @@ void reset();
 void exec();
 
 float get_fps();
+void get_fps_str(char* pBuf);
+
 float get_motion_speed();
 double get_sys_time_millis();
 double get_start_time();
 double get_current_time();
 
+void echo_fps(const char* pFmt);
 };

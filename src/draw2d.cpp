@@ -41,17 +41,13 @@ void exec() {
 	if (s_wk.showPerf) {
 		char fpsStr[16];
 
-		float fps = TimeCtrl::get_fps();
+		TimeCtrl::get_fps_str(fpsStr);
+
 		double exe = s_wk.pPerfCPU->get_median(Performance::Measure::EXE);
 		double vis = s_wk.pPerfCPU->get_median(Performance::Measure::VISIBILITY);
 		double drw = s_wk.pPerfCPU->get_median(Performance::Measure::DRAW);
 		double gpu = s_wk.pPerfGPU->mMillis;
 
-		if (fps < 0.0f) {
-			XD_SPRINTF(XD_SPRINTF_BUF(fpsStr, sizeof(fpsStr)), " --");
-		} else {
-			XD_SPRINTF(XD_SPRINTF_BUF(fpsStr, sizeof(fpsStr)), "%.2f", fps);
-		}
 		XD_SPRINTF(XD_SPRINTF_BUF(str, sizeof(str)), "FPS: %s, EXE: %.2f, VIS: %.2f, DRW: %.2f, GPU: %.2f, SUM: %.2f", fpsStr, exe, vis, drw, gpu, exe+vis+drw+gpu);
 		size_t slen = nxCore::str_len(str);
 

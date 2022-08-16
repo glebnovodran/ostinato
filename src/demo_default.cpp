@@ -239,6 +239,7 @@ static void loop(void* pLoopCtx) {
 	s_demoWk.perfCPU.end(Performance::Measure::DRAW);
 
 	// ------------------------------------------
+	TimeCtrl::echo_fps("FPS: %s\n");
 	s_demoWk.perfCPU.echo_stats();
 	Scene::frame_end();
 }
