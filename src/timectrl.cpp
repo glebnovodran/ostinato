@@ -24,6 +24,7 @@ struct Wk {
 		mMedianFPS = 0.0f;
 		mMotSpeed = 1.0f;
 		mEchoFPS = false;
+		mDoEcho = false;
 	}
 
 	void reset() {
