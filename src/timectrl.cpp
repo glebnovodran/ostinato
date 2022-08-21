@@ -131,7 +131,7 @@ double get_sys_time_millis() { return nxSys::time_micros() / 1000.0; }
 
 void echo_fps(const char* pFmt) {
 	char fpsStr[16];
-	if (s_wk.mEchoFPS && s_wk.mDoEcho) {
+	if (s_wk.mEchoFPS > 0 && s_wk.mDoEcho) {
 		static int cnt = 0;
 		if (cnt == 0) {
 			get_fps_str(fpsStr);
