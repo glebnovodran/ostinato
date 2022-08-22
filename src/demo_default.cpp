@@ -245,6 +245,7 @@ static void loop(void* pLoopCtx) {
 }
 
 static void reset() {
+	InputCtrl::reset();
 	HumanSys::reset();
 	TimeCtrl::reset();;
 	PrimFX::reset();

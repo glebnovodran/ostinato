@@ -4,6 +4,7 @@
 #include <crosscore.hpp>
 
 #include "keyboard.hpp"
+#include "joystick.hpp"
 #include "input.hpp"
 
 namespace InputCtrl {
@@ -33,9 +34,15 @@ struct InputWk {
 
 void init() {
 	Keyboard::init();
+	Joystick::init();
+}
+
+void reset() {
+	Joystick::reset();
 }
 
 void update() {
+	Joystick::update();
 	Keyboard::update();
 	for (int i = 0; i < NUM_BUTTONS; ++i) {
 		int keyId = s_wk.keymap[i];
@@ -56,4 +63,5 @@ bool triggered(const int id){ return s_wk.state[id].triggered; }
 
 bool changed(const int id){ return s_wk.state[id].changed; }
 
+int get_axis_val(const int axis) { return 0; }
 } // namespace

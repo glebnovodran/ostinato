@@ -17,12 +17,23 @@ enum {
 	NUM_BUTTONS,
 };
 
+enum {
+	STICK_L_X = 0,
+	STICK_L_Y,
+	STICK_R_X,
+	STICK_R_Y,
+	NUM_AXIS
+};
+
 void init();
 void update();
+void reset();
 
 bool now_active(const int id);
 bool was_active(const int id);
 bool triggered(const int id);
 bool changed(const int id);
+
+int get_axis_val(const int axis);
 
 };
