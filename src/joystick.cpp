@@ -115,25 +115,12 @@ struct JoystickCtrl {
 		if (mFd>=0) { close(mFd); }
 	}
 
-	bool ck_now(const int btid) const { return !!(mNow & (1ULL << btid)); }
-	bool ck_old(const int btid) const { return !!(mOld & (1ULL << btid)); }
-	bool ck_trg(const int btid) const { return !!((mNow & (mNow ^ mOld)) & (1ULL << btid)); }
-	bool ck_chg(const int btid) const { return !!((mNow ^ mOld) & (1ULL << btid)); }
 #else
 	void init() {}
 	void update() {}
 	void reset() {}
-
-	int get_num_axis() { return 0; }
-	int get_num_buttons() {return 0; }
-
-	int get_axis_val(unsigned char axis) { return 0; }
-
-	bool now_active(const int btid) { return false; }
-	bool was_active(const int btid) { return false; }
-	bool triggered(const int btid) { return false; }
-	bool changed(const int btid) { return false; }
 #endif
+
 } s_JtkCtrl;
 
 
@@ -147,6 +134,8 @@ void update() {
 void reset() {
 	s_JtkCtrl.reset();
 }
+
+#if defined(XD_SYS_LINUX)
 
 int get_num_axis() {
 	return s_JtkCtrl.mNumAxis;
@@ -166,5 +155,17 @@ bool triggered(const int btid) {
 bool changed(const int btid){
 	return s_JtkCtrl.ck_chg(btid);
 }
+# else
 
+int get_num_axis() { return 0; }
+int get_num_buttons() {return 0; }
+
+int get_axis_val(unsigned char axis) { return 0; }
+
+bool now_active(const int btid) { return false; }
+bool was_active(const int btid) { return false; }
+bool triggered(const int btid) { return false; }
+bool changed(const int btid) { return false; }
+
+#endif
 }
