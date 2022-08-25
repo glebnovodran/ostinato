@@ -47,14 +47,17 @@ struct JoystickCtrl {
 	unsigned char mNumAxis;
 	unsigned char mNumBtns;
 
-	JoystickCtrl() : mNumAxis(0), mNumBtns(0), mFd(-1), mBtnMapIoctl(-1), mNow(0ULL), mOld(0ULL) {}
+	bool mDbgEcho;
+
+	JoystickCtrl() : mpAxisVal(nullptr), mNumAxis(0), mNumBtns(0), mFd(-1), mBtnMapIoctl(-1), mNow(0ULL), mOld(0ULL), mDbgEcho(false) {}
 
 	void init() {
 		const char* pJstDevOpt = nxApp::get_opt("jst_dev");
+		mDbgEcho = nxApp::get_bool_opt("jst_echo", false);
 		const char* pDevPath = pJstDevOpt ? pJstDevOpt : DEF_JOYSTICK_DEVPATH;
 		mFd = ::open(pDevPath, O_RDONLY);
 		if (mFd < 0) {
-			nxCore::dbg_msg("Can't initialize the joystick at %s", pDevPath);
+			jstk_dbg_msg("Can't initialize the joystick at %s", pDevPath);
 			return;
 		}
 
@@ -68,15 +71,15 @@ struct JoystickCtrl {
 
 		mpAxisVal = reinterpret_cast<int32_t*>(nxCore::mem_alloc(mNumAxis * sizeof(int32_t), "JSTK"));
 
-		nxCore::dbg_msg("\nThe Ostinato city is controlled by\n");
-		nxCore::dbg_msg("\t%s at %s\n", name, pDevPath);
+		jstk_dbg_msg("\nThe Ostinato city is controlled by\n");
+		jstk_dbg_msg("\t%s at %s\n", name, pDevPath);
 
-		nxCore::dbg_msg("\tDriver version: %d.%d.%d\n", ver >> 16, (ver >> 8) & 0xff, ver & 0xff);
-		nxCore::dbg_msg("\tAxis num: %d\n", mNumAxis);
-		nxCore::dbg_msg("\tButtons num: %d\n", mNumBtns);
+		jstk_dbg_msg("\tDriver version: %d.%d.%d\n", ver >> 16, (ver >> 8) & 0xff, ver & 0xff);
+		jstk_dbg_msg("\tAxis num: %d\n", mNumAxis);
+		jstk_dbg_msg("\tButtons num: %d\n", mNumBtns);
 
 		int res = ioctl(mFd, JSIOCGAXMAP, mAxmap);
-		nxCore::dbg_msg("ioctl JSIOCGAXMAP : %d\n", res);
+		jstk_dbg_msg("ioctl JSIOCGAXMAP : %d\n", res);
 
 		unsigned long ioctls[3] = { JSIOCGBTNMAP, JSIOCGBTNMAP_LARGE, JSIOCGBTNMAP_SMALL };
 		int i = 0;
@@ -88,7 +91,7 @@ struct JoystickCtrl {
 			}
 		}
 
-		nxCore::dbg_msg("button map ioctl %X : %d\n", mBtnMapIoctl, res);
+		jstk_dbg_msg("button map ioctl %X : %d\n", mBtnMapIoctl, res);
 
 		fcntl(mFd, F_SETFL, O_NONBLOCK);
 	}
@@ -98,7 +101,7 @@ struct JoystickCtrl {
 		if (mFd < 0) { return; }
 		mOld = mNow;
 		while (::read(mFd, &jse, sizeof(js_event)) == sizeof(js_event) ) {
-			nxCore::dbg_msg("Joystick event : type %d, time %d, number %d, value %d\n", jse.type, jse.time, jse.number, jse.value);
+			jstk_dbg_msg("Joystick event : type %d, time %d, number %d, value %d\n", jse.type, jse.time, jse.number, jse.value);
 			switch (jse.type & ~JS_EVENT_INIT) {
 				case JS_EVENT_AXIS:
 					mpAxisVal[jse.number] = jse.value;
@@ -119,6 +122,16 @@ struct JoystickCtrl {
 	bool ck_old(const int btid) const { return !!(mOld & (1ULL << btid)); }
 	bool ck_trg(const int btid) const { return !!((mNow & (mNow ^ mOld)) & (1ULL << btid)); }
 	bool ck_chg(const int btid) const { return !!((mNow ^ mOld) & (1ULL << btid)); }
+
+	void jstk_dbg_msg(const char* pFmt, ...) {
+		if (mDbgEcho) {
+			char msg[1024 * 2];
+			va_list mrk;
+			va_start(mrk, pFmt);
+			nxCore::dbg_msg(pFmt, mrk);
+			va_end(mrk);
+		}
+	}
 #else
 	void init() {}
 	void update() {}
@@ -134,6 +147,7 @@ struct JoystickCtrl {
 	bool triggered(const int btid) { return false; }
 	bool changed(const int btid) { return false; }
 #endif
+
 } s_JtkCtrl;
 
 
