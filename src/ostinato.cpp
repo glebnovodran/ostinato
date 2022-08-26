@@ -26,12 +26,18 @@ static struct OstinatoGlobals {
 	ScnObj* pTgtObj;
 	float lampsBrightness;
 	float ccBrightness;
+
 	struct Sensors {
 		int fid;
 		struct Values {
 			int32_t light;
 		} vals;
 	} sensors;
+
+	struct Pipe {
+		int32_t fid;
+	} pipe;
+
 	int32_t dummySleep;
 } s_globals = {};
 
@@ -347,6 +353,19 @@ static void reset_sensors() {
 	s_globals.sensors.fid = -1;
 }
 
+static void init_pipe() {
+	s_globals.pipe.fid = ::open("ostinato_cmd", O_RDONLY | O_NONBLOCK);
+	nxCore::dbg_msg("******* pipe %d *******\n", s_globals.pipe.fid);
+}
+
+static void reset_pipe() {
+	int32_t fid = s_globals.pipe.fid;
+	if (fid >= 0) {
+		::close(fid);
+	}
+	s_globals.pipe.fid = -1;
+}
+
 static void dummygl_swap_func() {
 	if (s_globals.dummySleep > 0) {
 		nxSys::sleep_millis(s_globals.dummySleep);
@@ -464,6 +483,7 @@ void init(int argc, char* argv[]) {
 
 	init_ogl(x, y, w, h, msaa);
 	init_sensors();
+	init_pipe();
 	init_scn_sys(argv[0]);
 }
 
@@ -471,6 +491,7 @@ void reset() {
 	Scene::reset();
 	reset_ogl();
 	reset_sensors();
+	reset_pipe();
 	nxApp::reset();
 	reset_bundle();
 	nxCore::dbg_msg("Peak MB: %.4f\n", double(nxCore::mem_peak_bytes()) / (1024.0 * 1024.0));
@@ -595,6 +616,21 @@ void update_sensors() {
 		}
 	}
 #endif
+}
+
+void update_pipe() {
+	int32_t fid = s_globals.pipe.fid;
+	if (fid <= 0) {
+		return;
+	}
+
+	char buf[128];
+	size_t n = ::read(fid, buf, sizeof(buf));
+	if (n > 0) {
+		buf[n] = 0;
+		nxCore::dbg_msg(" -> %s\n");
+		set_cam_tgt(buf);
+	}
 }
 
 extern "C" {
