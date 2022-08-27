@@ -354,15 +354,23 @@ static void reset_sensors() {
 }
 
 static void init_pipe() {
-	s_globals.pipe.fid = ::open("ostinato_cmd", O_RDONLY | O_NONBLOCK);
-	nxCore::dbg_msg("******* pipe %d *******\n", s_globals.pipe.fid);
+	s_globals.pipe.fid = -1;
+#if defined(XD_SYS_LINUX)
+	bool usePipe = nxApp::get_bool_opt("cmdpipe", false);
+	if (usePipe) {
+		s_globals.pipe.fid = ::open("ostinato_cmd", O_RDONLY | O_NONBLOCK);
+		nxCore::dbg_msg("******* pipe %d *******\n", s_globals.pipe.fid);
+	}
+#endif
 }
 
 static void reset_pipe() {
+#if defined(XD_SYS_LINUX)
 	int32_t fid = s_globals.pipe.fid;
 	if (fid >= 0) {
 		::close(fid);
 	}
+#endif
 	s_globals.pipe.fid = -1;
 }
 
@@ -619,6 +627,7 @@ void update_sensors() {
 }
 
 void update_pipe() {
+#if defined(XD_SYS_LINUX)
 	int32_t fid = s_globals.pipe.fid;
 	if (fid <= 0) {
 		return;
@@ -631,6 +640,7 @@ void update_pipe() {
 		nxCore::dbg_msg(" -> %s\n");
 		set_cam_tgt(buf);
 	}
+#endif
 }
 
 extern "C" {
