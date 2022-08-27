@@ -7,7 +7,7 @@ namespace Ostinato {
 	void reset();
 
 	void update_sensors();
-	void update_pipe();
+	void update_cmd_pipe();
 
 	void set_default_lighting();
 	float get_lamps_brightness();

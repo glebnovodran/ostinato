@@ -41,7 +41,7 @@ static struct OstinatoGlobals {
 
 	struct CmdPipe {
 		int32_t fid;
-	} pipe;
+	} cmdPipe;
 
 	int32_t dummySleep;
 } s_globals = {};
@@ -359,21 +359,21 @@ static void reset_sensors() {
 }
 
 static void init_cmd_pipe() {
-	s_globals.pipe.fid = -1;
+	s_globals.cmdPipe.fid = -1;
 #if defined(OSTINATO_PIPES_AVAILABLE) && defined(OSTINATO_USE_PIPES)
-	s_globals.pipe.fid = ::open("ostinato_cmd", O_RDONLY | O_NONBLOCK);
-	nxCore::dbg_msg("******* pipe %d *******\n", s_globals.pipe.fid);
+	s_globals.cmdPipe.fid = ::open("ostinato_cmd", O_RDONLY | O_NONBLOCK);
+	nxCore::dbg_msg("******* pipe %d *******\n", s_globals.cmdPipe.fid);
 #endif
 }
 
 static void reset_cmd_pipe() {
 #if defined(OSTINATO_PIPES_AVAILABLE) && defined(OSTINATO_USE_PIPES)
-	int32_t fid = s_globals.pipe.fid;
+	int32_t fid = s_globals.cmdPipe.fid;
 	if (fid >= 0) {
 		::close(fid);
 	}
 #endif
-	s_globals.pipe.fid = -1;
+	s_globals.cmdPipe.fid = -1;
 }
 
 static void dummygl_swap_func() {
@@ -628,9 +628,9 @@ void update_sensors() {
 #endif
 }
 
-void update_pipe() {
+void update_cmd_pipe() {
 #if defined(OSTINATO_PIPES_AVAILABLE) && defined(OSTINATO_USE_PIPES)
-	int32_t fid = s_globals.pipe.fid;
+	int32_t fid = s_globals.cmdPipe.fid;
 	if (fid <= 0) {
 		return;
 	}
