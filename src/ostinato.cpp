@@ -8,6 +8,8 @@
 #include "ostinato.hpp"
 
 #undef OSTINATO_SENSORS
+#undef OSTINATO_PIPES_AVAILABLE
+
 #if defined(XD_SYS_LINUX) || defined(XD_SYS_BSD)
 #	include <termios.h>
 #	include <fcntl.h>
@@ -16,6 +18,9 @@
 #		include <sys/select.h>
 #	endif
 #	define OSTINATO_SENSORS
+#	define OSTINATO_PIPES_AVAILABLE
+#else 
+#	undef OSTINATO_USE_PIPES
 #endif
 
 static const bool c_defBump = true;
@@ -34,7 +39,7 @@ static struct OstinatoGlobals {
 		} vals;
 	} sensors;
 
-	struct Pipe {
+	struct CmdPipe {
 		int32_t fid;
 	} pipe;
 
@@ -353,19 +358,16 @@ static void reset_sensors() {
 	s_globals.sensors.fid = -1;
 }
 
-static void init_pipe() {
+static void init_cmd_pipe() {
 	s_globals.pipe.fid = -1;
-#if defined(XD_SYS_LINUX)
-	bool usePipe = nxApp::get_bool_opt("cmdpipe", false);
-	if (usePipe) {
-		s_globals.pipe.fid = ::open("ostinato_cmd", O_RDONLY | O_NONBLOCK);
-		nxCore::dbg_msg("******* pipe %d *******\n", s_globals.pipe.fid);
-	}
+#if defined(OSTINATO_PIPES_AVAILABLE) && defined(OSTINATO_USE_PIPES)
+	s_globals.pipe.fid = ::open("ostinato_cmd", O_RDONLY | O_NONBLOCK);
+	nxCore::dbg_msg("******* pipe %d *******\n", s_globals.pipe.fid);
 #endif
 }
 
-static void reset_pipe() {
-#if defined(XD_SYS_LINUX)
+static void reset_cmd_pipe() {
+#if defined(OSTINATO_PIPES_AVAILABLE) && defined(OSTINATO_USE_PIPES)
 	int32_t fid = s_globals.pipe.fid;
 	if (fid >= 0) {
 		::close(fid);
@@ -491,7 +493,7 @@ void init(int argc, char* argv[]) {
 
 	init_ogl(x, y, w, h, msaa);
 	init_sensors();
-	init_pipe();
+	init_cmd_pipe();
 	init_scn_sys(argv[0]);
 }
 
@@ -499,7 +501,7 @@ void reset() {
 	Scene::reset();
 	reset_ogl();
 	reset_sensors();
-	reset_pipe();
+	reset_cmd_pipe();
 	nxApp::reset();
 	reset_bundle();
 	nxCore::dbg_msg("Peak MB: %.4f\n", double(nxCore::mem_peak_bytes()) / (1024.0 * 1024.0));
@@ -627,7 +629,7 @@ void update_sensors() {
 }
 
 void update_pipe() {
-#if defined(XD_SYS_LINUX)
+#if defined(OSTINATO_PIPES_AVAILABLE) && defined(OSTINATO_USE_PIPES)
 	int32_t fid = s_globals.pipe.fid;
 	if (fid <= 0) {
 		return;
