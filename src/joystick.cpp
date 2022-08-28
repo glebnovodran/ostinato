@@ -49,7 +49,7 @@ struct JoystickCtrl {
 
 	bool mDbgEcho;
 
-	JoystickCtrl() : mpAxisVal(nullptr), mNumAxis(0), mNumBtns(0), mFd(-1), mBtnMapIoctl(-1), mNow(0ULL), mOld(0ULL), mDbgEcho(false) {}
+	JoystickCtrl() : mpAxisVal(nullptr), mNow(0ULL), mOld(0ULL), mFd(-1), mBtnMapIoctl(-1), mNumAxis(0), mNumBtns(0), mDbgEcho(false) {}
 
 	void init() {
 		const char* pJstDevOpt = nxApp::get_opt("jst_dev");
@@ -125,7 +125,6 @@ struct JoystickCtrl {
 
 	void jstk_dbg_msg(const char* pFmt, ...) {
 		if (mDbgEcho) {
-			char msg[1024 * 2];
 			va_list mrk;
 			va_start(mrk, pFmt);
 			nxCore::dbg_msg(pFmt, mrk);
