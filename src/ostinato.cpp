@@ -608,10 +608,10 @@ void update_sensors() {
 		char inBuf[128];
 		char valBuf[128];
 		nxCore::mem_zero(valBuf, sizeof(valBuf));
-		size_t nread = ::read(fid, inBuf, sizeof(inBuf) - 1);
+		ssize_t nread = ::read(fid, inBuf, sizeof(inBuf) - 1);
 		if (nread > 0) {
-			size_t valIdx = 0;
-			for (size_t i = 0; i < nread; ++i) {
+			ssize_t valIdx = 0;
+			for (ssize_t i = 0; i < nread; ++i) {
 				char c = inBuf[i];
 				if (c >= '0' && c <= '9') {
 					valBuf[valIdx++] = c;
@@ -636,9 +636,9 @@ void update_cmd_pipe() {
 	}
 
 	char buf[128];
-	size_t n = ::read(fid, buf, sizeof(buf));
+	nxCore::mem_zero(buf, sizeof(buf));
+	ssize_t n = ::read(fid, buf, sizeof(buf) - 1);
 	if (n > 0) {
-		buf[n] = 0;
 		nxCore::dbg_msg(" -> %s\n");
 		set_cam_tgt(buf);
 	}
