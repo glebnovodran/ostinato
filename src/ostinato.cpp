@@ -1,10 +1,14 @@
 /* SPDX-License-Identifier: MIT */
 /* SPDX-FileCopyrightText: 2022 Glib Novodran <novodran@gmail.com> */
+
 #include <crosscore.hpp>
 #include <oglsys.hpp>
 #include <scene.hpp>
 #include <draw.hpp>
+#include <smprig.hpp>
 
+#include "timectrl.hpp"
+#include "human.hpp"
 #include "ostinato.hpp"
 
 #undef OSTINATO_SENSORS
@@ -27,7 +31,94 @@ static const bool c_defBump = true;
 static const bool c_defSpec = true;
 static const bool c_defReduce = false;
 
+class CmdInterpreter : public cxXqcLexer::TokenFunc {
+private:
+	enum State {
+		START = 0,
+		CAM_TGT,
+		MARK,
+		UNMARK,
+		NUM_STATE
+	};
+
+	State mState;
+
+	const char* get_str_param(const cxXqcLexer::Token& tok) {
+		const char* pParam = nullptr;
+		if (tok.is_symbol() || tok.is_string()) {
+			pParam = reinterpret_cast<const char*>(tok.val.p);
+		}
+
+		return pParam;
+	}
+public:
+	CmdInterpreter() : mState(State::START) {}
+
+	void reset() {
+		mState = State::START;
+	}
+
+	virtual bool operator()(const cxXqcLexer::Token& tok) {
+		bool contFlg = true;
+		switch (mState) {
+			case State::START:
+				if (tok.is_symbol()) {
+					const char* pSymName = reinterpret_cast<const char*>(tok.val.p);
+					if (nxCore::str_eq(pSymName, "cam_tgt")) {
+						mState = State::CAM_TGT;
+					} else if (nxCore::str_eq(pSymName, "mark")) {
+						mState = State::MARK;
+					} else if (nxCore::str_eq(pSymName, "unmark")) {
+						mState = State::UNMARK;
+					} else {
+						nxCore::dbg_msg("Unrecoginized command\n");
+						contFlg = false;
+					}
+				} else {
+					contFlg = false;
+				}
+				break;
+			case State::CAM_TGT: {
+					const char* pName = get_str_param(tok);
+					if (pName) {
+						Ostinato::set_cam_tgt(pName);
+						mState = State::START;
+					} else {
+						contFlg = false;
+					}
+				}
+				break;
+			case State::MARK: {
+					const char* pName = get_str_param(tok);
+					if (pName) {
+						HumanSys::mark(pName);
+						mState = State::START;
+					} else {
+						contFlg = false;
+					}
+				}
+				break;
+			case State::UNMARK: {
+					const char* pName = get_str_param(tok);
+					if (pName) {
+						HumanSys::unmark(pName);
+						mState = State::START;
+					} else {
+						contFlg = false;
+					}
+				}
+				break;
+			default:
+				contFlg = false;
+		}
+		return contFlg;
+
+	}
+};
+
 static struct OstinatoGlobals {
+	CmdInterpreter cmdInterp;
+	cxXqcLexer lexer;
 	ScnObj* pTgtObj;
 	float lampsBrightness;
 	float ccBrightness;
@@ -469,6 +560,7 @@ void init(int argc, char* argv[]) {
 
 		}
 	}
+
 	nxSys::init(&sysIfc);
 
 	if (pLoadedPath) {
@@ -492,6 +584,9 @@ void init(int argc, char* argv[]) {
 	int msaa = nxApp::get_int_opt("msaa", 0);
 
 	init_ogl(x, y, w, h, msaa);
+
+	s_globals.lexer.disable_keywords();
+
 	init_sensors();
 	init_cmd_pipe();
 	init_scn_sys(argv[0]);
@@ -639,8 +734,11 @@ void update_cmd_pipe() {
 	nxCore::mem_zero(buf, sizeof(buf));
 	ssize_t n = ::read(fid, buf, sizeof(buf) - 1);
 	if (n > 0) {
-		nxCore::dbg_msg(" -> %s\n");
-		set_cam_tgt(buf);
+		nxCore::dbg_msg("-> %s\n");
+		s_globals.lexer.set_text(buf, n);
+		s_globals.lexer.scan(s_globals.cmdInterp);
+		s_globals.cmdInterp.reset();
+		s_globals.lexer.reset();
 	}
 #endif
 }
