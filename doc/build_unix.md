@@ -35,7 +35,7 @@ By default Ostinato is built for debugging. To build an optimized version add `-
 
 ## OGL/GLES
 
-Ostinato can be build for either desktop OpenGL or for OpenGL GLES. By default it is built for desktop. To build it for GLES it is necessary to set OGL_MODE environment variable value:
+By defaul Ostinato is built for desktop. To build it for GLES it is necessary to set OGL_MODE environment variable value:
 
 `OGL_MODE=GLES ./build.sh`
 
