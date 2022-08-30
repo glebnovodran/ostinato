@@ -20,40 +20,6 @@ public:
 	}
 };
 
-struct TrackBall {
-	cxQuat mSpin;
-	cxQuat mQuat;
-
-	void init() {
-		mSpin.identity();
-		mQuat.identity();
-	}
-
-	void update(const float x0, const float y0, const float x1, const float y1, float const radius = 0.5f) {
-		cxVec tp0 = project(x0, y0, radius);
-		cxVec tp1 = project(x1, y1, radius);
-		cxVec dir = tp0 - tp1;
-		cxVec axis = nxVec::cross(tp1, tp0);
-		float t = nxCalc::clamp(dir.mag() / (2.0f*radius), -1.0f, 1.0f);
-		float ang = 2.0f * mth_asinf(t);
-		mSpin.set_rot(axis, ang);
-		mQuat.mul(mSpin);
-		mQuat.normalize();
-	}
-
-	static cxVec project(float x, float y, float r) {
-		float d = nxCalc::hypot(x, y);
-		float t = r / mth_sqrtf(2.0f);
-		float z;
-		if (d < t) {
-			z = mth_sqrtf(r*r - d*d);
-		} else {
-			z = (t*t) / d;
-		}
-		return cxVec(x, y, z);
-	}
-};
-
 struct ViewWk {
 	sxQuatTrackball mTrackball;
 	sxCollisionData* mpCol;
