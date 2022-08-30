@@ -59,6 +59,8 @@ struct JoystickCtrl {
 		if (mFd < 0) {
 			jstk_dbg_msg("Can't initialize the joystick at %s", pDevPath);
 			return;
+		} else {
+			jstk_dbg_msg("File descriptor %d", mFd);
 		}
 
 		int ver = 0x000800;
@@ -125,9 +127,15 @@ struct JoystickCtrl {
 
 	void jstk_dbg_msg(const char* pFmt, ...) {
 		if (mDbgEcho) {
+			char msg[1024 * 2];
 			va_list mrk;
 			va_start(mrk, pFmt);
-			nxCore::dbg_msg(pFmt, mrk);
+#if defined(_MSC_VER)
+			::vsprintf_s(msg, sizeof(msg), pFmt, mrk);
+#else
+			::vsprintf(msg, pFmt, mrk);
+#endif
+			nxCore::dbg_msg(msg);
 			va_end(mrk);
 		}
 	}
@@ -157,7 +165,7 @@ int get_num_axis() {
 	return s_JtkCtrl.mNumAxis;
 }
 int get_axis_val(unsigned char axis) {
-	return s_JtkCtrl.mpAxisVal[axis];
+	return axis < get_num_axis() ? s_JtkCtrl.mpAxisVal[axis] : 0;
 }
 bool now_active(const int btid) {
 	return s_JtkCtrl.ck_now(btid);
