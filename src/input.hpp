@@ -34,6 +34,10 @@ bool was_active(const int id);
 bool triggered(const int id);
 bool changed(const int id);
 
-int get_axis_val(const int axis);
+// range [-1, 1]
+float get_axis_val(const uint32_t axis);
+float get_axis_old_val(const uint32_t axis);
+
+xt_float2 get_stick_values(const uint32_t stick);
 
 };

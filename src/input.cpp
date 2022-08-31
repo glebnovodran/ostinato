@@ -63,5 +63,21 @@ bool triggered(const int id){ return s_wk.state[id].triggered; }
 
 bool changed(const int id){ return s_wk.state[id].changed; }
 
-int get_axis_val(const int axis) { return 0; }
+float get_axis_val(const uint32_t  axis) {
+	int val = Joystick::get_axis_val(axis);
+	return nxCalc::fit(float(val), -32767.0f, 32767.0f, -1.0f, 1.0f);
+}
+
+float get_axis_old_val(const uint32_t  axis) {
+	int val = Joystick::get_axis_val(axis);
+	return nxCalc::fit(float(val), -32767.0f, 32767.0f, -1.0f, 1.0f);
+}
+
+xt_float2 get_stick_values(const uint32_t stick) {
+	xt_float2 res;
+	res.x = get_axis_val(stick * 2);
+	res.y = get_axis_val(stick * 2 + 1);
+	return res;
+}
+
 } // namespace

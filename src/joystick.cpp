@@ -35,6 +35,7 @@ struct JoystickCtrl {
 
 #if defined(XD_SYS_LINUX)
 	int32_t* mpAxisVal;
+	int32_t* mpAxisOldVal;
 	uint64_t mNow;
 	uint64_t mOld;
 
@@ -72,6 +73,7 @@ struct JoystickCtrl {
 		ioctl(mFd, JSIOCGNAME(128), name);
 
 		mpAxisVal = reinterpret_cast<int32_t*>(nxCore::mem_alloc(mNumAxis * sizeof(int32_t), "JSTK"));
+		mpAxisOldVal = reinterpret_cast<int32_t*>(nxCore::mem_alloc(mNumAxis * sizeof(int32_t), "JSTK"));
 
 		jstk_dbg_msg("\nThe Ostinato city is controlled by\n");
 		jstk_dbg_msg("\t%s at %s\n", name, pDevPath);
@@ -102,6 +104,7 @@ struct JoystickCtrl {
 		js_event jse;
 		if (mFd < 0) { return; }
 		mOld = mNow;
+		nxCore::mem_copy(mpAxisOldVal, mpAxisVal, mNumAxis * sizeof(int32_t));
 		while (::read(mFd, &jse, sizeof(js_event)) == sizeof(js_event) ) {
 			jstk_dbg_msg("Joystick event : type %d, time %d, number %d, value %d\n", jse.type, jse.time, jse.number, jse.value);
 			switch (jse.type & ~JS_EVENT_INIT) {
@@ -117,6 +120,7 @@ struct JoystickCtrl {
 
 	void reset() {
 		if (mpAxisVal) { nxCore::mem_free(mpAxisVal); }
+		if (mpAxisOldVal) { nxCore::mem_free(mpAxisOldVal); }
 		if (mFd>=0) { close(mFd); }
 	}
 
@@ -164,9 +168,18 @@ void reset() {
 int get_num_axis() {
 	return s_JtkCtrl.mNumAxis;
 }
-int get_axis_val(unsigned char axis) {
+int get_axis_val(const uint32_t axis) {
 	return axis < get_num_axis() ? s_JtkCtrl.mpAxisVal[axis] : 0;
 }
+
+int get_axis_old_val(const uint32_t axis) {
+	return axis < get_num_axis() ? s_JtkCtrl.mpAxisOldVal[axis] : 0;
+}
+
+int get_axis_diff(const uint32_t axis) {
+	return axis < get_num_axis() ? s_JtkCtrl.mpAxisVal[axis] - s_JtkCtrl.mpAxisOldVal[axis] : 0;
+}
+
 bool now_active(const int btid) {
 	return s_JtkCtrl.ck_now(btid);
 }

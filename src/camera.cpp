@@ -5,6 +5,7 @@
 #include <scene.hpp>
 #include <oglsys.hpp>
 
+#include "input.hpp"
 #include "timectrl.hpp"
 #include "camera.hpp"
 
@@ -85,6 +86,19 @@ struct ViewWk {
 				float y1 = mOrgY - state.mNowY;
 				mTrackball.update(x0, y0, x1, y1, mRadius);
 			}
+		}
+	}
+
+	void joystick_update() {
+		if (mPosMode == 1) {
+			xt_float2 val = InputCtrl::get_stick_values(1);
+			val.scl(XD_DEG2RAD(1.0f));
+			cxQuat qx, qy, rot;
+			qy.set_rot_y(val.x);
+			qx.set_rot_x(val.y);
+
+			rot = qy * qx;
+			mTrackball.mQuat.mul(rot);
 		}
 	}
 
@@ -184,6 +198,7 @@ void init() {
 }
 
 void exec(const Context& ctx) {
+	s_viewWk.joystick_update();
 	s_viewWk.exec(ctx);
 }
 

@@ -10,7 +10,9 @@ void reset();
 int get_num_axis();
 int get_num_buttons();
 
-int get_axis_val(unsigned char axis);
+int get_axis_val(const uint32_t axis);
+int get_axis_old_val(const uint32_t axis);
+int get_axis_diff(const uint32_t axis);
 
 bool now_active(const int btid);
 bool was_active(const int btid);
