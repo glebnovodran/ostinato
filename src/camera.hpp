@@ -3,11 +3,22 @@
 
 namespace Camera {
 
+enum PosMode {
+	NORMAL = 0,
+	MOUSE,
+	STICK,
+	NUM_MODES
+};
+
 struct Context {
 	ScnObj* mpTgtObj;
 	sxGeometryData* mpZones;
 	uint32_t mTgtMode;
-	uint32_t mPosMode;
+	PosMode mPosMode;
+
+	void next_pos_mode() {
+		mPosMode = PosMode((uint32_t(mPosMode)+1) % uint32_t(NUM_MODES));
+	}
 };
 
 void init();

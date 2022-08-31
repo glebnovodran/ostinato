@@ -32,13 +32,16 @@ struct ViewWk {
 	float mFixedCenterY;
 	bool mFixCenterY;
 
+	float mStickPhi;
+	float mStickTheta;
+
 	cxVec mPrevPos;
 	cxVec mPrevTgt;
 	cxVec mPos;
 	cxVec mTgt;
 	int mLastPolId;
 	int mCnt;
-	uint32_t mPosMode;
+	Camera::PosMode mPosMode;
 
 	void init() {
 		mRadius = 0.5f;
@@ -48,13 +51,16 @@ struct ViewWk {
 		mFixedCenterY = 1.0f;
 		mFixCenterY = false;
 
+		mStickPhi = XD_PI / 2.0f;
+		mStickTheta = XD_PI / 4.0f;
+
 		mPos = cxVec(0.75f, 1.3f, 3.5f);
 		mTgt = cxVec(0.0f, 0.95f, 0.0f);
 		mPrevPos = mPos;
 		mPrevTgt = mTgt;
 		mLastPolId = -1;
 		mCnt = 0;
-		mPosMode = 0;
+		mPosMode = Camera::NORMAL;
 	}
 
 	void set_collision(sxCollisionData* pCol) {
@@ -63,42 +69,45 @@ struct ViewWk {
 
 	sxCollisionData* get_collision() { return mpCol; }
 
-	void update(const OGLSysInput* pInp) {
-		OGLSysMouseState state = OGLSys::get_mouse_state();
-		if (state.ck_now(OGLSysMouseState::OGLSYS_BTN_LEFT)) {
-			if (pInp) {
-				if (pInp->act == OGLSysInput::OGLSYS_ACT_DOWN) {
-					mOrgX = state.mNowX;
-					mOrgY = state.mNowY;
+	void mouse_update(const OGLSysInput* pInp) {
+		if (mPosMode == Camera::MOUSE) {
+			OGLSysMouseState state = OGLSys::get_mouse_state();
+			if (state.ck_now(OGLSysMouseState::OGLSYS_BTN_LEFT)) {
+				if (pInp) {
+					if (pInp->act == OGLSysInput::OGLSYS_ACT_DOWN) {
+						mOrgX = state.mNowX;
+						mOrgY = state.mNowY;
+					}
+				} else {
+					if (!state.ck_old(OGLSysMouseState::OGLSYS_BTN_LEFT)) {
+						mOrgX = state.mOldX;
+						mOrgY = state.mOldY;
+					}
 				}
-			} else {
-				if (!state.ck_old(OGLSysMouseState::OGLSYS_BTN_LEFT)) {
-					mOrgX = state.mOldX;
-					mOrgY = state.mOldY;
+				float dx = state.mNowX - state.mOldX;
+				float dy = state.mNowY - state.mOldY;
+				if (dx || dy) {
+					float x0 = state.mOldX - mOrgX;
+					float y0 = mOrgY - state.mOldY;
+					float x1 = state.mNowX - mOrgX;
+					float y1 = mOrgY - state.mNowY;
+					mTrackball.update(x0, y0, x1, y1, mRadius);
 				}
-			}
-			float dx = state.mNowX - state.mOldX;
-			float dy = state.mNowY - state.mOldY;
-			if (dx || dy) {
-				float x0 = state.mOldX - mOrgX;
-				float y0 = mOrgY - state.mOldY;
-				float x1 = state.mNowX - mOrgX;
-				float y1 = mOrgY - state.mNowY;
-				mTrackball.update(x0, y0, x1, y1, mRadius);
 			}
 		}
 	}
 
 	void joystick_update() {
-		if (mPosMode == 1) {
+		if (mPosMode == Camera::STICK) {
 			xt_float2 val = InputCtrl::get_stick_values(1);
 			val.scl(XD_DEG2RAD(1.0f));
-			cxQuat qx, qy, rot;
-			qy.set_rot_y(val.x);
-			qx.set_rot_x(val.y);
 
-			rot = qy * qx;
-			mTrackball.mQuat.mul(rot);
+			mStickPhi -= val.x;
+			mStickPhi = mStickPhi < -2.0f * XD_PI ? mStickPhi + 2.0f * XD_PI : mStickPhi;
+			mStickPhi = mStickPhi > 2.0f * XD_PI ? mStickPhi - 2.0f * XD_PI : mStickPhi;
+
+			mStickTheta += val.y;
+			mStickTheta = nxCalc::clamp(mStickTheta, 0.05f * XD_PI, 0.75f * XD_PI);
 		}
 	}
 
@@ -115,7 +124,7 @@ struct ViewWk {
 		if (pTgtObj) {
 			cxVec wpos = pTgtObj->get_world_pos();
 
-			if (mPosMode == 0) {
+			if (mPosMode == Camera::NORMAL) {
 				if (ctx.mpZones) {
 					CamZonesHitFunc zonesHit;
 					cxLineSeg zonesSeg(wpos + cxVec(0.0f, 1.0f, 0.0f), wpos - cxVec(0.0f, 0.5f, 0.0f));
@@ -134,23 +143,37 @@ struct ViewWk {
 			float yoffs = cy - bbox.get_min_pos().y;
 			mTgt = wpos + cxVec(0.0f, yoffs + 0.6f, 0.0f);
 			cxVec offs;
-			if (mPosMode == 0) {
-				if (ctx.mTgtMode == 0) {
-					offs = zoneFlg? cxVec(2.0f, -1.0f, 5.0f) : cxVec(-1.0f, -1.0f, -6.0f);
-				} else {
-					offs = zoneFlg? cxVec(5.0f, -3.8f, 9.0f) : cxVec(4.0f, -4.0f, -12.0f);
-				}
-			} else {
-				offs = mTrackball.calc_dir(-mDist);
+
+			switch (mPosMode) {
+				case Camera::NORMAL:
+					if (ctx.mTgtMode == 0) {
+						offs = zoneFlg? cxVec(2.0f, -1.0f, 5.0f) : cxVec(-1.0f, -1.0f, -6.0f);
+					} else {
+						offs = zoneFlg? cxVec(5.0f, -3.8f, 9.0f) : cxVec(4.0f, -4.0f, -12.0f);
+					}
+					break;
+				case Camera::MOUSE:
+					offs = mTrackball.calc_dir(-mDist);
+					break;
+				case Camera::STICK: {
+						float sinPhi = ::mth_sinf(mStickPhi);
+						float cosPhi = ::mth_cosf(mStickPhi);
+						float sinTheta = ::mth_sinf(mStickTheta);
+						float cosTheta = ::mth_cosf(mStickTheta);
+						float ox = cosPhi * sinTheta;
+						float oy = cosTheta;
+						float oz = sinPhi * sinTheta;
+						offs.set(ox, oy, oz);
+						offs.scl(-mDist);
+					}
+					break;
+				default:
+					break;
 			}
 
 			mPos = mTgt - offs;
 
-			if (mPosMode == 1) {
-				up = mTrackball.calc_up();
-			}
-
-			if (mPosMode == 0) {
+			if (mPosMode == Camera::NORMAL) {
 				float factor = 1.0f;
 				if (mCnt > 0) {
 					factor = 10.0f;
@@ -164,6 +187,10 @@ struct ViewWk {
 				}
 				mPrevPos = mPos;
 				mPrevTgt = mTgt;
+			}
+
+			if (mPosMode == Camera::MOUSE) {
+				up = mTrackball.calc_up();
 			}
 		}
 
@@ -185,7 +212,7 @@ struct ViewWk {
 static void input_handler(const OGLSysInput& inp, void* pWk) {
 	if (s_viewWk.mPosMode) {
 		if (inp.id == 0) {
-			s_viewWk.update(&inp);
+			s_viewWk.mouse_update(&inp);
 		}
 	}
 }

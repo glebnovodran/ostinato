@@ -70,7 +70,8 @@ static void init_view() {
 
 static void view_exec() {
 	if (InputCtrl::triggered(InputCtrl::BTN_SWITCH1)) {
-		s_demoWk.camCtx.mPosMode ^= 1;
+		//s_demoWk.camCtx.mPosMode ^= 1;
+		s_demoWk.camCtx.next_pos_mode();
 	}
 	if (InputCtrl::triggered(InputCtrl::BTN_SWITCH2)) {
 		s_demoWk.camCtx.mTgtMode ^= 1;
