@@ -197,7 +197,8 @@ bool changed(const int btid){
 int get_num_axis() { return 0; }
 int get_num_buttons() {return 0; }
 
-int get_axis_val(unsigned char axis) { return 0; }
+int get_axis_val(const uint32_t axis) { return 0; }
+int get_axis_old_val(const uint32_t axis) { return 0; }
 
 bool now_active(const int btid) { return false; }
 bool was_active(const int btid) { return false; }
