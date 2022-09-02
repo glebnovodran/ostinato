@@ -130,7 +130,7 @@ double get_current_time() { return s_wk.mCurrentTime; }
 double get_sys_time_millis() { return nxSys::time_micros() / 1000.0; }
 
 void echo_fps(const char* pFmt) {
-	char fpsStr[16];
+	char fpsStr[32];
 	if (s_wk.mEchoFPS > 0 && s_wk.mDoEcho) {
 		static int cnt = 0;
 		if (cnt == 0) {

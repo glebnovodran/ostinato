@@ -39,7 +39,7 @@ void exec() {
 	}
 
 	if (s_wk.showPerf) {
-		char fpsStr[16];
+		char fpsStr[32];
 
 		TimeCtrl::get_fps_str(fpsStr);
 

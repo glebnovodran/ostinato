@@ -341,7 +341,7 @@ static struct HumanWk {
 		char buff[32];
 		for (int i = 0; i < Human::Kind::MAX_KIND; ++i) {
 			char htc = get_resource_code(Human::Kind(i));
-			XD_SPRINTF(XD_SPRINTF_BUF(buff, 32), "npc_%c", htc);
+			XD_SPRINTF(XD_SPRINTF_BUF(buff, sizeof(buff)), "npc_%c", htc);
 			mResident.mBasePkg[i] = Scene::load_pkg(buff);
 		}
 		mResident.mPlr[Human::FEMALE] = Scene::load_pkg("traveller");
@@ -357,7 +357,7 @@ static struct HumanWk {
 		for (int i = 0; i < Human::Kind::MAX_KIND; ++i) {
 			char htc = get_resource_code(Human::Kind(i));
 			for (int j = 0; j < IDENTITIES_NUM; ++j) {
-				XD_SPRINTF(XD_SPRINTF_BUF(buff, 32), "npc_%c%02u", htc, j);
+				XD_SPRINTF(XD_SPRINTF_BUF(buff, sizeof(buff)), "npc_%c%02u", htc, j);
 				mTransient.mVariPkg[i][j] = Scene::load_pkg(buff);
 			}
 		}
