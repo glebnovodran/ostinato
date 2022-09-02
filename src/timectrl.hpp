@@ -17,7 +17,7 @@ void reset();
 void exec();
 
 float get_fps();
-void get_fps_str(char* pBuf);
+void get_fps_str(char* pBuf, size_t bufSz);
 
 float get_motion_speed();
 double get_sys_time_millis();

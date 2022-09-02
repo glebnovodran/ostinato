@@ -41,7 +41,7 @@ void exec() {
 	if (s_wk.showPerf) {
 		char fpsStr[32];
 
-		TimeCtrl::get_fps_str(fpsStr);
+		TimeCtrl::get_fps_str(fpsStr, sizeof(fpsStr));
 
 		double exe = s_wk.pPerfCPU->get_median(Performance::Measure::EXE);
 		double vis = s_wk.pPerfCPU->get_median(Performance::Measure::VISIBILITY);

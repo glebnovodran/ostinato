@@ -111,12 +111,12 @@ void exec() {
 
 float get_fps() { return s_wk.mMedianFPS; }
 
-void get_fps_str(char* pBuf) {
+void get_fps_str(char* pBuf, size_t bufSz) {
 	if (pBuf) {
 		if (s_wk.mMedianFPS < 0.0f) {
-			XD_SPRINTF(XD_SPRINTF_BUF(pBuf, sizeof(pBuf)), " --");
+			XD_SPRINTF(XD_SPRINTF_BUF(pBuf, bufSz), " --");
 		} else {
-			XD_SPRINTF(XD_SPRINTF_BUF(pBuf, sizeof(pBuf)), "%.2f", s_wk.mMedianFPS);
+			XD_SPRINTF(XD_SPRINTF_BUF(pBuf, bufSz), "%.2f", s_wk.mMedianFPS);
 		}
 	}
 }
@@ -134,7 +134,7 @@ void echo_fps(const char* pFmt) {
 	if (s_wk.mEchoFPS > 0 && s_wk.mDoEcho) {
 		static int cnt = 0;
 		if (cnt == 0) {
-			get_fps_str(fpsStr);
+			get_fps_str(fpsStr, sizeof(fpsStr));
 			nxCore::dbg_msg(pFmt, fpsStr);
 		}
 		cnt++;
