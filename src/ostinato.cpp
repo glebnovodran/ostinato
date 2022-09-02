@@ -189,7 +189,7 @@ static FILE* bnd_sys_fopen(const char* pPath, const char* pMode) {
 #if defined(_MSC_VER)
 	FILE* pFile = nullptr;
 	::fopen_s(&pFile, pPath, pMode);
-	return f;
+	return pFile;
 #else
 	return ::fopen(pPath, pMode);
 #endif
