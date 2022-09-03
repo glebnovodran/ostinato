@@ -65,7 +65,7 @@ struct JoystickCtrl {
 		}
 
 		int ver = 0x000800;
-		char name[128] = "Eni(g)ma";
+		char name[128] = "Unknown";
 
 		ioctl(mFd, JSIOCGVERSION, &ver);
 		ioctl(mFd, JSIOCGAXES, &mNumAxis);
