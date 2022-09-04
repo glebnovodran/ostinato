@@ -134,6 +134,8 @@ static struct OstinatoGlobals {
 		int32_t fid;
 	} cmdPipe;
 
+	bool mEchoPipe;
+
 	int32_t dummySleep;
 } s_globals = {};
 
@@ -454,6 +456,7 @@ static void init_cmd_pipe() {
 #if defined(OSTINATO_PIPES_AVAILABLE) && defined(OSTINATO_USE_PIPES)
 	s_globals.cmdPipe.fid = ::open("ostinato_cmd", O_RDONLY | O_NONBLOCK);
 	nxCore::dbg_msg("******* pipe %d *******\n", s_globals.cmdPipe.fid);
+	s_globals.mEchoPipe = nxApp::get_bool_opt("echopipe", false);
 #endif
 }
 
@@ -734,7 +737,9 @@ void update_cmd_pipe() {
 	nxCore::mem_zero(buf, sizeof(buf));
 	ssize_t n = ::read(fid, buf, sizeof(buf) - 1);
 	if (n > 0) {
-		nxCore::dbg_msg("-> %s\n");
+		if (s_globals.mEchoPipe) {
+			nxCore::dbg_msg("-> %s\n", buf);
+		}
 		s_globals.lexer.set_text(buf, n);
 		s_globals.lexer.scan(s_globals.cmdInterp);
 		s_globals.cmdInterp.reset();
