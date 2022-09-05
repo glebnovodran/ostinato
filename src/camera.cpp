@@ -142,7 +142,7 @@ struct ViewWk {
 			float cy = bbox.get_center().y;
 			float yoffs = cy - bbox.get_min_pos().y;
 			mTgt = wpos + cxVec(0.0f, yoffs + 0.6f, 0.0f);
-			cxVec offs;
+			cxVec offs(0.0f);
 
 			switch (mPosMode) {
 				case Camera::NORMAL:
