@@ -115,6 +115,20 @@ struct ViewWk {
 		mTrackball.mQuat = q;
 	}
 
+	cxVec calc_stick_offs() const {
+		cxVec offs;
+		float sinPhi = ::mth_sinf(mStickPhi);
+		float cosPhi = ::mth_cosf(mStickPhi);
+		float sinTheta = ::mth_sinf(mStickTheta);
+		float cosTheta = ::mth_cosf(mStickTheta);
+		float ox = cosPhi * sinTheta;
+		float oy = cosTheta;
+		float oz = sinPhi * sinTheta;
+		offs.set(ox, oy, oz);
+		offs.scl(-mDist);
+		return offs;
+	}
+
 	void exec(const Camera::Context& ctx) {
 		ScnObj* pTgtObj = ctx.mpTgtObj;
 		mPosMode = ctx.mPosMode;
@@ -155,17 +169,8 @@ struct ViewWk {
 				case Camera::MOUSE:
 					offs = mTrackball.calc_dir(-mDist);
 					break;
-				case Camera::STICK: {
-						float sinPhi = ::mth_sinf(mStickPhi);
-						float cosPhi = ::mth_cosf(mStickPhi);
-						float sinTheta = ::mth_sinf(mStickTheta);
-						float cosTheta = ::mth_cosf(mStickTheta);
-						float ox = cosPhi * sinTheta;
-						float oy = cosTheta;
-						float oz = sinPhi * sinTheta;
-						offs.set(ox, oy, oz);
-						offs.scl(-mDist);
-					}
+				case Camera::STICK: 
+					offs = calc_stick_offs();
 					break;
 				default:
 					break;
