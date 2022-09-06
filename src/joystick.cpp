@@ -5,25 +5,23 @@
 
 #if defined(XD_SYS_LINUX)
 
-#include <cstdarg>
-//#include <cstdlib>
-#	include <cstdio>
-#	include <cerrno>
-
+#	include <stdarg.h>
+#	include <stdio.h>
+#	include <errno.h>
 #	include <unistd.h>
 #	include <fcntl.h>
 #	include <linux/input.h>
 #	include <linux/joystick.h>
 
-#define KEY_MAX_LARGE 0x2FF
-#define KEY_MAX_SMALL 0x1FF
-#define AXMAP_SIZE (ABS_MAX + 1)
-#define BTNMAP_SIZE (KEY_MAX_LARGE - BTN_MISC + 1)
+#	define KEY_MAX_LARGE 0x2FF
+#	define KEY_MAX_SMALL 0x1FF
+#	define AXMAP_SIZE (ABS_MAX + 1)
+#	define BTNMAP_SIZE (KEY_MAX_LARGE - BTN_MISC + 1)
 
-#define JSIOCGBTNMAP_LARGE _IOR('j', 0x34, __u16[KEY_MAX_LARGE - BTN_MISC + 1])
-#define JSIOCGBTNMAP_SMALL _IOR('j', 0x34, __u16[KEY_MAX_SMALL - BTN_MISC + 1])
+#	define JSIOCGBTNMAP_LARGE _IOR('j', 0x34, __u16[KEY_MAX_LARGE - BTN_MISC + 1])
+#	define JSIOCGBTNMAP_SMALL _IOR('j', 0x34, __u16[KEY_MAX_SMALL - BTN_MISC + 1])
 
-#define DEF_JOYSTICK_DEVPATH "/dev/input/js0"
+#	define DEF_JOYSTICK_DEVPATH "/dev/input/js0"
 #endif
 
 #include "joystick.hpp"
