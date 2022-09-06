@@ -60,6 +60,7 @@ public:
 
 	virtual bool operator()(const cxXqcLexer::Token& tok) {
 		bool contFlg = true;
+		const char* pName = nullptr;
 		switch (mState) {
 			case State::START:
 				if (tok.is_symbol()) {
@@ -78,34 +79,31 @@ public:
 					contFlg = false;
 				}
 				break;
-			case State::CAM_TGT: {
-					const char* pName = get_str_param(tok);
-					if (pName) {
-						Ostinato::set_cam_tgt(pName);
-						mState = State::START;
-					} else {
-						contFlg = false;
-					}
+			case State::CAM_TGT:
+				pName = get_str_param(tok);
+				if (pName) {
+					Ostinato::set_cam_tgt(pName);
+					mState = State::START;
+				} else {
+					contFlg = false;
 				}
 				break;
-			case State::MARK: {
-					const char* pName = get_str_param(tok);
-					if (pName) {
-						HumanSys::mark(pName);
-						mState = State::START;
-					} else {
-						contFlg = false;
-					}
+			case State::MARK:
+				pName = get_str_param(tok);
+				if (pName) {
+					HumanSys::mark(pName);
+					mState = State::START;
+				} else {
+					contFlg = false;
 				}
 				break;
-			case State::UNMARK: {
-					const char* pName = get_str_param(tok);
-					if (pName) {
-						HumanSys::unmark(pName);
-						mState = State::START;
-					} else {
-						contFlg = false;
-					}
+			case State::UNMARK: 
+				pName = get_str_param(tok);
+				if (pName) {
+					HumanSys::unmark(pName);
+					mState = State::START;
+				} else {
+					contFlg = false;
 				}
 				break;
 			default:
