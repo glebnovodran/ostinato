@@ -43,8 +43,8 @@ struct JoystickCtrl {
 	uint16_t mBtnmap[BTNMAP_SIZE];
 	uint8_t mAxmap[AXMAP_SIZE];
 
-	unsigned char mNumAxis;
-	unsigned char mNumBtns;
+	uint32_t mNumAxis;
+	uint32_t mNumBtns;
 
 	bool mDbgEcho;
 
@@ -163,9 +163,14 @@ void reset() {
 
 #if defined(XD_SYS_LINUX)
 
-int get_num_axis() {
+uint32_t get_num_axis() {
 	return s_JtkCtrl.mNumAxis;
 }
+
+uint32_t get_num_buttons() {
+	return s_JtkCtrl.mNumBtns;
+}
+
 int get_axis_val(const uint32_t axis) {
 	return axis < get_num_axis() ? s_JtkCtrl.mpAxisVal[axis] : 0;
 }
@@ -192,8 +197,8 @@ bool changed(const int btid){
 }
 # else
 
-int get_num_axis() { return 0; }
-int get_num_buttons() {return 0; }
+uint32_t get_num_axis() { return 0; }
+uint32_t get_num_buttons() {return 0; }
 
 int get_axis_val(const uint32_t axis) { return 0; }
 int get_axis_old_val(const uint32_t axis) { return 0; }

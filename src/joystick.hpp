@@ -7,8 +7,8 @@ void init();
 void update();
 void reset();
 
-int get_num_axis();
-int get_num_buttons();
+uint32_t get_num_axis();
+uint32_t get_num_buttons();
 
 int get_axis_val(const uint32_t axis);
 int get_axis_old_val(const uint32_t axis);
