@@ -81,7 +81,7 @@ static void view_exec() {
 }
 
 static void add_stg_obj(sxModelData* pMdl, void* pWkData) {
-	ScnObj* pObj = Scene::add_obj(pMdl);
+	ScnObj* pObj = Scene::add_obj(pMdl, pMdl->get_name());
 	if (pObj) {
 		pObj->set_base_color_scl(1.0f);
 		pObj->mDisableShadowCast = s_demoWk.disableStgShadows;
