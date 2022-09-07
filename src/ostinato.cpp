@@ -31,6 +31,11 @@ static const bool c_defBump = true;
 static const bool c_defSpec = true;
 static const bool c_defReduce = false;
 
+static bool print_obj_name(ScnObj* pObj, void* pMem) {
+	nxCore::dbg_msg("%s\n",pObj->mpName);
+	return true;
+}
+
 class CmdInterpreter : public cxXqcLexer::TokenFunc {
 private:
 	enum State {
@@ -38,10 +43,15 @@ private:
 		CAM_TGT,
 		MARK,
 		UNMARK,
+		HIDE_OBJ,
 		NUM_STATE
 	};
 
+	cxXqcLexer::Token mParamToks[8];
+	cxStrStore* mpStrStore;
+
 	State mState;
+	uint32_t mParamCursor;
 
 	const char* get_str_param(const cxXqcLexer::Token& tok) {
 		const char* pParam = nullptr;
@@ -52,17 +62,29 @@ private:
 		return pParam;
 	}
 public:
-	CmdInterpreter() : mState(State::START) {}
+	CmdInterpreter() : mState(State::START), mParamCursor(0) {}
 
-	void reset() {
+	void init() {
 		mState = State::START;
+		mParamCursor = 0;
+		mpStrStore = cxStrStore::create("PipeCmdStore");
+	}
+	void reset() {
+		if (mpStrStore) {
+			cxStrStore::destroy(mpStrStore);
+			mpStrStore = nullptr;
+		}
 	}
 
 	virtual bool operator()(const cxXqcLexer::Token& tok) {
 		bool contFlg = true;
 		const char* pName = nullptr;
+
+		if (mpStrStore == nullptr) { return false; }
+
 		switch (mState) {
 			case State::START:
+				mParamCursor = 0;
 				if (tok.is_symbol()) {
 					const char* pSymName = reinterpret_cast<const char*>(tok.val.p);
 					if (nxCore::str_eq(pSymName, "cam_tgt")) {
@@ -71,6 +93,13 @@ public:
 						mState = State::MARK;
 					} else if (nxCore::str_eq(pSymName, "unmark")) {
 						mState = State::UNMARK;
+					} else if (nxCore::str_eq(pSymName, "objls")) {
+						nxCore::dbg_msg("Objects:\n");
+						Scene::for_each_obj(print_obj_name, nullptr);
+					} else if (nxCore::str_eq(pSymName, "hide_obj")) {
+						mState = State::HIDE_OBJ;
+					} else if (nxCore::str_eq(pSymName, "meminfo")) {
+						Scene::mem_info();
 					} else {
 						nxCore::dbg_msg("Unrecoginized command\n");
 						contFlg = false;
@@ -78,6 +107,7 @@ public:
 				} else {
 					contFlg = false;
 				}
+
 				break;
 			case State::CAM_TGT:
 				pName = get_str_param(tok);
@@ -104,6 +134,37 @@ public:
 					mState = State::START;
 				} else {
 					contFlg = false;
+				}
+				break;
+			case State::HIDE_OBJ:
+				if (mParamCursor <= 1) {
+					mParamToks[mParamCursor] = tok;
+					pName = get_str_param(tok);
+					if (pName) {
+						mParamToks[mParamCursor].val.p = mpStrStore->add(pName);
+					}
+					mParamCursor++;
+					if (mParamCursor > 1) {
+						const char* pObjName = get_str_param(mParamToks[0]);
+						if (pObjName) {
+							ScnObj* pObj = Scene::find_obj(pObjName);
+							if (pObj) {
+								const char* pVal = get_str_param(mParamToks[1]);
+								if (pVal) {
+									if (nxCore::str_eq(pVal, "on")) {
+										pObj->mDisableDraw = true;
+									} else if (nxCore::str_eq(pVal, "off")) {
+										pObj->mDisableDraw = false;
+									}
+								} else {
+									nxCore::dbg_msg("Error parsing command.\n");
+								}
+							} else {
+								nxCore::dbg_msg("Object not found\n");
+							}
+						}
+						mState = State::START;
+					}
 				}
 				break;
 			default:
@@ -739,6 +800,7 @@ void update_cmd_pipe() {
 			nxCore::dbg_msg("-> %s\n", buf);
 		}
 		s_globals.lexer.set_text(buf, n);
+		s_globals.cmdInterp.init();
 		s_globals.lexer.scan(s_globals.cmdInterp);
 		s_globals.cmdInterp.reset();
 		s_globals.lexer.reset();
