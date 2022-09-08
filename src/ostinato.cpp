@@ -40,10 +40,11 @@ class CmdInterpreter : public cxXqcLexer::TokenFunc {
 private:
 	enum State {
 		START = 0,
-		CAM_TGT,
+		CAMTGT,
 		MARK,
 		UNMARK,
-		HIDE_OBJ,
+		HIDEOBJ,
+		HIDEMTL,
 		NUM_STATE
 	};
 
@@ -87,19 +88,20 @@ public:
 				mParamCursor = 0;
 				if (tok.is_symbol()) {
 					const char* pSymName = reinterpret_cast<const char*>(tok.val.p);
-					if (nxCore::str_eq(pSymName, "cam_tgt")) {
-						mState = State::CAM_TGT;
+					if (nxCore::str_eq(pSymName, "camtgt")) {
+						mState = State::CAMTGT;
 					} else if (nxCore::str_eq(pSymName, "mark")) {
 						mState = State::MARK;
 					} else if (nxCore::str_eq(pSymName, "unmark")) {
 						mState = State::UNMARK;
-					} else if (nxCore::str_eq(pSymName, "objls")) {
-						nxCore::dbg_msg("Objects:\n");
+					} else if (nxCore::str_eq(pSymName, "lsobj")) {
 						Scene::for_each_obj(print_obj_name, nullptr);
-					} else if (nxCore::str_eq(pSymName, "hide_obj")) {
-						mState = State::HIDE_OBJ;
+					} else if (nxCore::str_eq(pSymName, "hideobj")) {
+						mState = State::HIDEOBJ;
 					} else if (nxCore::str_eq(pSymName, "meminfo")) {
 						Scene::mem_info();
+					} else if (nxCore::str_eq(pSymName, "hidemtl")) {
+						mState = State::HIDEMTL;
 					} else {
 						nxCore::dbg_msg("Unrecoginized command\n");
 						contFlg = false;
@@ -109,7 +111,7 @@ public:
 				}
 
 				break;
-			case State::CAM_TGT:
+			case State::CAMTGT:
 				pName = get_str_param(tok);
 				if (pName) {
 					Ostinato::set_cam_tgt(pName);
@@ -136,7 +138,7 @@ public:
 					contFlg = false;
 				}
 				break;
-			case State::HIDE_OBJ:
+			case State::HIDEOBJ:
 				if (mParamCursor <= 1) {
 					mParamToks[mParamCursor] = tok;
 					pName = get_str_param(tok);
@@ -164,6 +166,44 @@ public:
 							}
 						}
 						mState = State::START;
+					}
+				}
+				break;
+			case State::HIDEMTL:
+				if (mParamCursor <= 2) {
+					mParamToks[mParamCursor] = tok;
+					pName = get_str_param(tok);
+					if (pName) {
+						mParamToks[mParamCursor].val.p = mpStrStore->add(pName);
+					}
+					mParamCursor++;
+					if (mParamCursor > 2) {
+						const char* pObjName = get_str_param(mParamToks[0]);
+						if (pObjName) {
+							ScnObj* pObj = Scene::find_obj(pObjName);
+							const char* pMtlName = get_str_param(mParamToks[1]);
+							if (pMtlName) {
+								bool hide = false;
+								const char* pVal = get_str_param(mParamToks[2]);
+								if (pVal) {
+									if (nxCore::str_eq(pVal, "on")) {
+										hide = true;
+									} else if (nxCore::str_eq(pVal, "off")) {
+										hide = false;
+									}
+									pObj->hide_mtl(pMtlName, hide);
+								} else {
+									nxCore::dbg_msg("Error parsing command: the value should be on/off\n");
+									contFlg = false;
+								}
+							} else {
+								nxCore::dbg_msg("Error parsing command: specify material name.\n");
+								contFlg = false;
+							}
+						} else {
+							nxCore::dbg_msg("Object not found.\n");
+							contFlg = false;
+						}
 					}
 				}
 				break;
