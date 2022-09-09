@@ -181,10 +181,10 @@ static void init() {
 
 	bool showCtrlHelp = nxApp::get_bool_opt("show_ctrl_help", false);
 	if (showCtrlHelp) {
-			nxCore::dbg_msg("\e[1mCursor/WASD\e[0m: walk\n");
-			nxCore::dbg_msg("\e[1mL-Shift\e[0m: hold to run\n");
-			nxCore::dbg_msg("\e[1mBackspace\e[0m: change view distance\n");
-			nxCore::dbg_msg("\e[1mTAB\e[0m: free camera mode\n");
+			nxCore::dbg_msg("\x1B[1mCursor/WASD\x1B[0m: walk\n");
+			nxCore::dbg_msg("\x1B[1mL-Shift\x1B[0m: hold to run\n");
+			nxCore::dbg_msg("\x1B[1mBackspace\x1B[0m: change view distance\n");
+			nxCore::dbg_msg("\x1B[1mTAB\x1B[0m: free camera mode\n");
 			nxCore::dbg_msg("\n");
 	}
 }
