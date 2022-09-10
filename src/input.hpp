@@ -40,4 +40,4 @@ float get_axis_old_val(const uint32_t axis);
 
 xt_float2 get_stick_values(const uint32_t stick);
 
-};
+}

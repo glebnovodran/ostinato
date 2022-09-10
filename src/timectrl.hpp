@@ -25,4 +25,4 @@ double get_start_time();
 double get_current_time();
 
 void echo_fps(const char* pFmt);
-};
+}
