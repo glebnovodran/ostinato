@@ -45,6 +45,7 @@ private:
 		UNMARK,
 		HIDEOBJ,
 		HIDEMTL,
+		LSMTL,
 		NUM_STATE
 	};
 
@@ -61,6 +62,14 @@ private:
 		}
 
 		return pParam;
+	}
+	bool get_int_param(const cxXqcLexer::Token& tok, int* pVal) {
+		bool res = false;
+		if (tok.id == cxXqcLexer::TokId::TOK_INT) {
+			*pVal = tok.val.i;
+			res = true;
+		}
+		return res;
 	}
 public:
 	CmdInterpreter() : mState(State::START), mParamCursor(0) {}
@@ -102,6 +111,8 @@ public:
 						Scene::mem_info();
 					} else if (nxCore::str_eq(pSymName, "hidemtl")) {
 						mState = State::HIDEMTL;
+					} else if (nxCore::str_eq(pSymName, "lsmtl")) {
+						mState = State::LSMTL;
 					} else {
 						nxCore::dbg_msg("Unrecoginized command\n");
 						contFlg = false;
@@ -182,6 +193,13 @@ public:
 						if (pObjName) {
 							ScnObj* pObj = Scene::find_obj(pObjName);
 							const char* pMtlName = get_str_param(mParamToks[1]);
+							if (pMtlName == nullptr) {
+								int imtl = 0;
+								if (get_int_param(mParamToks[1], &imtl)) {
+									sxModelData* pMdlData = pObj->get_model_data();
+									pMtlName = pMdlData ? pMdlData->get_material_name(imtl) : nullptr;
+								}
+							}
 							if (pMtlName) {
 								bool hide = false;
 								const char* pVal = get_str_param(mParamToks[2]);
@@ -205,6 +223,23 @@ public:
 							contFlg = false;
 						}
 					}
+				}
+				break;
+			case State::LSMTL: 
+				pName = get_str_param(tok);
+				if (pName) {
+					ScnObj* pObj = Scene::find_obj(pName);
+					if (pObj) {
+						sxModelData* pMdlData = pObj->get_model_data();
+						if (pMdlData) {
+							for (uint32_t i = 0; i < pMdlData->mMtlNum; ++i) {
+								nxCore::dbg_msg("%d : %s\n", i, pMdlData->get_material_name(i));
+							}
+						}
+					}
+					mState = State::START;
+				} else {
+					contFlg = false;
 				}
 				break;
 			default:
