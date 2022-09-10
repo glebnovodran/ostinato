@@ -209,4 +209,4 @@ bool triggered(const int btid) { return false; }
 bool changed(const int btid) { return false; }
 
 #endif
-}
+} // Joystick

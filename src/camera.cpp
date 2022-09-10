@@ -240,4 +240,4 @@ void set_collision(sxCollisionData* pCol) {
 
 sxCollisionData* get_collision() { return s_viewWk.get_collision(); }
 
-} // namespace
+} // Camera

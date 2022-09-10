@@ -84,4 +84,4 @@ bool draw_pseudo_shadow(ScnObj* pObj, void* pMem) {
 	return true;
 }
 
-}
+} // PrimFX

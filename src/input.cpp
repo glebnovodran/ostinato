@@ -80,4 +80,4 @@ xt_float2 get_stick_values(const uint32_t stick) {
 	return res;
 }
 
-} // namespace
+} // InputCtrl

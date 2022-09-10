@@ -143,4 +143,4 @@ void echo_fps(const char* pFmt) {
 	}
 }
 
-}
+} // TimeCtrl

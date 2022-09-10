@@ -158,4 +158,4 @@ ScnObj* init() {
 	return pPlr;
 }
 
-}
+} // Player

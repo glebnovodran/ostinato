@@ -5,4 +5,4 @@ namespace Player {
 
 ScnObj* init();
 
-}
+} // Player

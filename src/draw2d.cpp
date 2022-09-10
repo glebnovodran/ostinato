@@ -79,4 +79,4 @@ void reset() {
 	s_wk = {0};
 }
 
-}
+} // Draw2D

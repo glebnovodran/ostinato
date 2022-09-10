@@ -50,4 +50,4 @@ struct GPUMonitor {
 	void free();
 };
 
-} // namespace
+} // Performance

@@ -14,4 +14,4 @@ namespace Ostinato {
 
 	ScnObj* get_cam_tgt_obj();
 	void set_cam_tgt(const char* pName);
-} // namespace
+} // Ostinato

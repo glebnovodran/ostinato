@@ -79,4 +79,4 @@ bool was_active(const int id) { return s_kbdCtrl.ck_old(id); }
 bool triggered(const int id) { return s_kbdCtrl.ck_trg(id); }
 bool changed(const int id) { return s_kbdCtrl.ck_chg(id); }
 
-}
+} // Keyboard

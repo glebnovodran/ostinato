@@ -8,4 +8,4 @@ namespace Draw2D {
 	void exec();
 	
 	void reset();
-}
+} // Draw2D

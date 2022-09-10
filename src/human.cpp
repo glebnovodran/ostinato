@@ -616,4 +616,4 @@ void modify_behavior(const char* pCharName, const char* pActName, const char* pC
 	}
 }
 
-} // namespace
+} // HumanSys

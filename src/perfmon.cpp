@@ -95,4 +95,4 @@ XD_NOINLINE void GPUMonitor::free() {
 }
 
 
-} // namespace
+} // Performance

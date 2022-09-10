@@ -11,4 +11,4 @@ void reset();
 
 bool draw_pseudo_shadow(ScnObj* pObj, void* pMem);
 
-}
+} // PrimFX

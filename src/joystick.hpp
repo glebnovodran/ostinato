@@ -19,4 +19,4 @@ bool was_active(const int btid);
 bool triggered(const int btid);
 bool changed(const int btid);
 
-}
+} // Joystick

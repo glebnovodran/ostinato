@@ -862,4 +862,4 @@ int jsi_get_test_val() { return 42; }
 
 } // extern "C"
 
-} // namespace
+} // Ostinato

@@ -6,4 +6,4 @@ namespace Citizen {
 ScnObj* add(const Human::Descr descr, const cxQuat& quat, const cxVec& pos);
 int get_num();
 
-};
+} // Citizen

@@ -199,4 +199,4 @@ namespace HumanSys {
 
 	float query_behavior(const char* pCharName, const char* pActName, const char* pChanName);
 	void modify_behavior(const char* pCharName, const char* pActName, const char* pChanName, float val);
-}
+} // HumanSys

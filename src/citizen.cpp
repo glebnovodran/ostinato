@@ -110,4 +110,4 @@ ScnObj* add(const Human::Descr descr, const cxQuat& quat, const cxVec& pos) {
 	return pObj;
 }
 
-}
+} // Citizen
