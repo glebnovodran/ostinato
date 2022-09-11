@@ -171,7 +171,7 @@ SYS_OGL="Desktop"
 EGL_LIBS=${OSTINATO_ALT_EGL_LIBS:-"-lEGL -lGLESv2"}
 RPI_KIND_PATH="/sys/firmware/devicetree/base/model"
 if [ -f $RPI_KIND_PATH ]; then
-	SYS_KIND="`cat $RPI_KIND_PATH)`"
+	SYS_KIND="`cat $RPI_KIND_PATH`"
 fi
 case $SYS_NAME in
 	Linux)
