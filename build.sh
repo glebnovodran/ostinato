@@ -11,6 +11,16 @@ FMT_OFF="\e[0m"
 
 SYS_NAME="`uname -s`"
 
+if [ $SYS_NAME = Darwin ] || [ $SYS_NAME = FreeBSD ]; then
+	BOLD_ON=""
+	UNDER_ON=""
+	RED_ON=""
+	GREEN_ON=""
+	YELLOW_ON=""
+	FMT_OFF=""
+fi
+
+
 CROSSCORE_DIR="ext/crosscore"
 VEMA_DIR="ext/vema"
 BIN_DIR="bin"
@@ -18,7 +28,7 @@ DATA_DIR="$BIN_DIR/data"
 
 USE_WGET=0
 USE_CURL=0
-case `uname -s` in
+case $SYS_NAME in
 	Darwin)
 		USE_CURL=1
 	;;
