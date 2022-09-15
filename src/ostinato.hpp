@@ -6,6 +6,11 @@ namespace Ostinato {
 	void init(int argc, char* argv[]);
 	void reset();
 
+	void mac_start(int argc, const char* argv[]);
+
+	int get_def_width();
+	int get_def_height();
+
 	void update_sensors();
 	void update_cmd_pipe();
 

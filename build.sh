@@ -227,8 +227,6 @@ case $SYS_NAME in
 	;;
 	Darwin)
 		CXX=${CXX:-clang++}
-		printf "macOS: $BOLD_ON$RED_ON""not supported yet""$FMT_OFF.\n"
-		exit
 	;;
 	*)
 		CXX=${CXX:-g++}
@@ -247,7 +245,18 @@ esac
 printf "Compiling \"$BOLD_ON$YELLOW_ON$UNDER_ON$EXE_PATH$FMT_OFF\" for $BOLD_ON$SYS_NAME$FMT_OFF with $BOLD_ON$CXX$FMT_OFF.\n"
 printf "OGL mode: $BOLD_ON$OGL_MODE$FMT_OFF.\n"
 rm -f $EXE_PATH
-$CXX -pthread -ggdb -ffast-math -ftree-vectorize -std=c++11 $DEFS $INCS $SRCS -o $EXE_PATH $LIBS $*
+
+if [ $SYS_NAME = Darwin ]; then
+	if [ ! -d "tmp/obj" ]; then mkdir -p tmp/obj; fi
+	MAC_MAIN=tmp/obj/mac_main.o
+	MAC_LIBS="-framework OpenGL -framework Foundation -framework Cocoa"
+	MAC_SRCS="$SRCS $MAC_MAIN"
+	rm -f $MAC_MAIN
+	clang -I $CROSSCORE_DIR/mac $CROSSCORE_DIR/mac/mac_main.m -c -o $MAC_MAIN
+	$CXX -std=c++11 -ffast-math -ftree-vectorize $INCS -I $CROSSCORE_DIR/mac $MAC_SRCS -o $EXE_PATH $MAC_LIBS $*
+else
+	$CXX -std=c++11 -pthread -ggdb -ffast-math -ftree-vectorize $DEFS $INCS $SRCS -o $EXE_PATH $LIBS $*
+fi
 
 echo -n "Build result: "
 if [ -f "$EXE_PATH" ]; then

@@ -11,10 +11,14 @@
 #include "human.hpp"
 #include "ostinato.hpp"
 
+#ifdef OGLSYS_MACOS
+#	include "mac_ifc.h"
+#endif
+
 #undef OSTINATO_SENSORS
 #undef OSTINATO_PIPES_AVAILABLE
 
-#if defined(XD_SYS_LINUX) || defined(XD_SYS_BSD)
+#if defined(XD_SYS_LINUX) || defined(XD_SYS_BSD) || defined(OGLSYS_MACOS)
 #	include <termios.h>
 #	include <fcntl.h>
 #	include <unistd.h>
@@ -675,7 +679,9 @@ static void init_scn_sys(const char* pAppPath) {
 namespace Ostinato {
 
 void init(int argc, char* argv[]) {
+#ifndef OGLSYS_MACOS
 	nxApp::init_params(argc, argv);
+#endif
 
 	sxSysIfc sysIfc;
 	::memset(&sysIfc, 0, sizeof(sysIfc));
@@ -706,17 +712,22 @@ void init(int argc, char* argv[]) {
 		nxCore::dbg_msg("No bundle loaded\n");
 	}
 
-	float scrScl = 1.0f;
+
 	int x = 10;
 	int y = 10;
-	int w = 1200;
-	int h = 700;
-
+#ifdef OGLSYS_MACOS
+	int w = mac_get_width_opt();
+	int h = mac_get_height_opt();
+#else
+	float scrScl = 1.0f;
+	int w = get_def_width();
+	int h = get_def_height();
 	w = int(float(w) * scrScl);
 	h = int(float(h) * scrScl);
 
 	w = nxCalc::max(32, nxApp::get_int_opt("w", w));
 	h = nxCalc::max(32, nxApp::get_int_opt("h", h));
+#endif
 
 	int msaa = nxApp::get_int_opt("msaa", 0);
 
@@ -738,6 +749,20 @@ void reset() {
 	reset_bundle();
 	nxCore::dbg_msg("Peak MB: %.4f\n", double(nxCore::mem_peak_bytes()) / (1024.0 * 1024.0));
 	nxCore::mem_dbg();
+}
+
+void mac_start(int argc, const char* argv[]) {
+#ifdef OGLSYS_MACOS
+	nxApp::init_params(argc, (char**)argv);
+#endif
+}
+
+int get_def_width() {
+	return 1200;
+}
+
+int get_def_height() {
+	return 700;
 }
 
 void set_default_lighting() {
