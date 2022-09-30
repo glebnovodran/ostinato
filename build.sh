@@ -77,7 +77,7 @@ fi
 WEB_CC_SETUPMSG="To use emscripten: source <emsdk path>/emsdk_env.sh"
 if [ -n "$EMSDK" ]; then
 	WEB_CC="emcc -std=c++11"
-	WEB_OPTS="-s ASSERTIONS=1 -s ALLOW_MEMORY_GROWTH=1"
+	WEB_OPTS="-s ASSERTIONS=1 -s ALLOW_MEMORY_GROWTH=1 -DXD_THREADFUNCS_ENABLED=0"
 	WEB_EMBED_OPT="-s SINGLE_FILE"
 fi
 
