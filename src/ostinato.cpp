@@ -31,6 +31,11 @@
 #	undef OSTINATO_USE_PIPES
 #endif
 
+#if defined(OSTINATO_LINKED_BND)
+extern uint8_t _binary_ostinato_bnd_start;
+extern uint8_t _binary_ostinato_bnd_end;
+#endif
+
 static const bool c_defBump = true;
 static const bool c_defSpec = true;
 static const bool c_defReduce = false;
@@ -316,13 +321,14 @@ struct BndFileInfo {
 
 static struct BundleWk {
 	FILE* pFile;
+	uint8_t* pMem;
 	BndFileInfo* pInfos;
 	cxStrMap<xt_fhandle>* pFileMap;
 	char* pPaths;
 	int32_t nfiles;
 	BndSource bndSrc;
 	bool searchStrMap;
-	bool valid() const { return pFile != nullptr; }
+	bool valid() const { return (pFile != nullptr) || (pMem != nullptr); }
 } s_bnd = {};
 
 static FILE* bnd_sys_fopen(const char* pPath, const char* pMode) {
@@ -426,49 +432,79 @@ static size_t bnd_fread(xt_fhandle fh, void* pDst, size_t nbytes) {
 		BndFileInfo* pInfo = (BndFileInfo*)fh;
 		if (nbytes == pInfo->size) {
 			BundleWk* pBnd = &s_bnd;
-			::fseek(pBnd->pFile, pInfo->offs, SEEK_SET);
-			nread = ::fread(pDst, 1, nbytes, pBnd->pFile);
+			if (pBnd->pFile) {
+				::fseek(pBnd->pFile, pInfo->offs, SEEK_SET);
+				nread = ::fread(pDst, 1, nbytes, pBnd->pFile);
+			}
 		}
 	}
 	return nread;
 }
 
-static bool init_bundle(const char* pPath, BundleWk* pBnd) {
+static size_t bnd_fread_preloaded(xt_fhandle fh, void* pDst, size_t nbytes) {
+	size_t nread = 0;
+	if (pDst && bnd_check_handle(fh)) {
+		BndFileInfo* pInfo = (BndFileInfo*)fh;
+		if (nbytes == pInfo->size) {
+			BundleWk* pBnd = &s_bnd;
+			if (pBnd->pMem) {
+				uint8_t* pMem = XD_INCR_PTR(pBnd->pMem, pInfo->offs);
+				nxCore::mem_copy((uint8_t*)pDst, pMem, nbytes);
+				nread = nbytes;
+			}
+		}
+	}
+	return nread;
+}
+
+static bool init_bundle(uint8_t* pMem, size_t memSize, BundleWk* pBnd) {
 	bool res = false;
+	size_t offs = 0;
+	uint8_t* pCur = pMem;
 
-	if (pPath != nullptr) {
+	if (pMem != nullptr) {
+		uint32_t sig = 0;
 
-		FILE* pFile = bnd_sys_bin_open(pPath);
+		offs += 4;
+		if (offs < memSize) {
+			nxCore::mem_copy(&sig, pCur, 4);
+			pCur = XD_INCR_PTR(pMem, offs);
 
-		if (pFile) {
-			uint32_t sig = 0;
-			size_t nread = ::fread(&sig, 1, sizeof(sig), pFile);
-			if (nread == sizeof(sig) && sig == BUNDLE_SIG) {
+			if (sig == BUNDLE_SIG) {
 				int32_t nfiles = 0;
-				nread = ::fread(&nfiles, 1, sizeof(nfiles), pFile);
-				if (nread == sizeof(nfiles) && nfiles > 0) {
+				offs += 4;
+				if (offs < memSize) {
+					nxCore::mem_copy(&nfiles, pCur, 4);
 					pBnd->nfiles = nfiles;
+					pCur = XD_INCR_PTR(pMem, offs);
+
 					if (s_bnd.searchStrMap) {
 						pBnd->pFileMap = cxStrMap<xt_fhandle>::create("bundleMap");
 					}
 					size_t finfoSize = nfiles * sizeof(BndFileInfo);
 					pBnd->pInfos = (BndFileInfo*)nxCore::mem_alloc(finfoSize, "Bnd.infos");
 					if (pBnd->pInfos) {
-						nread = ::fread(pBnd->pInfos, 1, finfoSize, pFile);
-						if (nread == finfoSize) {
+						offs += finfoSize;
+						if (offs < memSize) {
+							nxCore::mem_copy(pBnd->pInfos, pCur, finfoSize);
+							pCur = XD_INCR_PTR(pMem, offs);
+
 							size_t strsSize = pBnd->pInfos[0].offs - (8 + finfoSize);
-							char* pPathsData = (char*)nxCore::mem_alloc(finfoSize, "Bnd.paths0");
-							if (pPathsData) {
-								nread = ::fread(pPathsData, 1, strsSize, pFile);
-								if (nread == strsSize) {
+							offs += strsSize;
+							if (offs <= memSize) {
+								char* pPathsData = (char*)nxCore::mem_alloc(finfoSize, "Bnd.paths0");
+								if (pPathsData) {
+									nxCore::mem_copy(pPathsData, pCur, strsSize);
+									pCur = XD_INCR_PTR(pMem, offs);
+
 									uint8_t* pUnpackedPaths = nxData::unpack((sxPackedData*)pPathsData, "Bnd.paths");
 									if (pUnpackedPaths) {
 										nxCore::mem_free(pPathsData);
-										pBnd->pPaths = (char*)pUnpackedPaths;
+										pBnd->pPaths = reinterpret_cast<char*>(pUnpackedPaths);
 									} else {
 										pBnd->pPaths = pPathsData;
 									}
-									pBnd->pFile = pFile;
+
 									if (s_bnd.searchStrMap) {
 										char* pBndPath = pBnd->pPaths;
 										for (int32_t i = 0; i < pBnd->nfiles; ++i) {
@@ -484,39 +520,98 @@ static bool init_bundle(const char* pPath, BundleWk* pBnd) {
 									nxCore::mem_free(pBnd->pInfos);
 									pBnd->pInfos = nullptr;
 									pBnd->nfiles = 0;
-									::fclose(pFile);
 								}
 							} else {
 								nxCore::mem_free(pBnd->pInfos);
 								pBnd->pInfos = nullptr;
 								pBnd->nfiles = 0;
-								::fclose(pFile);
 							}
-						} else {
-							nxCore::mem_free(pBnd->pInfos);
-							pBnd->pInfos = nullptr;
-							pBnd->nfiles = 0;
-							::fclose(pFile);
 						}
 					}
-				} else {
-					::fclose(pFile);
+				}
+			}
+		}
+	}
+
+	return res;
+}
+
+
+static size_t bnd_calc_header_size(FILE* pFile) {
+	BndFileInfo info;
+	size_t sz = 0;
+	uint32_t sig = 0;
+	int32_t nfiles = 0;
+	size_t finfoSize = 0;
+	size_t nread = ::fread(&sig, 1, sizeof(sig), pFile);
+	if (nread == sizeof(sig) && sig == BUNDLE_SIG) {
+		sz += nread;
+		nread = ::fread(&nfiles, 1, sizeof(nfiles), pFile);
+		if (nread == sizeof(nfiles) && nfiles > 0) {
+			sz += nread;
+			nread = ::fread(&info, 1, sizeof(BndFileInfo), pFile);
+			if (nread == sizeof(BndFileInfo)) {
+				finfoSize = nfiles * sizeof(BndFileInfo);
+				sz += finfoSize;
+				size_t strsSize = info.offs - (8 + finfoSize);
+				sz += strsSize;
+				if (::fseek(pFile, sz, SEEK_SET)) {
+					sz = 0;
 				}
 			} else {
-				::fclose(pFile);
+				sz = 0;
+			}
+		} else {
+			sz = 0;
+		}
+	}
+
+	::fseek(pFile, 0, SEEK_SET);
+	return sz;
+}
+
+static bool init_bundle(const char* pPath, BundleWk* pBnd) {
+	bool res = false;
+	size_t size = 0;
+	size_t nread = 0;
+	uint8_t* pMem = nullptr;
+
+	if (pPath != nullptr) {
+
+		FILE* pFile = bnd_sys_bin_open(pPath);
+
+		if (pFile) {
+			size = bnd_calc_header_size(pFile);
+
+			if (size > 0) {
+				pMem = reinterpret_cast<uint8_t*>(nxCore::mem_alloc(size, "BND"));
+				if (pMem) {
+					nread = ::fread(pMem, 1, size, pFile);
+					if (nread == size) {
+						res = init_bundle(pMem, size, pBnd);
+						//nxCore::mem_free(pMem);
+						pBnd->pFile = res ? pFile : nullptr;
+						pBnd->pMem = nullptr;
+					}
+
+					nxCore::mem_free(pMem);
+				}
 			}
 		}
 	}
 	return res;
 }
 
-static const char* init_bundle() {
+static bool init_bundle() {
+	bool res = false;
+
 	static const char* pPathTbl[] = {
 		BUNDLE_FNAME,
 		"../" BUNDLE_FNAME,
 		"../data/" BUNDLE_FNAME,
 		"bin/data/" BUNDLE_FNAME
 	};
+
 	BundleWk* pBnd = &s_bnd;
 	const char* pLoadedPath = nullptr;
 
@@ -527,19 +622,25 @@ static const char* init_bundle() {
 	s_bnd.searchStrMap = nxApp::get_bool_opt("bndtbl", false);
 	const char* pBndPath = nxApp::get_opt("bndpath");
 
-	if (init_bundle(pBndPath, pBnd)) {
+	res = init_bundle(pBndPath, pBnd);
+	if (res) {
 		pLoadedPath = pBndPath;
 	} else {
 		for (size_t i = 0; i < XD_ARY_LEN(pPathTbl); ++i) {
 			const char* pPath = pPathTbl[i];
-			if (init_bundle(pPath, pBnd)) {
+			res = init_bundle(pPath, pBnd);
+			if (res) {
 				pLoadedPath = pPath;
 				break;
 			}
 		}
 	}
 
-	return pLoadedPath;
+	if (pLoadedPath) {
+		nxCore::dbg_msg("Loaded bundle [%s]\n", pLoadedPath);
+	}
+
+	return res;
 }
 
 static void reset_bundle() {
@@ -547,7 +648,15 @@ static void reset_bundle() {
 	if (pBnd->valid()) {
 		nxCore::mem_free(pBnd->pPaths);
 		nxCore::mem_free(pBnd->pInfos);
-		::fclose(pBnd->pFile);
+		if (pBnd->pFile) {
+			::fclose(pBnd->pFile);
+		}
+#if !defined(OSTINATO_LINKED_BND)
+		if (pBnd->pMem) {
+			nxCore::mem_free(pBnd->pMem);
+		}
+#endif
+		pBnd->pMem = nullptr;
 		pBnd->pFile = nullptr;
 		pBnd->pPaths = nullptr;
 		pBnd->pInfos = nullptr;
@@ -682,36 +791,44 @@ void init(int argc, char* argv[]) {
 #ifndef OGLSYS_MACOS
 	nxApp::init_params(argc, argv);
 #endif
-
 	sxSysIfc sysIfc;
 	::memset(&sysIfc, 0, sizeof(sysIfc));
 	sysIfc.fn_dbgmsg = dbgmsg;
 
 	s_globals.ccBrightness = nxApp::get_float_opt("cc_brightness", 1.0f);
 
+#if defined(OSTINATO_LINKED_BND)
+	BundleWk* pBnd = &s_bnd;
+	uint8_t* pBndMem = &_binary_ostinato_bnd_start;
+	uint8_t* pEnd = &_binary_ostinato_bnd_end;
+	size_t sz = pBndMem - pEnd;
+	nxCore::dbg_msg("%d\n", sz);
+	bool res = init_bundle(pBndMem, sz, pBnd);
+	pBnd->pMem = res? pBndMem : nullptr;
+
+	if (res) {
+		sysIfc.fn_fopen = bnd_fopen;
+		sysIfc.fn_fclose = bnd_fclose;
+		sysIfc.fn_fread = bnd_fread_preloaded;
+		sysIfc.fn_fsize = bnd_fsize;
+	}
+#else
 	int bndsrc = nxCalc::clamp(nxApp::get_int_opt("bnd", int(BndSource::LOCAL)), 0, int(BndSource::MAX));
 	BndSource bndSrc = BndSource(bndsrc);
-	const char* pLoadedPath = nullptr;
+
 	if (bndSrc != BndSource::NONE) {
-		pLoadedPath = init_bundle();
-
-		if (s_bnd.valid()) {
-			sysIfc.fn_fopen = bnd_fopen;
-			sysIfc.fn_fclose = bnd_fclose;
-			sysIfc.fn_fread = bnd_fread;
-			sysIfc.fn_fsize = bnd_fsize;
-
+		if (init_bundle()) {
+			if (s_bnd.valid()) {
+				sysIfc.fn_fopen = bnd_fopen;
+				sysIfc.fn_fclose = bnd_fclose;
+				sysIfc.fn_fread = bnd_fread;
+				sysIfc.fn_fsize = bnd_fsize;
+			}
 		}
 	}
+#endif
 
 	nxSys::init(&sysIfc);
-
-	if (pLoadedPath) {
-		nxCore::dbg_msg("Loaded bundle [%s]\n", pLoadedPath);
-	} else {
-		nxCore::dbg_msg("No bundle loaded\n");
-	}
-
 
 	int x = 10;
 	int y = 10;
