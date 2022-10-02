@@ -331,6 +331,9 @@ static struct BundleWk {
 	bool valid() const { return (pFile != nullptr) || (pMem != nullptr); }
 } s_bnd = {};
 
+
+#if !defined(OSTINATO_LINKED_BND)
+
 static FILE* bnd_sys_fopen(const char* pPath, const char* pMode) {
 #if defined(_MSC_VER)
 	FILE* pFile = nullptr;
@@ -344,6 +347,8 @@ static FILE* bnd_sys_fopen(const char* pPath, const char* pMode) {
 static FILE* bnd_sys_bin_open(const char* pPath) {
 	return bnd_sys_fopen(pPath, "rb");
 }
+
+#endif
 
 static bool bnd_check_handle(xt_fhandle fh) {
 	BundleWk* pBnd = &s_bnd;
@@ -426,20 +431,7 @@ static size_t bnd_fsize(xt_fhandle fh) {
 	return size;
 }
 
-static size_t bnd_fread(xt_fhandle fh, void* pDst, size_t nbytes) {
-	size_t nread = 0;
-	if (pDst && bnd_check_handle(fh)) {
-		BndFileInfo* pInfo = (BndFileInfo*)fh;
-		if (nbytes == pInfo->size) {
-			BundleWk* pBnd = &s_bnd;
-			if (pBnd->pFile) {
-				::fseek(pBnd->pFile, pInfo->offs, SEEK_SET);
-				nread = ::fread(pDst, 1, nbytes, pBnd->pFile);
-			}
-		}
-	}
-	return nread;
-}
+#if defined(OSTINATO_LINKED_BND)
 
 static size_t bnd_fread_preloaded(xt_fhandle fh, void* pDst, size_t nbytes) {
 	size_t nread = 0;
@@ -456,6 +448,25 @@ static size_t bnd_fread_preloaded(xt_fhandle fh, void* pDst, size_t nbytes) {
 	}
 	return nread;
 }
+
+#else
+
+static size_t bnd_fread(xt_fhandle fh, void* pDst, size_t nbytes) {
+	size_t nread = 0;
+	if (pDst && bnd_check_handle(fh)) {
+		BndFileInfo* pInfo = (BndFileInfo*)fh;
+		if (nbytes == pInfo->size) {
+			BundleWk* pBnd = &s_bnd;
+			if (pBnd->pFile) {
+				::fseek(pBnd->pFile, pInfo->offs, SEEK_SET);
+				nread = ::fread(pDst, 1, nbytes, pBnd->pFile);
+			}
+		}
+	}
+	return nread;
+}
+
+#endif
 
 static bool init_bundle(uint8_t* pMem, size_t memSize, BundleWk* pBnd) {
 	bool res = false;
@@ -495,7 +506,7 @@ static bool init_bundle(uint8_t* pMem, size_t memSize, BundleWk* pBnd) {
 								char* pPathsData = (char*)nxCore::mem_alloc(finfoSize, "Bnd.paths0");
 								if (pPathsData) {
 									nxCore::mem_copy(pPathsData, pCur, strsSize);
-									pCur = XD_INCR_PTR(pMem, offs);
+									//pCur = XD_INCR_PTR(pMem, offs);
 
 									uint8_t* pUnpackedPaths = nxData::unpack((sxPackedData*)pPathsData, "Bnd.paths");
 									if (pUnpackedPaths) {
@@ -514,6 +525,7 @@ static bool init_bundle(uint8_t* pMem, size_t memSize, BundleWk* pBnd) {
 											pBndPath += bndPathLen + 1;
 										}
 									}
+									pBnd->pMem = pMem;
 									res = true;
 								} else {
 									nxCore::mem_free(pPathsData);
@@ -536,6 +548,7 @@ static bool init_bundle(uint8_t* pMem, size_t memSize, BundleWk* pBnd) {
 	return res;
 }
 
+#if !defined(OSTINATO_LINKED_BND)
 
 static size_t bnd_calc_header_size(FILE* pFile) {
 	BndFileInfo info;
@@ -589,7 +602,6 @@ static bool init_bundle(const char* pPath, BundleWk* pBnd) {
 					nread = ::fread(pMem, 1, size, pFile);
 					if (nread == size) {
 						res = init_bundle(pMem, size, pBnd);
-						//nxCore::mem_free(pMem);
 						pBnd->pFile = res ? pFile : nullptr;
 						pBnd->pMem = nullptr;
 					}
@@ -602,8 +614,20 @@ static bool init_bundle(const char* pPath, BundleWk* pBnd) {
 	return res;
 }
 
+#endif
+
 static bool init_bundle() {
 	bool res = false;
+
+#if defined(OSTINATO_LINKED_BND)
+
+	BundleWk* pBnd = &s_bnd;
+	uint8_t* pBndMem = &_binary_ostinato_bnd_start;
+	uint8_t* pEnd = &_binary_ostinato_bnd_end;
+	size_t sz = pEnd - pBndMem;
+	nxCore::dbg_msg("%d\n", sz);
+	res = init_bundle(pBndMem, sz, pBnd);
+#else
 
 	static const char* pPathTbl[] = {
 		BUNDLE_FNAME,
@@ -639,6 +663,8 @@ static bool init_bundle() {
 	if (pLoadedPath) {
 		nxCore::dbg_msg("Loaded bundle [%s]\n", pLoadedPath);
 	}
+
+#endif
 
 	return res;
 }
@@ -798,6 +824,16 @@ void init(int argc, char* argv[]) {
 	s_globals.ccBrightness = nxApp::get_float_opt("cc_brightness", 1.0f);
 
 #if defined(OSTINATO_LINKED_BND)
+	if (init_bundle()) {
+		if (s_bnd.valid()) {
+			sysIfc.fn_fopen = bnd_fopen;
+			sysIfc.fn_fclose = bnd_fclose;
+			sysIfc.fn_fread = bnd_fread_preloaded;
+			sysIfc.fn_fsize = bnd_fsize;
+		}
+	}
+
+/*
 	BundleWk* pBnd = &s_bnd;
 	uint8_t* pBndMem = &_binary_ostinato_bnd_start;
 	uint8_t* pEnd = &_binary_ostinato_bnd_end;
@@ -812,6 +848,7 @@ void init(int argc, char* argv[]) {
 		sysIfc.fn_fread = bnd_fread_preloaded;
 		sysIfc.fn_fsize = bnd_fsize;
 	}
+*/
 #else
 	int bndsrc = nxCalc::clamp(nxApp::get_int_opt("bnd", int(BndSource::LOCAL)), 0, int(BndSource::MAX));
 	BndSource bndSrc = BndSource(bndsrc);
