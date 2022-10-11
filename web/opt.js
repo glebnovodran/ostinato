@@ -35,6 +35,10 @@ if (pageParams.get("wperf") !== null) {
 	Module.arguments.push("-speed:0.2");
 }
 
+if (pageParams.get("ogl_fp32") !== null) {
+	Module.arguments.push("-alt_glsl:ogl_fp32");
+}
+
 var btns = document.getElementsByClassName("btn");
 if (btns !== null) {
 	const ua = navigator.userAgent;
