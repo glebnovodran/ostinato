@@ -26,6 +26,17 @@ VEMA_DIR="ext/vema"
 BIN_DIR="bin"
 DATA_DIR="$BIN_DIR/data"
 
+
+if [ "$1" = "clean" ]; then
+	printf "$BOLD_ON"
+	printf "Cleaning... $FMT_OFF\n"
+	rm -rdf $BIN_DIR
+	rm -rdf ./ext
+	rm -rdf ./tmp
+	rm -rdf ./inc
+	exit
+fi
+
 USE_WGET=0
 USE_CURL=0
 case $SYS_NAME in
