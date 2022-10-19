@@ -203,13 +203,21 @@ struct ViewWk {
 		if (pCol) {
 			sxCollisionData::NearestHit stgHit = pCol->nearest_hit(cxLineSeg(mTgt, mPos));
 			if (stgHit.count > 0) {
-				mPos = stgHit.pos;
-				if (nxVec::dist(mPos, mTgt) < 2.0f) {
-					mPos.y += 1.7f;
+				if (mPosMode == Camera::NORMAL) {
+					mPos = stgHit.pos;
+					if (nxVec::dist(mPos, mTgt) < 2.0f) {
+						mPos.y += 1.7f;
+					}
+					Scene::set_view(mPos, mTgt, up);
+				} else {
+					Scene::set_view(stgHit.pos, mTgt, up);
 				}
+			} else {
+				Scene::set_view(mPos, mTgt, up);
 			}
+		} else {
+			Scene::set_view(mPos, mTgt, up);
 		}
-		Scene::set_view(mPos, mTgt, up);
 	}
 
 } s_viewWk;
