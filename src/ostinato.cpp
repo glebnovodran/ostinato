@@ -261,7 +261,7 @@ public:
 
 static struct OstinatoGlobals {
 	CmdInterpreter cmdInterp;
-	cxXqcLexer lexer;
+	cxLexer lexer;
 	ScnObj* pTgtObj;
 	float lampsBrightness;
 	float ccBrightness;
@@ -886,8 +886,6 @@ void init(int argc, char* argv[]) {
 	int msaa = nxApp::get_int_opt("msaa", 0);
 
 	init_ogl(x, y, w, h, msaa);
-
-	s_globals.lexer.disable_keywords();
 
 	init_sensors();
 	init_cmd_pipe();
