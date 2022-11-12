@@ -818,7 +818,7 @@ void init(int argc, char* argv[]) {
 	nxApp::init_params(argc, argv);
 #endif
 	sxSysIfc sysIfc;
-	::memset(&sysIfc, 0, sizeof(sysIfc));
+	nxCore::mem_zero(&sysIfc, sizeof(sysIfc));
 	sysIfc.fn_dbgmsg = dbgmsg;
 
 	s_globals.ccBrightness = nxApp::get_float_opt("cc_brightness", 1.0f);
@@ -833,22 +833,6 @@ void init(int argc, char* argv[]) {
 		}
 	}
 
-/*
-	BundleWk* pBnd = &s_bnd;
-	uint8_t* pBndMem = &_binary_ostinato_bnd_start;
-	uint8_t* pEnd = &_binary_ostinato_bnd_end;
-	size_t sz = pBndMem - pEnd;
-	nxCore::dbg_msg("%d\n", sz);
-	bool res = init_bundle(pBndMem, sz, pBnd);
-	pBnd->pMem = res? pBndMem : nullptr;
-
-	if (res) {
-		sysIfc.fn_fopen = bnd_fopen;
-		sysIfc.fn_fclose = bnd_fclose;
-		sysIfc.fn_fread = bnd_fread_preloaded;
-		sysIfc.fn_fsize = bnd_fsize;
-	}
-*/
 #else
 	int bndsrc = nxCalc::clamp(nxApp::get_int_opt("bnd", int(BndSource::LOCAL)), 0, int(BndSource::MAX));
 	BndSource bndSrc = BndSource(bndsrc);
