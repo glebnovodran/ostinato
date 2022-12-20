@@ -8,6 +8,7 @@
 #include <smprig.hpp>
 
 #include "timectrl.hpp"
+#include "camera.hpp"
 #include "human.hpp"
 #include "ostinato.hpp"
 
@@ -55,6 +56,7 @@ private:
 		HIDEOBJ,
 		HIDEMTL,
 		LSMTL,
+		CAMCOLLI,
 		NUM_STATE
 	};
 
@@ -98,6 +100,7 @@ public:
 	virtual bool operator()(const cxXqcLexer::Token& tok) {
 		bool contFlg = true;
 		const char* pName = nullptr;
+		const char* pVal = nullptr;
 
 		if (mpStrStore == nullptr) { return false; }
 
@@ -122,6 +125,8 @@ public:
 						mState = State::HIDEMTL;
 					} else if (nxCore::str_eq(pSymName, "lsmtl")) {
 						mState = State::LSMTL;
+					} else if (nxCore::str_eq(pSymName, "camcolli")) {
+						mState = State::CAMCOLLI;
 					} else {
 						nxCore::dbg_msg("Unrecoginized command\n");
 						contFlg = false;
@@ -171,7 +176,7 @@ public:
 						if (pObjName) {
 							ScnObj* pObj = Scene::find_obj(pObjName);
 							if (pObj) {
-								const char* pVal = get_str_param(mParamToks[1]);
+								pVal = get_str_param(mParamToks[1]);
 								if (pVal) {
 									if (nxCore::str_eq(pVal, "on")) {
 										pObj->mDisableDraw = true;
@@ -211,7 +216,7 @@ public:
 							}
 							if (pMtlName) {
 								bool hide = false;
-								const char* pVal = get_str_param(mParamToks[2]);
+								pVal = get_str_param(mParamToks[2]);
 								if (pVal) {
 									if (nxCore::str_eq(pVal, "on")) {
 										hide = true;
@@ -251,6 +256,23 @@ public:
 					contFlg = false;
 				}
 				break;
+			case State::CAMCOLLI:
+				pVal = get_str_param(tok);
+
+				if (pVal) {
+					if (nxCore::str_eq(pVal, "on")) {
+						Camera::enable_collision(true);
+						mState = State::START;
+					} else if (nxCore::str_eq(pVal, "off")) {
+						Camera::enable_collision(false);
+						mState = State::START;
+					} else {
+						nxCore::dbg_msg("Error parsing parameter for command camcolli: the value should be on/off. '%s' was provded\n", pVal);
+						contFlg = false;
+					}
+				}
+				break;
+
 			default:
 				contFlg = false;
 		}

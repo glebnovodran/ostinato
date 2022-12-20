@@ -42,6 +42,7 @@ struct ViewWk {
 	int mLastPolId;
 	int mCnt;
 	Camera::PosMode mPosMode;
+	bool mColliEnabled;
 
 	void init() {
 		mRadius = 0.5f;
@@ -61,6 +62,7 @@ struct ViewWk {
 		mLastPolId = -1;
 		mCnt = 0;
 		mPosMode = Camera::NORMAL;
+		mColliEnabled = true;
 	}
 
 	void set_collision(sxCollisionData* pCol) {
@@ -68,6 +70,10 @@ struct ViewWk {
 	}
 
 	sxCollisionData* get_collision() { return mpCol; }
+
+	void enable_collision(bool val) {
+		mColliEnabled = val;
+	}
 
 	void mouse_update(const OGLSysInput* pInp) {
 		if (mPosMode == Camera::MOUSE) {
@@ -198,19 +204,22 @@ struct ViewWk {
 				up = mTrackball.calc_up();
 			}
 		}
-
-		sxCollisionData* pCol = get_collision();
-		if (pCol) {
-			sxCollisionData::NearestHit stgHit = pCol->nearest_hit(cxLineSeg(mTgt, mPos));
-			if (stgHit.count > 0) {
-				if (mPosMode == Camera::NORMAL) {
-					mPos = stgHit.pos;
-					if (nxVec::dist(mPos, mTgt) < 2.0f) {
-						mPos.y += 1.7f;
+		if (mColliEnabled) {
+			sxCollisionData* pCol = get_collision();
+			if (pCol) {
+				sxCollisionData::NearestHit stgHit = pCol->nearest_hit(cxLineSeg(mTgt, mPos));
+				if (stgHit.count > 0) {
+					if (mPosMode == Camera::NORMAL) {
+						mPos = stgHit.pos;
+						if (nxVec::dist(mPos, mTgt) < 2.0f) {
+							mPos.y += 1.7f;
+						}
+						Scene::set_view(mPos, mTgt, up);
+					} else {
+						Scene::set_view(stgHit.pos, mTgt, up);
 					}
-					Scene::set_view(mPos, mTgt, up);
 				} else {
-					Scene::set_view(stgHit.pos, mTgt, up);
+					Scene::set_view(mPos, mTgt, up);
 				}
 			} else {
 				Scene::set_view(mPos, mTgt, up);
@@ -247,5 +256,9 @@ void set_collision(sxCollisionData* pCol) {
 }
 
 sxCollisionData* get_collision() { return s_viewWk.get_collision(); }
+
+void enable_collision(bool val) {
+	s_viewWk.enable_collision(val);
+}
 
 } // Camera
