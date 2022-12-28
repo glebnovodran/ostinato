@@ -8,6 +8,12 @@
 #include "timectrl.hpp"
 #include "human.hpp"
 
+namespace HumanSys {
+
+bool obj_adjustment_enabled();
+
+} // HumanSys
+
 #define BEH_ENTRY(_act, _param) { #_act, #_param, offsetof(Human::Behavior, _act._param) }
 
 static struct {
@@ -249,14 +255,14 @@ void Human::ground_adj() {
 	pObj->set_skel_root_local_ty(y);
 }
 
-void Human::exec_collision(const bool objAdj) {
+void Human::exec_collision() {
 	if (!mpObj) return;
 	bool objTouchOngoing = mObjTouchCount > 0;
 	bool wallTouchOngoing = mWallTouchCount > 0;
 
 	ground_adj();
 
-	if (objAdj) {
+	if (HumanSys::obj_adjustment_enabled()) {
 		obj_adj();
 	}
 
@@ -377,9 +383,14 @@ static struct HumanWk {
 		init_transient();
 	}
 
+	bool obj_adjustment_enabled() const {
+		return mObjAdjEnabled;
+	}
+	
 	void enable_obj_adj(bool enable) {
 		mObjAdjEnabled = enable;
 	}
+
 	void reset() {}
 } s_wk = {};
 
@@ -446,7 +457,7 @@ static void human_del_func(ScnObj* pObj) {
 static void human_before_blend_func(ScnObj* pObj) {
 	Human* pHuman = as_human(pObj);
 	if (!pHuman) return;
-	pHuman->exec_collision(s_wk.mObjAdjEnabled);
+	pHuman->exec_collision();
 	pHuman->mRig.exec();
 }
 
@@ -624,6 +635,10 @@ void modify_behavior(const char* pCharName, const char* pActName, const char* pC
 			}
 		}
 	}
+}
+
+bool obj_adjustment_enabled() {
+	return s_wk.obj_adjustment_enabled();
 }
 
 void enable_obj_adj(bool enable) {

@@ -161,7 +161,7 @@ struct Human {
 	void obj_adj();
 	void wall_adj();
 	void ground_adj();
-	void exec_collision(const bool objAdji);
+	void exec_collision();
 
 	const char* get_name() const { return mpObj ? mpObj->mpName : nullptr; }
 	void mark() {
@@ -190,6 +190,8 @@ namespace HumanSys {
 
 	void set_collision(sxCollisionData* pCol);
 	sxCollisionData* get_collision();
+
+	bool obj_adjustment_enabled();
 	void enable_obj_adj(bool enable);
 
 	void mark(const char* pName);
