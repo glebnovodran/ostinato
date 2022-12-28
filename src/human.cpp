@@ -135,8 +135,10 @@ void Human::ctrl() {
 	}
 	if (mCtrlFunc) { mCtrlFunc(this); }
 }
+
 static bool human_obj_adj_for_each(ScnObj* pObj, void* pHumanMem) {
 	if (!pObj) return true;
+
 	Human* pHuman = (Human*)pHumanMem;
 	if (pHuman->mpObj == pObj) return true;
 	float rchar = pHuman->mpObj->mObjAdjRadius;
@@ -151,6 +153,7 @@ static bool human_obj_adj_for_each(ScnObj* pObj, void* pHumanMem) {
 	opos.y += pHuman->mpObj->mObjAdjYOffs;
 	objPos.y += pObj->mObjAdjYOffs;
 	cxVec adjPos = npos;
+
 	bool adjFlg = Scene::sph_sph_adj(npos, opos, rchar, objPos, robj, &adjPos);
 	if (adjFlg) {
 		sxCollisionData* pCol = HumanSys::get_collision();
@@ -167,6 +170,7 @@ static bool human_obj_adj_for_each(ScnObj* pObj, void* pHumanMem) {
 			++pHuman->mObjAdjCount;
 		}
 	}
+
 	return true;
 }
 
@@ -245,12 +249,17 @@ void Human::ground_adj() {
 	pObj->set_skel_root_local_ty(y);
 }
 
-void Human::exec_collision() {
+void Human::exec_collision(const bool objAdj) {
 	if (!mpObj) return;
 	bool objTouchOngoing = mObjTouchCount > 0;
 	bool wallTouchOngoing = mWallTouchCount > 0;
+
 	ground_adj();
-	obj_adj();
+
+	if (objAdj) {
+		obj_adj();
+	}
+
 	wall_adj();
 
 	if (mObjTouchCount > 0) {
@@ -297,7 +306,7 @@ static struct HumanWk {
 	int mCount;
 	bool mFixedFreq;
 	bool mLowQ;
-
+	bool mObjAdjEnabled;
 
 	Pkg* get_base_pkg(const Human::Type type) {
 		Pkg* pBasePkg = nullptr;
@@ -345,11 +354,7 @@ static struct HumanWk {
 			mResident.mBasePkg[i] = Scene::load_pkg(buff);
 		}
 		mResident.mPlr[Human::FEMALE] = Scene::load_pkg("traveller");
-#if 1
 		mResident.mPlr[Human::MALE] = Scene::load_pkg("wanderer");
-#else
-		mResident.mPlr[Human::MALE] = nullptr;
-#endif
 	}
 
 	void init_transient() {
@@ -366,9 +371,14 @@ static struct HumanWk {
 	void init() {
 		mFixedFreq = nxApp::get_bool_opt("fixfreq", false);
 		mLowQ = nxApp::get_bool_opt("lowq", false);
+		enable_obj_adj(nxApp::get_bool_opt("objadj", true));
 		mCount = 0;
 		init_resident();
 		init_transient();
+	}
+
+	void enable_obj_adj(bool enable) {
+		mObjAdjEnabled = enable;
 	}
 	void reset() {}
 } s_wk = {};
@@ -436,7 +446,7 @@ static void human_del_func(ScnObj* pObj) {
 static void human_before_blend_func(ScnObj* pObj) {
 	Human* pHuman = as_human(pObj);
 	if (!pHuman) return;
-	pHuman->exec_collision();
+	pHuman->exec_collision(s_wk.mObjAdjEnabled);
 	pHuman->mRig.exec();
 }
 
@@ -614,6 +624,10 @@ void modify_behavior(const char* pCharName, const char* pActName, const char* pC
 			}
 		}
 	}
+}
+
+void enable_obj_adj(bool enable) {
+	s_wk.enable_obj_adj(enable);
 }
 
 } // HumanSys
