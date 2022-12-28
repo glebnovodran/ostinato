@@ -25,4 +25,4 @@ bool was_active(const int id);
 bool triggered(const int id);
 bool changed(const int id);
 
-}
+} // Keyboard
