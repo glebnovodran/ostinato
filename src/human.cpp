@@ -8,12 +8,6 @@
 #include "timectrl.hpp"
 #include "human.hpp"
 
-namespace HumanSys {
-
-bool obj_adjustment_enabled();
-
-} // HumanSys
-
 #define BEH_ENTRY(_act, _param) { #_act, #_param, offsetof(Human::Behavior, _act._param) }
 
 static struct {
