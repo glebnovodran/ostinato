@@ -69,14 +69,21 @@ float get_axis_val(const uint32_t  axis) {
 }
 
 float get_axis_old_val(const uint32_t  axis) {
-	int val = Joystick::get_axis_val(axis);
+	int val = Joystick::get_axis_old_val(axis);
 	return nxCalc::fit(float(val), -32767.0f, 32767.0f, -1.0f, 1.0f);
 }
 
-xt_float2 get_stick_values(const uint32_t stick) {
+xt_float2 get_stick_vals(const uint32_t stick) {
 	xt_float2 res;
 	res.x = get_axis_val(stick * 2);
 	res.y = get_axis_val(stick * 2 + 1);
+	return res;
+}
+
+xt_float2 get_stick_old_vals(const uint32_t stick) {
+	xt_float2 res;
+	res.x = get_axis_old_val(stick * 2);
+	res.y = get_axis_old_val(stick * 2 + 1);
 	return res;
 }
 

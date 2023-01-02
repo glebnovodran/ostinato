@@ -105,7 +105,7 @@ struct ViewWk {
 
 	void joystick_update() {
 		if (mPosMode == Camera::STICK) {
-			xt_float2 val = InputCtrl::get_stick_values(1);
+			xt_float2 val = InputCtrl::get_stick_vals(1);
 			val.scl(XD_DEG2RAD(1.0f));
 
 			mStickPhi -= val.x;

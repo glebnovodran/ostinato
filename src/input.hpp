@@ -38,6 +38,7 @@ bool changed(const int id);
 float get_axis_val(const uint32_t axis);
 float get_axis_old_val(const uint32_t axis);
 
-xt_float2 get_stick_values(const uint32_t stick);
+xt_float2 get_stick_vals(const uint32_t stick);
+xt_float2 get_stick_old_vals(const uint32_t stick);
 
 } // InputCtrl
