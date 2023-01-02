@@ -7,6 +7,8 @@ void init();
 void update();
 void reset();
 
+bool active();
+
 uint32_t get_num_axis();
 uint32_t get_num_buttons();
 

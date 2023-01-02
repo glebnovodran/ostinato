@@ -50,6 +50,10 @@ struct JoystickCtrl {
 
 	JoystickCtrl() : mpAxisVal(nullptr), mNow(0ULL), mOld(0ULL), mFd(-1), mBtnMapIoctl(-1), mNumAxis(0), mNumBtns(0), mDbgEcho(false) {}
 
+	bool active() {
+		return mFd >= 0;
+	}
+
 	void init() {
 		const char* pJstDevOpt = nxApp::get_opt("jst_dev");
 		mDbgEcho = nxApp::get_bool_opt("jst_echo", false);
@@ -145,6 +149,7 @@ struct JoystickCtrl {
 	void init() {}
 	void update() {}
 	void reset() {}
+	bool active() { return false; }
 #endif
 
 } s_JtkCtrl;
@@ -159,6 +164,10 @@ void update() {
 }
 void reset() {
 	s_JtkCtrl.reset();
+}
+
+bool active() {
+	return s_JtkCtrl.active();
 }
 
 #if defined(XD_SYS_LINUX)

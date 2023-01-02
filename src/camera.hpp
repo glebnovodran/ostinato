@@ -16,9 +16,7 @@ struct Context {
 	uint32_t mTgtMode;
 	PosMode mPosMode;
 
-	void next_pos_mode() {
-		mPosMode = PosMode((uint32_t(mPosMode)+1) % uint32_t(NUM_MODES));
-	}
+	void next_pos_mode();
 };
 
 void init();

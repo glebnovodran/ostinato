@@ -34,6 +34,8 @@ bool was_active(const int id);
 bool triggered(const int id);
 bool changed(const int id);
 
+bool joystick_active();
+
 // range [-1, 1]
 float get_axis_val(const uint32_t axis);
 float get_axis_old_val(const uint32_t axis);

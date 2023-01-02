@@ -241,6 +241,13 @@ static void input_handler(const OGLSysInput& inp, void* pWk) {
 
 namespace Camera {
 
+void Context::next_pos_mode() {
+	mPosMode = Camera::PosMode((uint32_t(mPosMode)+1) % uint32_t(Camera::PosMode::NUM_MODES));
+	if ((mPosMode == Camera::STICK) && !InputCtrl::joystick_active()) {
+		next_pos_mode();
+	}
+}
+
 void init() {
 	s_viewWk.init();
 	OGLSys::set_input_handler(input_handler, &s_viewWk);

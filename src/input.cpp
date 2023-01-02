@@ -63,6 +63,10 @@ bool triggered(const int id){ return s_wk.state[id].triggered; }
 
 bool changed(const int id){ return s_wk.state[id].changed; }
 
+bool joystick_active() {
+	return Joystick::active();
+}
+
 float get_axis_val(const uint32_t  axis) {
 	int val = Joystick::get_axis_val(axis);
 	return nxCalc::fit(float(val), -32767.0f, 32767.0f, -1.0f, 1.0f);
