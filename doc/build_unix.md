@@ -12,13 +12,21 @@ The build depends on [crosscore](https://github.com/schaban/crosscore_dev) libra
 Also, the build depends on OGL/EGL/GLES header files. If not present, they are downloaded by the build script too.
 
 Some systems may not have some necessary tools/libraries preinstalled.
-For RPi OS the C++ compiler toolchain should be installed
+For RPi OS the C++ compiler toolchain should be installed.
 
 `sudo apt install build-essential`
 
 along with X11 developnment headers
 
 `sudo apt install libx11-dev`
+
+On Fedora Linux C-compiler is preinstalled, but C++ is not, so it is necessary to execute
+
+`sudo dnf install g++`
+
+To install X11 developnment headers on Fedora execute
+
+`sudo dnf install libX11-devel`
 
 For FreeBSD and OpenBSD it is necessary to install _wget_:
 
