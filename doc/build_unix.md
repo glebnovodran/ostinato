@@ -43,8 +43,8 @@ By default Ostinato is built for debugging. To build an optimized version add `-
 
 ## OGL/GLES
 
-By defaul Ostinato is built for desktop. To build it for GLES it is necessary to set OGL_MODE environment variable value:
+By default Ostinato is built for desktop. To build it for GLES it is necessary to set OGL_MODE environment variable value:
 
 `OGL_MODE=GLES ./build.sh`
 
-**Note:** For a Raspberry Pi build GLES is selected automatically.
+**Note:** GLES is selected automatically for a Raspberry Pi build .
