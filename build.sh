@@ -241,6 +241,7 @@ case $SYS_NAME in
 	;;
 	SunOS)
 		CXX=${CXX:g++}
+	;;
 	*)
 		CXX=${CXX:-g++}
 		echo "Warning: unknown system \"$SYS_NAME\", using defaults."
