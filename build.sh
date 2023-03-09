@@ -239,6 +239,8 @@ case $SYS_NAME in
 	Darwin)
 		CXX=${CXX:-clang++}
 	;;
+	SunOS)
+		CXX=${CXX:g++}
 	*)
 		CXX=${CXX:-g++}
 		echo "Warning: unknown system \"$SYS_NAME\", using defaults."
@@ -269,7 +271,7 @@ else
 	$CXX -std=c++11 -pthread -ggdb -ffast-math -ftree-vectorize $DEFS $INCS $SRCS -o $EXE_PATH $LIBS $*
 fi
 
-echo -n "Build result: "
+printf "Build result: "
 if [ -f "$EXE_PATH" ]; then
 	printf "$BOLD_ON$GREEN_ON""Success""$FMT_OFF!"
 else
