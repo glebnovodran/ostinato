@@ -240,7 +240,7 @@ case $SYS_NAME in
 		CXX=${CXX:-clang++}
 	;;
 	SunOS)
-		CXX=${CXX:g++}
+		CXX=${CXX:-g++}
 	;;
 	*)
 		CXX=${CXX:-g++}
