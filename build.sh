@@ -8,6 +8,7 @@ RED_ON="\e[31m"
 GREEN_ON="\e[32m"
 YELLOW_ON="\e[33m"
 FMT_OFF="\e[0m"
+BLACK_BG_ON="\e[40m"
 
 SYS_NAME="`uname -s`"
 
@@ -18,6 +19,7 @@ if [ $SYS_NAME = Darwin ] || [ $SYS_NAME = FreeBSD ]; then
 	GREEN_ON=""
 	YELLOW_ON=""
 	FMT_OFF=""
+	BLACK_BG_ON=""
 fi
 
 
@@ -256,7 +258,7 @@ case $OGL_MODE in
 	;;
 esac
 
-printf "Compiling \"$BOLD_ON$YELLOW_ON$UNDER_ON$EXE_PATH$FMT_OFF\" for $BOLD_ON$SYS_NAME$FMT_OFF with $BOLD_ON$CXX$FMT_OFF.\n"
+printf "Compiling \"$BLACK_BG_ON$BOLD_ON$YELLOW_ON$UNDER_ON$EXE_PATH$FMT_OFF\" for $BOLD_ON$SYS_NAME$FMT_OFF with $BOLD_ON$CXX$FMT_OFF.\n"
 printf "OGL mode: $BOLD_ON$OGL_MODE$FMT_OFF.\n"
 rm -f $EXE_PATH
 
