@@ -243,6 +243,7 @@ case $SYS_NAME in
 	;;
 	SunOS)
 		CXX=${CXX:-g++}
+		LIBS="$LIBS -static-libgcc -static-libstdc++"
 	;;
 	*)
 		CXX=${CXX:-g++}
