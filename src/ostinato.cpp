@@ -730,7 +730,8 @@ static void init_sensors() {
 			opts.c_cflag |= (CLOCAL | CREAD);
 			::tcsetattr(s_globals.sensors.fid, TCSANOW, &opts);
 			nxCore::dbg_msg("Ostinato: sensors port open @ %s\n", pSensPath);
-
+		} else {
+			nxCore::dbg_msg("Ostinato: CAN'T open sensors port @ %s\n", pSensPath);
 		}
 	}
 #endif
@@ -750,7 +751,11 @@ static void init_cmd_pipe() {
 	s_globals.cmdPipe.fid = -1;
 #if defined(OSTINATO_PIPES_AVAILABLE) && defined(OSTINATO_USE_PIPES)
 	s_globals.cmdPipe.fid = ::open("ostinato_cmd", O_RDONLY | O_NONBLOCK);
-	nxCore::dbg_msg("******* pipe %d *******\n", s_globals.cmdPipe.fid);
+	if (s_globals.cmdPipe.fid >= 0) {
+		nxCore::dbg_msg("******* pipe %d *******\n", s_globals.cmdPipe.fid);
+	} else {
+		nxCore::dbg_msg("******* no command pipe *******\n");
+	}
 	s_globals.mEchoPipe = nxApp::get_bool_opt("echopipe", false);
 #endif
 }
