@@ -213,7 +213,7 @@ static void loop(void* pLoopCtx) {
 	TimeCtrl::exec();
 	InputCtrl::update();
 	Ostinato::update_cmd_pipe();
-	Ostinato::update_sensors();
+	Ostinato::update_io_gateway();
 	Ostinato::set_default_lighting();
 	PrimFX::begin();
 	scene_exec();

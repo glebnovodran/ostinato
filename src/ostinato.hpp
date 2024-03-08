@@ -11,7 +11,7 @@ namespace Ostinato {
 	int get_def_width();
 	int get_def_height();
 
-	void update_sensors();
+	void update_io_gateway();
 	void update_cmd_pipe();
 
 	void set_default_lighting();

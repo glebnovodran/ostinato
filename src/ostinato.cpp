@@ -16,7 +16,7 @@
 #	include "mac_ifc.h"
 #endif
 
-#undef OSTINATO_SENSORS
+#undef OSTINATO_IO_GATEWAY
 #undef OSTINATO_PIPES_AVAILABLE
 
 #if defined(XD_SYS_LINUX) || defined(XD_SYS_BSD) || defined(OGLSYS_MACOS)
@@ -26,7 +26,7 @@
 #	if defined(XD_SYS_BSD)
 #		include <sys/select.h>
 #	endif
-#	define OSTINATO_SENSORS
+#	define OSTINATO_IO_GATEWAY
 #	define OSTINATO_PIPES_AVAILABLE
 #else 
 #	undef OSTINATO_USE_PIPES
@@ -288,12 +288,12 @@ static struct OstinatoGlobals {
 	float lampsBrightness;
 	float ccBrightness;
 
-	struct Sensors {
+	struct IOGateway {
 		int fid;
 		struct Values {
 			int32_t light;
 		} vals;
-	} sensors;
+	} iogateway;
 
 	struct CmdPipe {
 		int32_t fid;
@@ -715,36 +715,36 @@ static void reset_bundle() {
 	}
 }
 
-static void init_sensors() {
-	s_globals.sensors.fid = -1;
-	s_globals.sensors.vals.light = -1;
-#ifdef OSTINATO_SENSORS
-	const char* pSensPath = nxApp::get_opt("sensors");
-	if (pSensPath) {
-		s_globals.sensors.fid = ::open(pSensPath, O_SYNC);
-		if (s_globals.sensors.fid >= 0) {
+static void init_io_gateway() {
+	s_globals.iogateway.fid = -1;
+	s_globals.iogateway.vals.light = -1;
+#ifdef OSTINATO_IO_GATEWAY
+	const char* pIOGatewayPath = nxApp::get_opt("io_gateway");
+	if (pIOGatewayPath) {
+		s_globals.iogateway.fid = ::open(pIOGatewayPath, O_SYNC);
+		if (s_globals.iogateway.fid >= 0) {
 			struct termios opts;
-			::tcgetattr(s_globals.sensors.fid, &opts);
+			::tcgetattr(s_globals.iogateway.fid, &opts);
 			::cfsetispeed(&opts, B115200);
 			::cfsetospeed(&opts, B115200);
 			opts.c_cflag |= (CLOCAL | CREAD);
-			::tcsetattr(s_globals.sensors.fid, TCSANOW, &opts);
-			nxCore::dbg_msg("Ostinato: sensors port open @ %s\n", pSensPath);
+			::tcsetattr(s_globals.iogateway.fid, TCSANOW, &opts);
+			nxCore::dbg_msg("Ostinato: IO gateway port open @ %s\n", pIOGatewayPath);
 		} else {
-			nxCore::dbg_msg("Ostinato: CAN'T open sensors port @ %s\n", pSensPath);
+			nxCore::dbg_msg("Ostinato: CAN'T open IO gateway port @ %s\n", pIOGatewayPath);
 		}
 	}
 #endif
 }
 
-static void reset_sensors() {
-#ifdef OSTINATO_SENSORS
-	int fid = s_globals.sensors.fid;
+static void reset_io_gateway() {
+#ifdef OSTINATO_IO_GATEWAY
+	int fid = s_globals.iogateway.fid;
 	if (fid >= 0) {
 		::close(fid);
 	}
 #endif
-	s_globals.sensors.fid = -1;
+	s_globals.iogateway.fid = -1;
 }
 
 static void init_cmd_pipe() {
@@ -898,7 +898,7 @@ void init(int argc, char* argv[]) {
 
 	init_ogl(x, y, w, h, msaa);
 
-	init_sensors();
+	init_io_gateway();
 	init_cmd_pipe();
 	init_scn_sys(argv[0]);
 }
@@ -906,7 +906,7 @@ void init(int argc, char* argv[]) {
 void reset() {
 	Scene::reset();
 	reset_ogl();
-	reset_sensors();
+	reset_io_gateway();
 	reset_cmd_pipe();
 	nxApp::reset();
 	reset_bundle();
@@ -966,7 +966,7 @@ void set_default_lighting() {
 
  	s_globals.lampsBrightness = 0.0f;
 
-	int32_t lval = s_globals.sensors.vals.light;
+	int32_t lval = s_globals.iogateway.vals.light;
 	if (lval >= 0 && lval <= 1023) {
 		float val = float(lval) / 1023.0f;
 		const float sunLim = 0.75f;
@@ -1012,9 +1012,9 @@ void set_cam_tgt(const char* pName) {
 	s_globals.pTgtObj = Scene::find_obj(pName);
 }
 
-void update_sensors() {
-#ifdef OSTINATO_SENSORS
-	int fid = s_globals.sensors.fid;
+void update_io_gateway() {
+#ifdef OSTINATO_IO_GATEWAY
+	int fid = s_globals.iogateway.fid;
 	if (fid >= 0) {
 		fd_set fds;
 		FD_ZERO(&fds);
@@ -1041,7 +1041,7 @@ void update_sensors() {
 			if (valIdx > 0) {
 				val = ::atoi(inBuf);
 				//nxCore::dbg_msg("%d, ", val);
-				s_globals.sensors.vals.light = val;
+				s_globals.iogateway.vals.light = val;
 			}
 		}
 	}
