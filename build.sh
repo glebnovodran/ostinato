@@ -245,6 +245,11 @@ case $SYS_NAME in
 		CXX=${CXX:-g++}
 		LIBS="$LIBS -static-libgcc -static-libstdc++"
 	;;
+	CYGWIN*)
+		CXX=${CXX:-g++}
+		DEFS=""
+		LIBS="-lgdi32"
+	;;
 	*)
 		CXX=${CXX:-g++}
 		echo "Warning: unknown system \"$SYS_NAME\", using defaults."
