@@ -14,22 +14,24 @@ Also, the build depends on OGL/EGL/GLES header files. If not present, they are d
 
 Some systems may not have some necessary tools/libraries pre-installed:
 
-##### **_C++ compiler toolchain_**
+#### **_C++ compiler toolchain_**
 
-Ubintu-style distribuntions, RPi OS:
+***Ubintu***-style distribuntions, RPi OS:
 `sudo apt install build-essential`
 
-Fedora Linux has C-compiler preinstalled, but C++ is not, so it is necessary to execute:
+***Fedora Linux*** has C-compiler preinstalled, so it is necessary to just install C++ compiler:
 `sudo dnf install g++`
 
-##### **_X11 development headers_**
+Under **Cygwin** make sure the following packages are installed in addition to the standard set: wget, gcc, gcc-g++.
+
+#### **_X11 development headers_**
 Ubintu-style distribuntions, RPi OS:
 `sudo apt install libx11-dev`
 
 Fedora:
 `sudo dnf install libX11-devel`
 
-##### **_wget_**
+#### **_wget_**
 For FreeBSD and OpenBSD it is necessary to install **_wget_**:
 
 OpenBSD: `pkg_add git wget`
