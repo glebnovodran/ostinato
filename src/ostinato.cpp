@@ -840,6 +840,18 @@ static void init_scn_sys(const char* pAppPath) {
 
 namespace Ostinato {
 
+int exe_info(const char* pWhich) {
+	int res = -1;
+	if (nxCore::str_eq(pWhich, "pipes")) {
+#if defined(OSTINATO_PIPES_AVAILABLE) && defined(OSTINATO_USE_PIPES)
+			res = 1;
+#else
+		res = 0;
+#endif
+	}
+	return res;
+}
+
 void init(int argc, char* argv[]) {
 #ifndef OGLSYS_MACOS
 	nxApp::init_params(argc, argv);

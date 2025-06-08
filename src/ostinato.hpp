@@ -3,6 +3,8 @@
 
 namespace Ostinato {
 
+	int exe_info(const char* pWhich);
+
 	void init(int argc, char* argv[]);
 	void reset();
 

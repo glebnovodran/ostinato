@@ -102,6 +102,9 @@ static void exec_demo() {
 }
 
 int main(int argc, char* argv[]) {
+	if (3 == argc && nxCore::str_eq(argv[1], "exeinfo")) {
+		return Ostinato::exe_info(argv[2]);
+	}
 	Ostinato::init(argc, argv);
 	exec_demo();
 	Ostinato::reset();
