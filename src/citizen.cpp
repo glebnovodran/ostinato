@@ -101,6 +101,12 @@ void roam_ctrl(Human* pHuman) {
 				pHuman->change_act(Human::ACT_STAND, t);
 			}
 			break;
+		case Human::ACT_TALK:
+			if (pHuman->mActionTimer.check_time_out()) {
+				float t = nxCalc::fit(Scene::glb_rng_f01(), 0.0f, 1.0f, 0.75f, 2.8f);
+				pHuman->change_act(Human::ACT_STAND, t);
+			}
+			break;
 	}
 }
 

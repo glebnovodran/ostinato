@@ -54,6 +54,7 @@ struct Human {
 		sxMotionData* pWalk;
 		sxMotionData* pRetreat;
 		sxMotionData* pRun;
+		sxMotionData* pTalk;
 
 		void init(const Pkg* pPkg, const Pkg* pBasePkg = nullptr);
 	};
@@ -64,7 +65,8 @@ struct Human {
 		ACT_TURN_R,
 		ACT_WALK,
 		ACT_RETREAT,
-		ACT_RUN
+		ACT_RUN,
+		ACT_TALK
 	};
 	struct ActionTimer {
 		double mStartTime;
@@ -146,6 +148,7 @@ struct Human {
 			case ACT_WALK: pMot = mMotLib.pWalk; break;
 			case ACT_RETREAT: pMot = mMotLib.pRetreat; break;
 			case ACT_RUN: pMot = mMotLib.pRun; break;
+			case ACT_TALK: pMot = mMotLib.pTalk; break;
 			default: break;
 		}
 		set_motion(pMot);

@@ -64,7 +64,8 @@ void Human::MotLib::init(const Pkg* pPkg, const Pkg* pBasePkg) {
 		{ &pTurnR, "turn_r" },
 		{ &pWalk, "walk" },
 		{ &pRetreat, "retreat" },
-		{ &pRun, "run" }
+		{ &pRun, "run" },
+		{ &pTalk, "talk"}
 	};
 	for (size_t i = 0; i < XD_ARY_LEN(tbl); ++i) {
 		*tbl[i].ppMot = pPkg ? pPkg->find_motion(tbl[i].pName) : nullptr;
