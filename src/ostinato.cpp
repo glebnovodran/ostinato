@@ -267,7 +267,7 @@ public:
 						Camera::enable_collision(false);
 						mState = State::START;
 					} else {
-						nxCore::dbg_msg("Error parsing parameter for command camcolli: the value should be on/off. '%s' was provded\n", pVal);
+						nxCore::dbg_msg("Error parsing parameter for command camcolli: the value should be on/off. '%s' was provided\n", pVal);
 						contFlg = false;
 					}
 				}
