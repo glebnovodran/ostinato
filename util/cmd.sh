@@ -32,7 +32,7 @@ fi
 while :; do
 	printf "\e[90mcmd>\e[0m "
 	read CMD
-	if [[ "$CMD" == "quit" ]]; then
+	if [ "$CMD" = "quit" ]; then
 		break
  	fi
 	if [ -n "CMD" ]; then
