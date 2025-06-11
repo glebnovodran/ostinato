@@ -19,11 +19,11 @@
 #undef OSTINATO_IO_GATEWAY
 #undef OSTINATO_PIPES_AVAILABLE
 
-#if defined(XD_SYS_LINUX) || defined(XD_SYS_BSD) || defined(OGLSYS_MACOS)
+#if defined(XD_SYS_LINUX) || defined(XD_SYS_BSD) || defined(OGLSYS_MACOS) || defined(__CYGWIN__)
 #	include <termios.h>
 #	include <fcntl.h>
 #	include <unistd.h>
-#	if defined(XD_SYS_BSD)
+#	if defined(XD_SYS_BSD) || defined(__CYGWIN__)
 #		include <sys/select.h>
 #	endif
 #	define OSTINATO_IO_GATEWAY
