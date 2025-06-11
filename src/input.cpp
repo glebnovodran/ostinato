@@ -17,7 +17,16 @@ struct BtnState {
 };
 
 struct InputWk {
-	BtnState state[NUM_BUTTONS] = { {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0} };
+	BtnState state[NUM_BUTTONS] = { {false, false, false, false},
+									{false, false, false, false},
+									{false, false, false, false},
+									{false, false, false, false},
+									{false, false, false, false},
+									{false, false, false, false},
+									{false, false, false, false},
+									{false, false, false, false},
+									{false, false, false, false},
+									{false, false, false, false} };
 	int keymap[NUM_BUTTONS] = { 
 		Keyboard::UP,
 		Keyboard::DOWN,
