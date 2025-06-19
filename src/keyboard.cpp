@@ -26,7 +26,8 @@ static struct KeyboardCtrl {
 			int code;
 			const char* pName;
 		} tbl[] = {
-			{ UP, "W" }, { DOWN, "S" }, { LEFT, "A" }, { RIGHT, "D" }, {SPACE, " "}
+			{ UP, "W" }, { DOWN, "S" }, { LEFT, "A" }, { RIGHT, "D" },
+			{ SPACE, " " }, { LSHIFT, "RSHIFT" }
 		};
 		const char* pAltName = nullptr;
 		for (size_t i = 0; i < XD_ARY_LEN(tbl); ++i) {
