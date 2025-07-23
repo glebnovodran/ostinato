@@ -41,8 +41,12 @@ static const bool c_defBump = true;
 static const bool c_defSpec = true;
 static const bool c_defReduce = false;
 
-static bool print_obj_name(ScnObj* pObj, void* pMem) {
-	nxCore::dbg_msg("%s\n",pObj->mpName);
+static bool ls_eachobj(ScnObj* pObj, void* pMem) {
+	if (pObj) {
+		nxCore::dbg_msg("%s%s\n",
+		                pObj==Ostinato::get_cam_tgt_obj() ? " [8]< " : "      ",
+		                pObj->mpName);
+	}
 	return true;
 }
 
@@ -116,7 +120,7 @@ public:
 					} else if (nxCore::str_eq(pSymName, "unmark")) {
 						mState = State::UNMARK;
 					} else if (nxCore::str_eq(pSymName, "lsobj")) {
-						Scene::for_each_obj(print_obj_name, nullptr);
+						Scene::for_each_obj(ls_eachobj, nullptr);
 					} else if (nxCore::str_eq(pSymName, "hideobj")) {
 						mState = State::HIDEOBJ;
 					} else if (nxCore::str_eq(pSymName, "meminfo")) {
