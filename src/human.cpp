@@ -640,4 +640,28 @@ void enable_obj_adj(bool enable) {
 	s_wk.enable_obj_adj(enable);
 }
 
+Human::Action get_act_by_name(const char* pActName) {
+	static struct {
+		Human::Action act;
+		const char* pName;
+	} actMap[] = {
+		{ Human::ACT_STAND, "stand" },
+		{ Human::ACT_TURN_L, "turn_l" },
+		{ Human::ACT_TURN_R, "turn_r" },
+		{ Human::ACT_WALK, "walk" },
+		{ Human::ACT_RETREAT, "retreat" },
+		{ Human::ACT_RUN, "run" },
+		{ Human::ACT_TALK, "talk" }
+	};
+
+	Human::Action act = Human::ACT_STAND;
+	for (size_t i = 0; i < XD_ARY_LEN(actMap); i++) {
+		if (nxCore::str_eq(pActName, actMap[i].pName)) {
+			act = actMap[i].act;
+			break;
+		}
+	}
+	return act;
+}
+
 } // HumanSys

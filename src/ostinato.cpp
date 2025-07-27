@@ -1025,7 +1025,12 @@ ScnObj* get_cam_tgt_obj() {
 }
 
 void set_cam_tgt(const char* pName) {
-	s_globals.pTgtObj = Scene::find_obj(pName);
+	ScnObj* pObj = Scene::find_obj(pName);
+	if (HumanSys::obj_is_human(pObj)) {
+		s_globals.pTgtObj = pObj;
+	} else {
+		nxCore::dbg_msg("set_cam_tgt: %s is not among numan beings....\n", pName);
+	}
 }
 
 void update_io_gateway() {
