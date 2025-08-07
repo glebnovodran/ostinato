@@ -61,12 +61,15 @@ private:
 		HIDEMTL,
 		LSMTL,
 		CAMCOLLI,
+		ACT_CHR,
+		ACT_ID,
 		NUM_STATE
 	};
 
 	cxXqcLexer::Token mParamToks[8];
 	cxStrStore* mpStrStore;
 
+	ScnObj* mpArgObj;
 	State mState;
 	uint32_t mParamCursor;
 
@@ -131,6 +134,8 @@ public:
 						mState = State::LSMTL;
 					} else if (nxCore::str_eq(pSymName, "camcolli")) {
 						mState = State::CAMCOLLI;
+					} else if (nxCore::str_eq(pSymName, "act")) {
+						mState = State::ACT_CHR;
 					} else {
 						nxCore::dbg_msg("Unrecoginized command\n");
 						contFlg = false;
@@ -276,6 +281,32 @@ public:
 					}
 				}
 				break;
+			case State::ACT_CHR:
+				pName = get_str_param(tok);
+				if (pName) {
+					mpArgObj = Scene::find_obj(pName);
+					if (mpArgObj) {
+						 mState = State::ACT_ID;
+					} else {
+						contFlg = false;
+					}
+				} else {
+					contFlg = false;
+				}
+				break;
+			case State::ACT_ID:
+				pName = get_str_param(tok);
+				if (pName) {
+					Human::Action actId = HumanSys::get_act_by_name(pName);
+					Human* pHuman = HumanSys::as_human(mpArgObj);
+					if (pHuman) {
+						pHuman->change_act(actId, 10.0f);
+					}
+				} else {
+					contFlg = false;
+				}
+				break;
+
 
 			default:
 				contFlg = false;

@@ -654,7 +654,7 @@ Human::Action get_act_by_name(const char* pActName) {
 		{ Human::ACT_TALK, "talk" }
 	};
 
-	Human::Action act = Human::ACT_STAND;
+	Human::Action act = Human::ACT_INVALID;
 	for (size_t i = 0; i < XD_ARY_LEN(actMap); i++) {
 		if (nxCore::str_eq(pActName, actMap[i].pName)) {
 			act = actMap[i].act;

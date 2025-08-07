@@ -66,7 +66,8 @@ struct Human {
 		ACT_WALK,
 		ACT_RETREAT,
 		ACT_RUN,
-		ACT_TALK
+		ACT_TALK,
+		ACT_INVALID
 	};
 	struct ActionTimer {
 		double mStartTime;

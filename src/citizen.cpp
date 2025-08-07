@@ -107,6 +107,11 @@ void roam_ctrl(Human* pHuman) {
 				pHuman->change_act(Human::ACT_STAND, t);
 			}
 			break;
+		case Human::ACT_INVALID:
+			if (pHuman->mActionTimer.check_time_out()) {
+				pHuman->change_act(Human::ACT_STAND, 2.0f);
+			}
+			break;
 	}
 }
 
