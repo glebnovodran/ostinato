@@ -63,6 +63,7 @@ private:
 		CAMCOLLI,
 		ACT_CHR,
 		ACT_ID,
+		CHGTIME,
 		NUM_STATE
 	};
 
@@ -86,6 +87,15 @@ private:
 		if (tok.id == cxXqcLexer::TokId::TOK_INT) {
 			*pVal = tok.val.i;
 			res = true;
+		}
+		return res;
+	}
+	float get_num_param(const cxXqcLexer::Token& tok) {
+		float res = 0.0f;
+		if (tok.id == cxXqcLexer::TokId::TOK_FLOAT) {
+			res = tok.val.f;
+		} else if (tok.id == cxXqcLexer::TokId::TOK_INT) {
+			res = (float)tok.val.i;
 		}
 		return res;
 	}
@@ -136,6 +146,8 @@ public:
 						mState = State::CAMCOLLI;
 					} else if (nxCore::str_eq(pSymName, "act")) {
 						mState = State::ACT_CHR;
+					} else if (nxCore::str_eq(pSymName, "chgtime")) {
+						mState = State::CHGTIME;
 					} else {
 						nxCore::dbg_msg("Unrecoginized command\n");
 						contFlg = false;
@@ -306,7 +318,9 @@ public:
 					contFlg = false;
 				}
 				break;
-
+			case State::CHGTIME:
+				Ostinato::change_time_of_day(get_num_param(tok));
+				break;
 
 			default:
 				contFlg = false;
@@ -1049,6 +1063,10 @@ void set_default_lighting() {
 
 float get_lamps_brightness() {
 	return s_globals.lampsBrightness;
+}
+
+void change_time_of_day(const float t) {
+	s_globals.iogateway.vals.light = (int32_t)( (1.0f - nxCalc::saturate(t) ) * 1023.0f);
 }
 
 ScnObj* get_cam_tgt_obj() {

@@ -17,6 +17,7 @@ namespace Ostinato {
 	void update_cmd_pipe();
 
 	void set_default_lighting();
+	void change_time_of_day(const float t);
 	float get_lamps_brightness();
 
 	ScnObj* get_cam_tgt_obj();
