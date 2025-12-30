@@ -115,7 +115,7 @@ void roam_ctrl(Human* pHuman) {
 	}
 }
 
-ScnObj* add(const Human::Descr descr, const cxQuat& quat, const cxVec& pos) {
+ScnObj* add(const Human::Descr& descr, const cxQuat& quat, const cxVec& pos) {
 	ScnObj* pObj = HumanSys::add_human(descr, roam_ctrl);
 	if (pObj) {
 		pObj->set_world_quat_pos(nxQuat::from_degrees(0.0f, 0.0f, 0.0f), pos);
