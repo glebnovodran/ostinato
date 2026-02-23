@@ -198,6 +198,8 @@ namespace HumanSys {
 	bool obj_adjustment_enabled();
 	void enable_obj_adj(bool enable);
 
+	void place(const char* pName, const cxQuat& quat, const cxVec& pos);
+
 	void mark(const char* pName);
 	void unmark(const char* pName);
 

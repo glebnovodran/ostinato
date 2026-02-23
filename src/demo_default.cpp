@@ -136,15 +136,11 @@ static bool init_resources() {
 
 static void init_player() {
 	ScnObj* pPlr = Player::init();
-	if (pPlr) {
-		pPlr->set_world_quat_pos(nxQuat::from_degrees(0.0f, 0.0f, 0.0f), cxVec(34.5f, 0.0f, -19.0f));
-		s_demoWk.pPlayer = pPlr;
-		Ostinato::set_cam_tgt("Traveller");
-		ScnObj* pWanderer = Scene::find_obj("Wanderer");
-		if (pWanderer) {
-			pWanderer->set_world_quat_pos(nxQuat::from_degrees(0.0f, 48.0f, 0.0f), cxVec(47.35f, 0.0f, -61.676f));
-		}
-	}
+
+	HumanSys::place("Traveller", nxQuat::from_degrees(0.0f, 0.0f, 0.0f), cxVec(34.5f, 0.0f, -19.0f));
+	Ostinato::set_cam_tgt("Traveller");
+
+	HumanSys::place("Wanderer", nxQuat::from_degrees(0.0f, 48.0f, 0.0f), cxVec(47.35f, 0.0f, -61.676f));
 }
 
 void init_params() {

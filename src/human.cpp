@@ -640,6 +640,17 @@ void enable_obj_adj(bool enable) {
 	s_wk.enable_obj_adj(enable);
 }
 
+void place(const char* pName, const cxQuat& quat, const cxVec& pos) {
+	ScnObj* pHumanObj = Scene::find_obj(pName);
+
+	if (pHumanObj) {
+		pHumanObj->set_world_quat_pos(quat, pos);
+		HumanSys::as_human(pHumanObj)->ground_adj();
+	} else {
+		nxSys::dbgmsg("Could not find the object to place");
+	}
+}
+
 Human::Action get_act_by_name(const char* pActName) {
 	static struct {
 		Human::Action act;
