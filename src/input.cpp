@@ -30,9 +30,11 @@ struct InputWk {
 		Keyboard::ENTER,
 		Keyboard::SPACE
 	};
+	bool active;
 } s_wk;
 
 void init() {
+	s_wk.active = false;
 	Keyboard::init();
 	Joystick::init();
 }
@@ -42,6 +44,11 @@ void reset() {
 }
 
 void update() {
+	if (!s_wk.active) {
+		s_wk.active = true;
+		return;
+	}
+
 	Joystick::update();
 	Keyboard::update();
 	for (int i = 0; i < NUM_BUTTONS; ++i) {
