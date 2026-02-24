@@ -574,7 +574,7 @@ static bool init_bundle(uint8_t* pMem, size_t memSize, BundleWk* pBnd) {
 							size_t strsSize = pBnd->pInfos[0].offs - (8 + finfoSize);
 							offs += strsSize;
 							if (offs <= memSize) {
-								char* pPathsData = (char*)nxCore::mem_alloc(finfoSize, "Bnd.paths0");
+								char* pPathsData = (char*)nxCore::mem_alloc(strsSize, "Bnd.paths0");
 								if (pPathsData) {
 									nxCore::mem_copy(pPathsData, pCur, strsSize);
 									//pCur = XD_INCR_PTR(pMem, offs);
