@@ -73,7 +73,7 @@ static float mac_mouse_y(float y) {
 }
 
 void mac_mouse_down(int btn, float x, float y) {
-	OGLSys::send_mouse_up((OGLSysMouseState::BTN)btn, x, mac_mouse_y(y), false);
+	OGLSys::send_mouse_down((OGLSysMouseState::BTN)btn, x, mac_mouse_y(y), false);
 }
 
 void mac_mouse_up(int btn, float x, float y) {
