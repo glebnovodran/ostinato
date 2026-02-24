@@ -11,7 +11,7 @@
 #include "player.hpp"
 
 
-namespace Player {
+namespace PlayerSys {
 
 bool check_run_mode() {
 	return InputCtrl::now_active(InputCtrl::BTN_L2) || InputCtrl::now_active(InputCtrl::BTN_B);
@@ -158,4 +158,4 @@ ScnObj* init() {
 	return pPlr;
 }
 
-} // Player
+} // PlayerSys

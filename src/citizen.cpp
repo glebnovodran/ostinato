@@ -9,7 +9,7 @@
 #include "timectrl.hpp"
 #include "human.hpp"
 
-namespace Citizen {
+namespace CitizenSys {
 
 void roam_ctrl(Human* pHuman) {
 	if (!pHuman) return;
@@ -123,4 +123,4 @@ ScnObj* add(const Human::Descr& descr, const cxQuat& quat, const cxVec& pos) {
 	return pObj;
 }
 
-} // Citizen
+} // CitizenSys

@@ -122,7 +122,7 @@ static bool init_resources() {
 				}
 				descr.scale = 1.0f + heightMod;
 				float startY = nxCore::rng_f01() * 360.0f;
-				ScnObj* pObj = Citizen::add(descr, nxQuat::from_degrees(0.0f, startY, 0.0f), pos);
+				ScnObj* pObj = CitizenSys::add(descr, nxQuat::from_degrees(0.0f, startY, 0.0f), pos);
 
 				const char* pName = pObj->mpName != nullptr ? pObj->mpName: "Anonimous";
 				const char* pOccp = HumanSys::get_occupation(pObj->mpName);
@@ -135,7 +135,7 @@ static bool init_resources() {
 }
 
 static void init_player() {
-	ScnObj* pPlr = Player::init();
+	ScnObj* pPlr = PlayerSys::init();
 
 	HumanSys::place("Traveller", nxQuat::from_degrees(0.0f, 0.0f, 0.0f), cxVec(34.5f, 0.0f, -19.0f));
 	Ostinato::set_cam_tgt("Traveller");
