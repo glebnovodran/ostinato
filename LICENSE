@@ -1,6 +1,6 @@
-MIT License
+MIT License with AI Training Restrictions
 
-Copyright (c) 2022 Gleb Novodran
+Copyright (c) 2023-2026 Glib Novodran
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -11,6 +11,15 @@ furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
+
+ADDITIONAL RESTRICTION - AI TRAINING:
+
+You may not use this Software, in whole or in part, to train, fine-tune, or 
+develop any artificial intelligence system, including but not limited to:
+- Large language models (LLMs)
+- Code generation models
+- Machine learning models designed to process or generate code
+- Any commercial AI service that uses this code for model training
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
